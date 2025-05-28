@@ -1,9 +1,20 @@
 Note: This is still work in progress - docs are missing and existing api may change in the near future.
 
 # Form
-To create a form use the `respec.Form(spec, builder)` function.
+To create a form use:
+```lua
+respec.Form(specFunction, builderFunction)
+```
 
-`spec` must be a table in the following format:
+## State
+Forms have a concept of `state` - a lua table, that can be given to its `show()` function, and is also passed when creating the form, and to any event-handlers (e.g. button click listeners) where the state can be modified and will persist until the form is closed.
+
+## `specFunction`
+`specFunction` must be a either:
+- A simple `spec` table with the format shown below
+- A function that accepts the `state` object, `function(state)`. The function must return the `spec` table.
+
+`spec` table format:
  ```lua
  {
     w = 8, h = 9, 
@@ -55,26 +66,36 @@ To create a form use the `respec.Form(spec, builder)` function.
     -- "neither": Only if formspec_ver >= 3. No background color is drawn.
  }
 ```
-
-The `layoutBuilder` param must be function used to create the form's layout.
- It simply gets passed a `data` object which can be used to maintain information between re-showing the form. 
+## `layoutBuilder`
+The `layoutBuilder` param can be either:
+- A simple table
+- A function `function(state)` which gets passed the Form's `state`, and must return a table
  
- The function must return a list of elements (created via `respec.elements`)
+In both cases, the table must be a list of `respec.elements`
 
- For example:
+## Showing the Form
+Forms can be shown by calling their `:show(playerName, state)` function, where:
+- `playerName` is the player to whom you want to show the form.
+- `state` is optional, and should be a lua table which will then get passed to the applicable functions, as listed above.
+
+## Example
+Creating and immediately showing a formspec:
  ```lua
- function(data)
-  return {
-    respec.elements.Label(labelSpec),
-    respec.elements.Button(buttonSpec),
-  }
+  respec.Form({
+    formspec_version = 5,
+    margins = 0.25,
+  },
+  function(state) return {
+    respec.elements.Label { w = 3, h = 0.5, text = "Hello World!" },
+  } end):show()
  end
  ```
-
 
 # Layout
 
 A layout is the element that positions all other elements. Internally each Form creates its own Layout by default, which doesn't need to be managed or configured.
+
+Layouts themselves are Physical Elements, and can be created by calling `respec.Layout(physicalElementSpec)`
 
 Nested layouts are planned, but not yet supported.
 

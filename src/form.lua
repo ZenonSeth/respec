@@ -80,17 +80,60 @@ end
 -- not public
 local function get_formspec_string(form)
   form.layout:measure(true)
+  local spec = form.spec
   -- update if necessary
-  if form.spec.w == con.wrap_content then form.spec.w = form.layout.measured[con.right] end
-  if form.spec.h == con.wrap_content then form.spec.h = form.layout.measured[con.bottom] end
+  if spec.w == con.wrap_content then spec.w = form.layout.measured[con.right] end
+  if spec.h == con.wrap_content then spec.h = form.layout.measured[con.bottom] end
   local formDef = get_form_str(form)
   local debugGrid = ""
   if respec.settings.debug() then
-    debugGrid = respec.util.grid(form.spec.w, form.spec.h, 5)
+    debugGrid = respec.util.grid(spec.w, spec.h, 5)
   end
-  local layoutFs = form.layout:to_formspec_string(form.spec.formspec_version)
+  local layoutFs = form.layout:to_formspec_string(spec.formspec_version)
   d.log((formDef..layoutFs):gsub("]", "]\n"))
   return formDef..debugGrid..layoutFs
+end
+
+-- `self` should be the form
+local function handle_spec(self, state)
+  local spec = "error"
+  if type(self.init_spec) == "table" then spec = self.init_spec
+  elseif type(self.init_spec) == "function" then
+    spec = self.init_spec(state)
+    if type(spec) ~= "table" then
+      respec.log_error("specification function did not return a table!")
+      return
+    end
+  else
+    respec.log_error("specification must be a table or function!")
+    return
+  end
+    -- customs setup of spec since its root layout
+  if not spec.w and not spec.width then spec.w = con.wrap_content end
+  if not spec.h and not spec.height then spec.h = con.wrap_content end
+  self.spec = verify_specification(spec)
+  self.layout = respec.Layout((self.id or "").."_layout", spec)
+  self.state = spec.state or {}
+  self.bgcolor = spec.bgcolor
+  self.fbgcolor = spec.fbgcolor
+  self.bgfullscreen = spec.bgfullscreen
+  return true
+end
+
+local function get_layout_data(self, state)
+  if type(self.init_layout) == "table" then
+    return self.init_layout
+  elseif type(self.init_layout) == "function" then
+    local data = self.init_layout(state)
+    if type(data) ~= "table" then
+      respec.log_error("layoutBuilder returned a value that's not a table!")
+      return nil
+    end
+    return data
+  else
+    respec.log_error("layoutBuilder must be table or function!")
+    return nil
+  end
 end
 
 ----------------------------------------------------------------
@@ -104,21 +147,13 @@ respec.FormClass = {}
 ]]
 function respec.Form(specification, layoutBuilder)
 
-  function respec.FormClass:new(uniqueID, spec, builder)
+  function respec.FormClass:new(uniqueID, spec, layout)
     local obj = {}
     setmetatable(obj, self)
     self.__index = self
     self.id = uniqueID
-    self.layoutBuilder = builder
-    -- customs setup of spec since its root layout
-    if not spec.w and not spec.width then spec.w = con.wrap_content end
-    if not spec.h and not spec.height then spec.h = con.wrap_content end
-    self.spec = verify_specification(spec)
-    self.layout = respec.Layout((uniqueID or "").."_layout", spec)
-    self.state = spec.state or {}
-    self.bgColor = spec.bgColor
-    self.fbgColor = spec.fbgColor
-    self.bgFullscreen = spec.bgFullscreen
+    self.init_spec = spec
+    self.init_layout = layout
     return obj
   end
 
@@ -127,11 +162,13 @@ end
 
 --[[ Show the formspec to the player by the given name.
   `playerName` is required, must be a string
-  `data` is optional, and is the object passed to the build function (if empty, its )
+  `state` is optional, and is the object passed to the build function (if empty, its )
 --]]
-function respec.FormClass:show(playerName, data)
-  data = data or {}
-  local layoutData = self.layoutBuilder(data)
+function respec.FormClass:show(playerName, state)
+  state = state or {}
+  if not handle_spec(self, state) then return end
+  local layoutData = get_layout_data(self, state)
+  if not layoutData then return end
   self.layout:set_elements(layoutData)
   core.show_formspec(playerName, self.id, get_formspec_string(self))
 end

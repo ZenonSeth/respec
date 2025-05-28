@@ -1,7 +1,9 @@
 
 local function show_formspec(playerName)
   local elem = respec.elements
-  respec.Form({
+  respec.Form(
+  --function(_) return 
+  {
     -- w = respec.const.wrap_content, h = 6.2,
     formspec_version = 5,
     margins = 0.2,
@@ -10,74 +12,77 @@ local function show_formspec(playerName)
     pos_x = 0.1, pos_y = 0.8,
     no_prepend = true,
     bgfullscreen = "both",
-  }, function(state) return {
-      elem.Label {
-        id = "title",
-        text = "Relative Formspec Layout Demo",
-        w = 3, h = 0.5,
-        start_to_parent_start = true,
-        end_to_parent_end = true,
-      },
-      elem.Label {
-        id = "label1",
-        w = 1, h = 0.5,
-        text = "Count = "..(state.count or "0"),
-        area = true, -- no effect unless formspec_version >= 9
-        top_to_bottom_of = "title",
-        margins_hor = 0.25,
-        margins_ver = 0.25,
-      },
-      elem.Button {
-        id = "btn_id",
-        w = 2, h = 0.5,
-        text = "Press me!",
-        top_to_top_of = "label1",
-        start_to_end_of = "label1",
-        margins_ver = 0.25,
-        margins_hor = 0.25,
-        on_click = function(stateClick)
-          stateClick.count = (stateClick.count or 0) + 1
-          return true
-        end,
-      },
-      elem.Label {
-        id = "label2",
-        w = 1, h = 0.5,
-        text ="Another",
-        margins = 0.25,
-        top_to_bottom_of = "btn_id",
-        start_to_start_of = "btn_id",
-        area = true, -- no effect unless formspec_version >= 9
-        end_to_end_of = "btn_id",
-      },
-      elem.Label {
-        id = "label3",
-        w = 0.8, h = 0.4,
-        margin_start = 0.4,
-        text = "--==--",
-        top_to_bottom_of = "label2",
-        start_to_parent_start = true,
-        end_to_parent_end = true,
-      },
-      elem.Label {
-        id = "label4",
-        w = 0.8, h = 0.4,
-        text = "--==--",
-        top_to_bottom_of = "label3",
-        start_to_parent_start = true,
-        end_to_parent_end = true,
-        hor_bias = 0.75,
-      },
-      elem.Label {
-        id = "label5",
-        -- margin_end = 1,
-        w = 0.8, h = 0.4,
-        text = "--==--",
-        top_to_bottom_of = "label4",
-        end_to_parent_end = true,
-      },
-    } end
-  ):show(playerName)
+  }
+  -- end
+  ,
+  function(state) return
+  {
+    elem.Label {
+      id = "title",
+      text = "Relative Formspec Layout Demo",
+      w = 3, h = 0.5,
+      start_to_parent_start = true,
+      end_to_parent_end = true,
+    },
+    elem.Label {
+      id = "label1",
+      w = 1, h = 0.5,
+      text = "Count = "..(state.count or "0"),
+      area = true, -- no effect unless formspec_version >= 9
+      top_to_bottom_of = "title",
+      margins_hor = 0.25,
+      margins_ver = 0.25,
+    },
+    elem.Button {
+      id = "btn_id",
+      w = 2, h = 0.5,
+      text = "Press me!",
+      top_to_top_of = "label1",
+      start_to_end_of = "label1",
+      margins_ver = 0.25,
+      margins_hor = 0.25,
+      on_click = function(stateClick)
+        stateClick.count = (stateClick.count or 0) + 1
+        return true
+      end,
+    },
+    elem.Label {
+      id = "label2",
+      w = 1, h = 0.5,
+      text ="Another",
+      margins = 0.25,
+      top_to_bottom_of = "btn_id",
+      start_to_start_of = "btn_id",
+      area = true, -- no effect unless formspec_version >= 9
+      end_to_end_of = "btn_id",
+    },
+    elem.Label {
+      id = "label3",
+      w = 0.8, h = 0.4,
+      margin_start = 0.4,
+      text = "--==--",
+      top_to_bottom_of = "label2",
+      start_to_parent_start = true,
+      end_to_parent_end = true,
+    },
+    elem.Label {
+      id = "label4",
+      w = 0.8, h = 0.4,
+      text = "--==--",
+      top_to_bottom_of = "label3",
+      start_to_parent_start = true,
+      end_to_parent_end = true,
+      hor_bias = 0.75,
+    },
+    elem.Label {
+      id = "label5",
+      -- margin_end = 1,
+      w = 0.8, h = 0.4,
+      text = "--==--",
+      top_to_bottom_of = "label4",
+      end_to_parent_end = true,
+    },
+  } end):show(playerName)
 end
 
 core.register_node("respec:gui_builder", {
