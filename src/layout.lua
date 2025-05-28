@@ -33,19 +33,15 @@ local function do_add(self, element)
   if self.serialized then
     -- TODO: check if anything related to layouting has changed, if not return last serialization
   end
-  if (ri.verify_element(element)) then
-    local newId = element.id
-    if newId and newId ~= "" and self.ids[newId] then
-      -- multiple elements with no ID are allowed, but not two with same ID
-      respec.log_error("Elements within the same layout cannot have the same ID: "..newId)
-      return self
-    end
-    table.insert(self.elements, element)
-    self.elementsGraph:add_element(element)
-    self.ids[newId] = true
-  else
-    respec.log_error("Element ["..dump(element).."] was not formatted properly!")
+  local newId = element.id
+  if newId and newId ~= "" and self.ids[newId] then
+    -- multiple elements with no ID are allowed, but not two with same ID
+    respec.log_error("Elements within the same layout cannot have the same ID: "..newId)
+    return self
   end
+  table.insert(self.elements, element)
+  self.elementsGraph:add_element(element)
+  self.ids[newId] = true
   return self
 end
 

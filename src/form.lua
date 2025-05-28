@@ -120,21 +120,8 @@ function respec.Form(specification, layoutBuilder)
     self.id = uniqueID
     self.layoutBuilder = builder
     self.spec = verify_specification(spec)
-    self.layout = respec.Layout((uniqueID or "").."_layout", spec.w, spec.h)
-    self.state = "" -- hmm
-
-    local mgs = self.spec.margins
-    local mgType = type(mgs)
-    if mgType == "number" then self.layout:margins_all(mgs)
-    elseif mgType == "table" then
-      if type(mgs.horizontal) == "number" then self.layout:margins_hor(mgs.horizontal) end
-      if type(mgs.vertical) == "number" then self.layout:margins_ver(mgs.vertical) end
-      if type(mgs.top) == "number" then self.layout:margin_top(mgs.top) end
-      if type(mgs.bottom) == "number" then self.layout:margin_top(mgs.bottom) end
-      if type(mgs.left) == "number" then self.layout:margin_top(mgs.left) end
-      if type(mgs.right) == "number" then self.layout:margin_top(mgs.right) end
-    end
-
+    self.layout = respec.Layout((uniqueID or "").."_layout", spec)
+    self.state = spec.state or {}
     return obj
   end
 
