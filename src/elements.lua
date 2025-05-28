@@ -5,7 +5,6 @@ local TOP = con.top
 local BOT = con.bottom
 local LFT = con.left
 local RGT = con.right
-local UNSET = con.unset
 
 -- utility funcs
 
@@ -23,42 +22,42 @@ end
 
 local fesc = core.formspec_escape
 
--- common funcs
+local outl = respec.util.fs_make_outline
 
+--- debug box stuff
 local function get_debug_box(obj)
-  if respec.settings.debug then
+  if respec.settings.debug() then
     local ms = obj.measured
     local mg = obj.margins
     local mgt = min0(mg[TOP])
     local mgb = min0(mg[BOT])
     local mgl = min0(mg[LFT])
     local mgr = min0(mg[RGT])
-    local boundColor = "#0000FF68"
-    local elemColor = "#00FF0068"
-    local bound = "box["..(ms[LFT] + min0(ms.xOffset))..","..(ms[TOP] + min0(ms.yOffset))..";"..(ms.w + mgl + mgr)..","..(ms.h + mgt + mgb)..";"..boundColor.."]"
-    local elem = "box["..
-      (ms[LFT] + mgl + min0(ms.xOffset))..","..(ms[TOP] + mgt + min0(ms.yOffset))..
-      ";"..
-      (ms.w)..","..(ms.h)..";"..elemColor.."]"
+    local boundColor = "#0000FF38"
+    local elemColor = "#00FF0038"
+
+    local bx = ms[LFT] + min0(ms.xOffset)
+    local by = ms[TOP] + min0(ms.yOffset)
+    local bw = ms.w + mgl + mgr
+    local bh = ms.h + mgt + mgb
+    local bound = "box["..bx..","..by..";"..bw..","..bh..";"..boundColor.."]"
+    bound = bound..outl(bx, by, bw, bh)
+
+    local ex = ms[LFT] + mgl + min0(ms.xOffset)
+    local ey = ms[TOP] + mgt + min0(ms.yOffset)
+    local ew = ms.w
+    local eh = ms.h
+    local elem = "box["..ex..","..ey..";"..ew..","..eh..";"..elemColor.."]"
+    elem = elem..outl(ex, ey, ew, eh)
     return bound..elem
   else return "" end
 end
 
--- makes a "element[...]" string
-local function make_elem(obj, ...)
-  local str = obj.fsName.."["
-  if ... ~= nil then
-    local args = {...}
-    if #args > 0 then
-      for i, a in ipairs(args) do
-        local sep = "" ; if i > 1 then sep = ";" end
-        str = str..sep..a
-      end
-    end
-  end
-  str = str.."]"
-  return get_debug_box(obj)..str
+local make_elem = function (obj, ...)
+  return get_debug_box(obj)..respec.util.fs_make_elem(obj.fsName, ...)
 end
+
+-- common funcs
 
 -- returns a "x,y" position string
 local function pos_only(obj, customY)

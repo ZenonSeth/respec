@@ -5,6 +5,11 @@ local function show_formspec(playerName)
     -- w = respec.const.wrap_content, h = 6.2,
     formspec_version = 5,
     margins = 0.2,
+    bgcolor = "#FF0000AA",
+    fbgcolor = "#0000FFAA",
+    pos_x = 0.1, pos_y = 0.8,
+    no_prepend = true,
+    bgfullscreen = "both",
   }, function(state) return {
       elem.Label {
         id = "title",
@@ -43,7 +48,7 @@ local function show_formspec(playerName)
         top_to_bottom_of = "btn_id",
         start_to_start_of = "btn_id",
         area = true, -- no effect unless formspec_version >= 9
-        end_to_end_of = "btn_id", -- TODO not working, fix it
+        end_to_end_of = "btn_id",
       },
       elem.Label {
         id = "label3",
@@ -62,6 +67,14 @@ local function show_formspec(playerName)
         start_to_parent_start = true,
         end_to_parent_end = true,
         hor_bias = 0.75,
+      },
+      elem.Label {
+        id = "label5",
+        -- margin_end = 1,
+        w = 0.8, h = 0.4,
+        text = "--==--",
+        top_to_bottom_of = "label4",
+        end_to_parent_end = true,
       },
     } end
   ):show(playerName)

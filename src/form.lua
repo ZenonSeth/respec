@@ -1,7 +1,8 @@
-
-respec.WRAP_CONTENT = -1
+local con = respec.const
 
 local formspecID = 0
+
+local function is_str(v) return type(v) == "string" end
 
 local function verify_specification(spec)
   if not spec or type(spec) ~= "table" then
@@ -26,6 +27,20 @@ local function fsc(n,x,y)
   return ""..n.."["..x..","..y.."]"
 end
 
+local function get_valid_color(clrStr)
+  if not is_str(clrStr) then return "" end
+  return clrStr
+end
+
+local function get_valid_fullscreen(str)
+  if type(str) == "boolean" then if str then return "true" else return "false" end end
+  if not is_str(str) then return "" end
+  if str == "true" or str == "false" or str == "both" or str == "neither" then
+    return str
+  end
+  return ""
+end
+
 -- not public - return the form defition string
 local function get_form_str(form)
   local ltm = form.layout.measured
@@ -47,6 +62,18 @@ local function get_form_str(form)
   if sp.allow_close == false then
     str = str.."allow_close[false]"
   end
+  local bgC = get_valid_color(sp.bgcolor)
+  local fbgC = get_valid_color(sp.fbgcolor)
+  local bgF = get_valid_fullscreen(sp.bgfullscreen)
+  if bgC ~= "" then
+    local bgcf = ""
+    if sp.formspec_version >= 3 then
+      bgcf = respec.util.fs_make_elem("bgcolor", bgC, bgF, fbgC)
+    else
+      bgcf = respec.util.fs_make_elem("bgcolor", bgC, bgF)
+    end
+    str = str..bgcf
+  end
   return str
 end
 
@@ -54,11 +81,11 @@ end
 local function get_formspec_string(form)
   form.layout:measure(true)
   -- update if necessary
-  if form.spec.w == respec.const.wrap_content then form.spec.w = form.layout.measured[respec.const.right] end
-  if form.spec.h == respec.const.wrap_content then form.spec.h = form.layout.measured[respec.const.bottom] end
+  if form.spec.w == con.wrap_content then form.spec.w = form.layout.measured[con.right] end
+  if form.spec.h == con.wrap_content then form.spec.h = form.layout.measured[con.bottom] end
   local formDef = get_form_str(form)
   local debugGrid = ""
-  if respec.settings.debug then
+  if respec.settings.debug() then
     debugGrid = respec.util.grid(form.spec.w, form.spec.h, 5)
   end
   local layoutFs = form.layout:to_formspec_string(form.spec.formspec_version)
@@ -84,11 +111,14 @@ function respec.Form(specification, layoutBuilder)
     self.id = uniqueID
     self.layoutBuilder = builder
     -- customs setup of spec since its root layout
-    if not spec.w and not spec.width then spec.w = respec.const.wrap_content end
-    if not spec.h and not spec.height then spec.h = respec.const.wrap_content end
+    if not spec.w and not spec.width then spec.w = con.wrap_content end
+    if not spec.h and not spec.height then spec.h = con.wrap_content end
     self.spec = verify_specification(spec)
     self.layout = respec.Layout((uniqueID or "").."_layout", spec)
     self.state = spec.state or {}
+    self.bgColor = spec.bgColor
+    self.fbgColor = spec.fbgColor
+    self.bgFullscreen = spec.bgFullscreen
     return obj
   end
 

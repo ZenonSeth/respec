@@ -38,6 +38,21 @@ To create a form use the `respec.Form(spec, builder)` function.
     
     allow_close = true,
     -- Optional: if false, disable using closing formspec via esc or similar. Corresponds to `allow_close[]`
+
+    -- Background Color config: these 3 elements correspond to a `bgcolor[]` formspec element
+    bgcolor = "#RRGGBB",
+    -- Optional: the background color of the formspec, in a formspec `ColorString` format
+
+    fbgcolor = "#RRGGBB",
+    -- Optional: Only if formspec_ve >= 3. The full-screen background color when showing the formspec, in a formspec `ColorString` format
+
+    bgfullscreen = "false",
+    -- Optional, if formspec_ver >= 3, otherwise must be present if `bgcolor` is present.
+    -- string, can have one of these values:
+    -- "false": Only the non-fullscreen background color is drawn. (default)
+    -- "true": Only the fullscreen background color is drawn.
+    -- "both": Only if formspec_ver >= 3. The non-fullscreen and the fullscreen background color are drawn.
+    -- "neither": Only if formspec_ver >= 3. No background color is drawn.
  }
 ```
 

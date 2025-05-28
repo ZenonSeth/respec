@@ -11,7 +11,7 @@ end
 
 local function get_debug_formspec(layout)
   local s = ""
-  if respec.settings.debug then
+  if respec.settings.debug() then
     s=s.."box[0,0;"..layout.margins[con.left]..","..layout.measured[con.bottom]..";#FFFF0028]"
     s=s.."box[0,0;"..layout.measured[con.right]..","..layout.margins[con.top]..";#FFFF0028]"
     s=s.."box[0,"..

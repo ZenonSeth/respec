@@ -1,5 +1,19 @@
 respec.util = {}
 
+----------------------------------------------------------------
+-- helpers
+----------------------------------------------------------------
+
+local function grid_cell(x,y)
+  local clr = "#3F3F3F"
+  if (x + y) % 2 == 1 then clr = "#222222" end
+  return "box["..x..","..y..";1,1;"..clr.."]"
+end
+
+----------------------------------------------------------------
+-- public functions
+----------------------------------------------------------------
+
 -- Code from http://lua-users.org/wiki/SimpleLuaClasses with slight modifications
 respec.util.Class = function (base, init)
   local c = {}    -- a new class instance
@@ -74,11 +88,6 @@ function respec.util.list_to_set(table)
   return set
 end
 
-local function grid_cell(x,y)
-  local clr = "#3F3F3F"
-  if (x + y) % 2 == 1 then clr = "#222222" end
-  return "box["..x..","..y..";1,1;"..clr.."]"
-end
 function respec.util.grid(width, height, divsPerUnit)
   divsPerUnit = divsPerUnit or 4
   if divsPerUnit <= 0 then divsPerUnit = 1 end
@@ -101,7 +110,38 @@ function respec.util.grid(width, height, divsPerUnit)
   return table.concat(tmp, "")..lines
 end
 
+-- makes a "element[...]" string
+function respec.util.fs_make_elem(name, ...)
+  local str = name.."["
+  if ... ~= nil then
+    local args = {...}
+    if #args > 0 then
+      for i, a in ipairs(args) do
+        local sep = "" ; if i > 1 then sep = ";" end
+        str = str..sep..a
+      end
+    end
+  end
+  str = str.."]"
+  return str
+end
+
+-- make an outline with given x,y and width,height (ints)
+-- optClr (string) is optional
+local fme = respec.util.fs_make_elem
+function respec.util.fs_make_outline(x, y, w, h, optClr)
+  local bx = ""
+  if not optClr then optClr = "#FF00FFAA" end
+  bx=bx..fme("box", x..","..y, "0,"..h, optClr) -- left
+  bx=bx..fme("box", x..","..y, w..",0", optClr) -- top
+  bx=bx..fme("box", (x+w)..","..y, "0,"..h, optClr) -- right
+  bx=bx..fme("box", x..","..(y+h), w..",0", optClr) -- bot
+  return bx
+end
+
+----------------------------------------------------------------
 -- debug stuff
+----------------------------------------------------------------
 
 d = {} -- bad debug
 local dlog = function(str)
