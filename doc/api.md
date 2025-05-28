@@ -1,10 +1,67 @@
-TODO : document the API once it's settled
+Note: This is still work in progress - docs are missing and existing api may change in the near future.
 
 # Form
+To create a form use the `respec.Form(spec, builder)` function.
+
+`spec` must be a table in the following format:
+ ```lua
+ {
+    w = 8, h = 9, 
+    -- Optional: the width and height of the formspec. Corresponds to `size[]`
+    -- Special values: respec.const.wrap_content to simply make the form big enough for all the elements it contains
+    -- if either w/h is unset, wrap_content is assumed for the missing value.
+
+    formspec_version = 4, 
+    -- Required: cannot be lower than 2 (due to real_coordinates)  Corresponds to `formspec_version[]`
+    
+    -- Margins are all optional, and combination may be used.
+    -- Form margins will push all elements inwards from the corresponding edge.
+    margins = 4, -- sets margins on all sides to this value
+    margins_hor = 3, -- sets horizontal (start/end) margins to this value
+    margins_ver = 3, -- sets vertical (top/bottom) margins to this value
+    margin_top = 2, -- set the top margin to this value
+    margin_bottom = 2, -- set the bottom margin to this value
+    margin_start = 2, -- set the start margin to this value
+    margin_end = 2, -- set the end margin to this value
+
+    pos_x = 0.5, pos_y = 0.5, 
+    -- Optional: the position on the screen (0-1). Corresponds to `position[]` formspec element
+    
+    anchor_x = 0.5, anchor_y = 0.5,
+    -- Optional: the anchor for the on-screen position. Corresponds to `anchor[]`
+
+    screen_padding_x = 0.05, screen_padding_y = 0.05,
+    -- Optional: the padding required around the form, in screen proportion. Corresponds to `padding[]`
+    
+    no_prepend = false,
+    -- Optional: disables player:set_formspec_prepend. Corresponds to `no_prepend[]`
+    
+    allow_close = true,
+    -- Optional: if false, disable using closing formspec via esc or similar. Corresponds to `allow_close[]`
+ }
+```
+
+The `layoutBuilder` param must be function used to create the form's layout.
+ It simply gets passed a `data` object which can be used to maintain information between re-showing the form. 
+ 
+ The function must return a list of elements (created via `respec.elements`)
+
+ For example:
+ ```lua
+ function(data)
+  return {
+    respec.elements.Label(labelSpec),
+    respec.elements.Button(buttonSpec),
+  }
+ end
+ ```
 
 
 # Layout
 
+A layout is the element that positions all other elements. Internally each Form creates its own Layout by default, which doesn't need to be managed or configured.
+
+Nested layouts are planned, but not yet supported.
 
 # Elements
 

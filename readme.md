@@ -14,6 +14,6 @@ A secondary goal is to support all features (with possibly only one or two excep
 
 ## API
 
-The API docs can be found here: [docs/api.md]().
+The API docs can be found here: [docs/api.md](https://github.com/ZenonSeth/respec/blob/main/doc/api.md).
 
 Examples to get you quickly started are available on the Github Wiki here: [TODO]()

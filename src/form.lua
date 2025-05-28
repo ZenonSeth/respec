@@ -73,37 +73,7 @@ end
 respec.FormClass = {}
 
 --[[
- `specification` must be a table in the following format:
- ```{
-    w = 8, h = 9, -- Optional: the width and height of the formspec. Corresponds to `size[]`
-                  -- Special values: respec.const.wrap_content to simply make the form big enough for all the elements it contains
-                  -- if either w/h is unset, wrap_content is assumed
-    formspec_version = 4, -- Required: cannot be lower than 2 (due to real_coordinates)  Corresponds to `formspec_version[]`
-    margins = 4 or {} -- Optional: sets the inside paddings of the formspec that affects where elements align to.
-      -- 4 : if just a number is passed, all paddings are set to this number
-      -- {horizontal = 4, vertical = 4} -- set the horizontal or vertical paddings separate. Either is optional
-      -- {left = 4, right = 4, top = 0, bottom = 0}, -- Set the specfic paddings for each side. All are optional
-    pos_x = 0.5, pos_y = 0.5, -- Optional: the position on the screen (0-1). Corresponds to `position[]`
-    anchor_x = 0.5, anchor_y = 0.5,  -- Optional: the anchor for the on-screen position. Corresponds to `anchor[]`
-    screen_padding_x = 0.05, screen_padding_y = 0.05, -- Optional: the padding required around the form, in screen proportion. Corresponds to `padding[]`
-    no_prepend = false, -- Optional: disables player:set_formspec_prepend. Corresponds to `no_prepend[]`
-    allow_close = true, -- Optional: if false, disable using closing formspec via esc or similar. Corresponds to `allow_close[]`
- }```
-
- `layoutBuilder` is a function used to create the form's layout.
- It simply gets passed a `data` object which can be used to maintain information between re-showing the form. 
- 
- The function must return a list of elements (created via respec.Elements)
-
- For example:
- ```
- function(data)
-  return {
-    respec.Elements.Label(labelSpec),
-    respec.Elements.Button(buttonSpec),
-  }
- end
- ```
+  Create a form, with the given specification and layoutBuilder function
 ]]
 function respec.Form(specification, layoutBuilder)
 
