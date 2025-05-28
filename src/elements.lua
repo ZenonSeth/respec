@@ -9,14 +9,19 @@ local UNSET = con.unset
 
 -- utility funcs
 
+local function num_or(v, o) if type(v) == "number" then return v else return o end end
+local function str_or(v, o) if type(v) == "string" then return v else return o end end
+
 local function min0(value)
-  if value < 0 then return 0 else return value end
+  if num_or(value, 0) < 0 then return 0 else return value end
+end
+
+-- minv/maxv in range 0-255
+local function randclrval(minv, maxv)
+  return string.format("%x", math.random(minv, maxv))
 end
 
 local fesc = core.formspec_escape
-
-local function num_or(v, o) if type(v) == "number" then return v else return o end end
-local function str_or(v, o) if type(v) == "string" then return v else return o end end
 
 -- common funcs
 
@@ -30,8 +35,11 @@ local function get_debug_box(obj)
     local mgr = min0(mg[RGT])
     local boundColor = "#0000FF68"
     local elemColor = "#00FF0068"
-    local bound = "box["..ms[LFT]..","..ms[TOP]..";"..(ms.w + mgl + mgr)..","..(ms.h + mgt + mgb)..";"..boundColor.."]"
-    local elem = "box["..(ms[LFT] + mgl)..","..(ms[TOP] + mgt)..";"..(ms.w)..","..(ms.h)..";"..elemColor.."]"
+    local bound = "box["..(ms[LFT] + min0(ms.xOffset))..","..(ms[TOP] + min0(ms.yOffset))..";"..(ms.w + mgl + mgr)..","..(ms.h + mgt + mgb)..";"..boundColor.."]"
+    local elem = "box["..
+      (ms[LFT] + mgl + min0(ms.xOffset))..","..(ms[TOP] + mgt + min0(ms.yOffset))..
+      ";"..
+      (ms.w)..","..(ms.h)..";"..elemColor.."]"
     return bound..elem
   else return "" end
 end
@@ -56,8 +64,8 @@ end
 local function pos_only(obj, customY)
   if not customY then customY = 0 end
   -- TODO: add offsets from measured class
-  local x = obj.measured[LFT] + min0(obj.margins[LFT])
-  local y = obj.measured[TOP] + min0(obj.margins[TOP]) + customY
+  local x = obj.measured[LFT] + min0(obj.margins[LFT]) + min0(obj.measured.xOffset)
+  local y = obj.measured[TOP] + min0(obj.margins[TOP]) + min0(obj.measured.yOffset) + num_or(customY, 0)
   return ""..x..","..y
 end
 

@@ -1,8 +1,28 @@
 
 local ri = respec.internal
-local CONSTS = respec.const
-local UNSET = CONSTS.unset
+local con = respec.const
+local UNSET = con.unset
 
+local layoutCount = 0
+local function unique_layout_id()
+  layoutCount = layoutCount + 1 -- overflow doesn't matter
+  return "LAYOUT_"..layoutCount
+end
+
+local function get_debug_formspec(layout)
+  local s = ""
+  if respec.settings.debug then
+    s=s.."box[0,0;"..layout.margins[con.left]..","..layout.measured[con.bottom]..";#FFFF0028]"
+    s=s.."box[0,0;"..layout.measured[con.right]..","..layout.margins[con.top]..";#FFFF0028]"
+    s=s.."box[0,"..
+        (layout.measured[con.bottom] - layout.margins[con.bottom])..";"..
+        layout.measured[con.right]..","..layout.margins[con.bottom]..";#FFFF0028]"
+    s=s.."box["..(layout.measured[con.right] - layout.margins[con.right])..
+        ",0;"..
+        layout.margins[con.right]..","..layout.measured[con.bottom]..";#FFFF0028]"
+  end
+  return s
+end
 ----------------------------------------------------------------
 -- Layout class public functions
 ----------------------------------------------------------------
@@ -19,8 +39,9 @@ local UNSET = CONSTS.unset
 
 respec.Layout = respec.util.Class(respec.PhysicalElement)
 
-function respec.Layout:init(layoutId, layoutWidth, layoutHeight)
-  respec.PhysicalElement.init(self, "_LAYOUT", layoutId, layoutWidth, layoutHeight)
+function respec.Layout:init(layoutId, spec)
+  if not spec.id then spec.id = unique_layout_id() end
+  respec.PhysicalElement.init(self, "_LAYOUT", spec)
   self.elements = {}
   self.elementsGraph = respec.graph.new()
   self.ids = {}
@@ -75,5 +96,6 @@ function respec.Layout:to_formspec_string(formspecVersion)
     end
     self.serialized = table.concat(tbl, "")
   end
-  return self.serialized
+  local debug = get_debug_formspec(self)
+  return debug..self.serialized
 end

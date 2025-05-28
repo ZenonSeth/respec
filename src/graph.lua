@@ -71,13 +71,14 @@ function respec.graph.new()
 
     -- if side has a reference, try to find it in existing node
     if sideRef.ref ~= "" then
-      d.log("trying to find ref for side = "..sideRef.ref)
+      d.log("trying to find parent for elem = "..element.id..", side = "..side..", ref = "..sideRef.ref)
       local foundParent = nil
       for _, rootNode in pairs(self.roots) do
         foundParent = find_parent(sideRef.ref, sideRef.side, rootNode)
         if foundParent then break end
       end
       if foundParent then
+        d.log(" - found parent")
         connect_nodes(foundParent, newNode)
       else
         add_root(self, newNode)

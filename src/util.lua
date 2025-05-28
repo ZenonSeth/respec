@@ -79,7 +79,9 @@ local function grid_cell(x,y)
   if (x + y) % 2 == 1 then clr = "#222222" end
   return "box["..x..","..y..";1,1;"..clr.."]"
 end
-function respec.util.formspec_unit_grid(width, height)
+function respec.util.grid(width, height, divsPerUnit)
+  divsPerUnit = divsPerUnit or 4
+  if divsPerUnit <= 0 then divsPerUnit = 1 end
   local tmp = {}
   local w = math.floor(width) + 1
   local h = math.floor(height) + 1
@@ -89,11 +91,11 @@ function respec.util.formspec_unit_grid(width, height)
     end
   end
   local lines = ""
-  for i = 0, width * 4 do
-    lines=lines.."box["..(i * 0.25)..",0;0.01,"..h..";#888888]"
+  for i = 0, width * divsPerUnit do
+    lines=lines.."box["..(i / divsPerUnit)..",0;0.01,"..h..";#888888]"
   end
-  for j = 1, height * 4 do
-    lines=lines.."box[0,"..(j * 0.25)..";"..w..",0.01;#888888]"
+  for j = 1, height * divsPerUnit do
+    lines=lines.."box[0,"..(j / divsPerUnit)..";"..w..",0.01;#888888]"
   end
 
   return table.concat(tmp, "")..lines

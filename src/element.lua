@@ -35,7 +35,7 @@ end
 
 local function valid_size(value)
   if not is_num(value) then return 0 end
-  return clamp(value, 0, 100000)
+  return value
 end
 
 local function valid_margin(value)
@@ -116,7 +116,7 @@ local function get_align(spec)
     al.side = con.parent
   end
 
-  d.log("aligns = "..dump({ [TOP] = at, [BOT] = ab, [LFT] = al, [RGT] = ar }))
+  -- d.log("aligns = "..dump({ [TOP] = at, [BOT] = ab, [LFT] = al, [RGT] = ar }))
   return { [TOP] = at, [BOT] = ab, [LFT] = al, [RGT] = ar }
 end
 
@@ -160,7 +160,7 @@ function respec.PhysicalElement:init(fsName, spec)
   self.measured = { -- represents the location of the outer bounds that include margins
       [TOP] = UNSET, [BOT] = UNSET, [LFT] = UNSET, [RGT] = UNSET,
       w = UNSET, h = UNSET, -- the actual elements (not bounds) w/h
-      customX = UNSET, customY = UNSET -- customX/Y override the start where the element is drawn instead of using margins
+      xOffset = 0, yOffset = 0 -- customX/Y add an offset
   }
 
   self.physical = true

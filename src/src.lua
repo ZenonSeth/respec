@@ -15,22 +15,29 @@ dofile(PATH.."form.lua")
 local function show_formspec(playerName)
   local elem = respec.elements
   respec.Form({
-    w = 4.7, h = 6.2,
+    -- w = respec.const.wrap_content, h = 6.2,
     formspec_version = 5,
-    margins = 1,
+    margins = 0.2,
   }, function(state) return {
+      elem.Label {
+        id = "title",
+        text = "Relative Formspec Layout Demo",
+        w = 3, h = 0.5,
+        start_to_parent_start = true,
+        end_to_parent_end = true,
+      },
       elem.Label {
         id = "label1",
         w = 1, h = 0.5,
         text = "Count = "..(state.count or "0"),
         area = true, -- no effect unless formspec_version >= 9
+        top_to_bottom_of = "title",
         margins_hor = 0.25,
         margins_ver = 0.25,
       },
-
       elem.Button {
         id = "btn_id",
-        w = 1, h = 0.5,
+        w = 2, h = 0.5,
         text = "Press me!",
         top_to_top_of = "label1",
         start_to_end_of = "label1",
@@ -42,14 +49,33 @@ local function show_formspec(playerName)
         end,
       },
       elem.Label {
+        id = "label2",
         w = 1, h = 0.5,
-        text ="Another one?",
+        text ="Another",
         margins = 0.25,
         top_to_bottom_of = "btn_id",
         start_to_start_of = "btn_id",
         area = true, -- no effect unless formspec_version >= 9
-        -- end_to_end_of = "btn_id", -- TODO not working, fix it
-      }
+        end_to_end_of = "btn_id", -- TODO not working, fix it
+      },
+      elem.Label {
+        id = "label3",
+        w = 0.8, h = 0.4,
+        margin_start = 0.4,
+        text = "--==--",
+        top_to_bottom_of = "label2",
+        start_to_parent_start = true,
+        end_to_parent_end = true,
+      },
+      elem.Label {
+        id = "label4",
+        w = 0.8, h = 0.4,
+        text = "--==--",
+        top_to_bottom_of = "label3",
+        start_to_parent_start = true,
+        end_to_parent_end = true,
+        hor_bias = 0.75,
+      },
     } end
   ):show(playerName)
 end

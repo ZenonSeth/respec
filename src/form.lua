@@ -7,7 +7,7 @@ local function verify_specification(spec)
   if not spec or type(spec) ~= "table" then
     error("Specification was not a table!")
   end
-  if not spec.w or not spec.h or type(spec.w) ~= "number" or type(spec.h) ~= "number" then
+  if (type(spec.w) ~= "number" and type(spec.width) ~= "number") or (type(spec.h) ~= "number" and type(spec) ~= "number") then
     error("Specification missing required width/height!")
   end
   if not spec.formspec_version or type(spec.formspec_version) ~= "number" or spec.formspec_version < 2 then
@@ -28,9 +28,10 @@ end
 
 -- not public - return the form defition string
 local function get_form_str(form)
+  local ltm = form.layout.measured
   local sp = form.spec
   local str = "formspec_version["..sp.formspec_version.."]"
-  str = str..fsc("size", sp.w, sp.h) -- TODO: propagate layout wrapped size and use it instead
+  str = str..fsc("size", sp.w, sp.h)
   if sp.pos_x and sp.pos_y then
     str = str..fsc("position", sp.pos_x, sp.pos_y)
   end
@@ -52,10 +53,13 @@ end
 -- not public
 local function get_formspec_string(form)
   form.layout:measure(true)
+  -- update if necessary
+  if form.spec.w == respec.const.wrap_content then form.spec.w = form.layout.measured[respec.const.right] end
+  if form.spec.h == respec.const.wrap_content then form.spec.h = form.layout.measured[respec.const.bottom] end
   local formDef = get_form_str(form)
   local debugGrid = ""
   if respec.settings.debug then
-    debugGrid = respec.util.formspec_unit_grid(form.spec.w, form.spec.h)
+    debugGrid = respec.util.grid(form.spec.w, form.spec.h, 5)
   end
   local layoutFs = form.layout:to_formspec_string(form.spec.formspec_version)
   d.log((formDef..layoutFs):gsub("]", "]\n"))
@@ -66,14 +70,14 @@ end
 -- Public API
 ----------------------------------------------------------------
 
-respec.FormClass = {
-}
+respec.FormClass = {}
 
 --[[
  `specification` must be a table in the following format:
  ```{
-    w = 8, h = 9, -- Required: the width and height of the formspec. Corresponds to `size[]`
-                  -- Special values: respec.WRAP_CONTENT to simply make the form big enough for all the elements it contains
+    w = 8, h = 9, -- Optional: the width and height of the formspec. Corresponds to `size[]`
+                  -- Special values: respec.const.wrap_content to simply make the form big enough for all the elements it contains
+                  -- if either w/h is unset, wrap_content is assumed
     formspec_version = 4, -- Required: cannot be lower than 2 (due to real_coordinates)  Corresponds to `formspec_version[]`
     margins = 4 or {} -- Optional: sets the inside paddings of the formspec that affects where elements align to.
       -- 4 : if just a number is passed, all paddings are set to this number
@@ -95,30 +99,23 @@ respec.FormClass = {
  ```
  function(data)
   return {
-    respec.Elements.Label("label_id", 3, 1)
-      :text("Count = "..(data.count or "0"))
-      :top_to_parent_top():left_to_parent_left(),
-
-    respec.Elements.Button("btn_id", 3, 1)
-      :text("Press me!")
-      :top_to_bottom_of("label_id")
-      :left_to_left_of("label_id")
-      :add_on_click(function(dataFromOnClick)
-        dataFromOnClick.count = (dataFromOnClick.count or 0) + 1
-        return true
-      end)
+    respec.Elements.Label(labelSpec),
+    respec.Elements.Button(buttonSpec),
   }
  end
  ```
 ]]
 function respec.Form(specification, layoutBuilder)
-  -- It's safer to use respec.Form( ) instead
+
   function respec.FormClass:new(uniqueID, spec, builder)
     local obj = {}
     setmetatable(obj, self)
     self.__index = self
     self.id = uniqueID
     self.layoutBuilder = builder
+    -- customs setup of spec since its root layout
+    if not spec.w and not spec.width then spec.w = respec.const.wrap_content end
+    if not spec.h and not spec.height then spec.h = respec.const.wrap_content end
     self.spec = verify_specification(spec)
     self.layout = respec.Layout((uniqueID or "").."_layout", spec)
     self.state = spec.state or {}
