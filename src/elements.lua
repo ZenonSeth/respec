@@ -20,9 +20,9 @@ local function randclrval(minv, maxv)
   return string.format("%x", math.random(minv, maxv))
 end
 
-local fesc = core.formspec_escape
-
+local fesc = respec.util.engine.formspec_escape
 local outl = respec.util.fs_make_outline
+local elemInfo = respec.internal.supported_elements
 
 --- debug box stuff
 local function get_debug_box(obj)
@@ -53,8 +53,9 @@ local function get_debug_box(obj)
   else return "" end
 end
 
+local fsmakeelem = respec.util.fs_make_elem
 local make_elem = function (obj, ...)
-  return get_debug_box(obj)..respec.util.fs_make_elem(obj.fsName, ...)
+  return get_debug_box(obj)..fsmakeelem(obj.fsName, ...)
 end
 
 -- common funcs
@@ -82,11 +83,15 @@ local Class = respec.util.Class
 ----------------------------------------------------------------
 
 ----------------------------------------------------------------
+-- Physical Elements
+----------------------------------------------------------------
+
+----------------------------------------------------------------
 -- Label
 ----------------------------------------------------------------
 respec.elements.Label = Class(respec.PhysicalElement) -- PhysElem("label", id, w, h)
 function respec.elements.Label:init(spec)
-  respec.PhysicalElement.init(self, "label", spec)
+  respec.PhysicalElement.init(self, elemInfo.label, spec)
   self.txt = str_or(spec.text, "")
   self.areaLabel = spec.area == true
 end
@@ -105,27 +110,30 @@ end
 ----------------------------------------------------------------
 respec.elements.Button = Class(respec.PhysicalElement)
 function respec.elements.Button:init(spec)
-  respec.PhysicalElement.init(self, "button", spec)
-  self.internal_id = "" -- TODO: generate unique id
+  respec.PhysicalElement.init(self, elemInfo.button, spec)
   self.txt = str_or(spec.text, "")
   if type(spec.on_click) == "function" then
-    self.click_listener = spec.click_listener
+    self.on_interact = spec.on_click
   end
 end
 
 -- override
 function respec.elements.Button:to_formspec_string(_)
-  return make_elem(self, pos_and_size(self), self.internal_id, fesc(self.txt))
+  return make_elem(self, pos_and_size(self), self.internalId, fesc(self.txt))
 end
 
+----------------------------------------------------------------
+-- Non-Physical Elements
+----------------------------------------------------------------
 
 ----------------------------------------------------------------
 -- listring
 ----------------------------------------------------------------
 respec.elements.ListRing = Class(respec.Element)
 function respec.elements.ListRing:init(spec)
-  respec.Element.init(self, "listring")
+  respec.Element.init(self, elemInfo.listring)
   self.rings = spec
+  if type(self.rings) ~= "table" then self.rings = {} end
 end
 -- override
 function respec.elements.ListRing:to_formspec_string(_)

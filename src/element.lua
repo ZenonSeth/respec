@@ -8,14 +8,57 @@ local UNSET = con.unset
 local VISIBLE = con.visible
 local INVISIBLE = con.invisible
 local GONE = con.gone
+local PARENT = con.parent
 
 respec.elements = {} -- init this table here
 local Class = respec.util.Class
 
--- format is { physical, minFormspecVersion }
-local supported_elements_info = {
-  _LAYOUT = { true, 1 }, label = { true, 1 }, button = { true, 1 }, scroll_container = { true, 3 }, list = { true, 1 }, listring = { false, 1 }, listcolors = { false, 1 }, tooltip = { false, 1 }, image = { true, 1 }, animated_image = { true, 6 }, model = { true, 1 }, item_image = { true, 1 }, bgcolor = { false, 3 }, background = { false, 1 }, background9 = { false, 2 }, pwdfield = { true, 1 }, field = { true, 1 }, field_enter_after_edit = { true, 7 }, field_close_on_enter = { true, 1 }, textarea = { true, 1 }, hypertext = { true, 1 }, vertlabel = { true, 1 }, button_url = { true, 1 }, image_button = { true, 1 }, item_image_button = { true, 1 }, button_exit = { true, 1 }, button_url_exit = { true, 1 }, image_button_exit = { true, 1 }, textlist = { true, 1 }, tabheader = { true, 1 }, box = { true, 1 }, dropdown = { true, 1 }, checkbox = { true, 1 }, scrollbar = { true, 1 }, scrollbaroptions = { false, 1 }, table = { true, 1 }, tableoptions = { false, 1 }, tablecolumns = { false, 1 }, style = { false, 1 }, style_type = { false, 1 }, set_focus = { false, 1 }
+local function minf(tbl) return { name = tbl[1], minVer = tbl[2], inFields = tbl[3] } end
+
+-- format is { name = "formspec_name", minVer = MIN_VERSION_INT, inFields = IS_FIELD_SENT }
+respec.internal.supported_elements = {
+  _LAYOUT =           minf { "_LAYOUT", 1, false },
+  label =             minf { "label", 1, false },
+  button =            minf { "button", 1, true },
+  scroll_container =  minf { "scroll_container", 3, false },
+  list =              minf { "list", 1, true },
+  listring =          minf { "listring", 1, false },
+  listcolors =        minf { "listcolors", 1, false},
+  tooltip =           minf { "tooltip", 1, false },
+  image =             minf { "image", 1, false },
+  animated_image =    minf { "animated_image", 6, false },
+  model =             minf { "model", 1, false },
+  item_image =        minf { "item_image", 1, false },
+  background =        minf { "background", 1, false },
+  background9 =       minf { "background9", 2, false },
+  pwdfield =          minf { "pwdfield", 1, true }, -- maybe incorporate into "field"
+  field =             minf { "field", 1, true },
+  field_enter_after_edit = minf { "field_enter_after_edit", 7, false }, -- incorporate into field
+  field_close_on_enter =  minf { "field_close_on_enter", 1, false }, -- incorporate into field
+  textarea =          minf { "textarea", 1, true },
+  hypertext =         minf { "hypertext", 1, false },
+  vertlabel =         minf { "vertlabel", 1, false },
+  button_url =        minf { "button_url", 1, true },
+  image_button =      minf { "image_button", 1, true },
+  item_image_button = minf { "item_image_button", 1, true },
+  button_exit =       minf { "button_exit", 1, true }, -- incorporate into button
+  button_url_exit =   minf { "button_url_exit", 1, true }, -- incorporate into button_url
+  image_button_exit = minf { "image_button_exit", 1, true }, -- incorporate into image_button
+  textlist =          minf { "textlist", 1, true },
+  tabheader =         minf { "tabheader", 1, true },
+  box =               minf { "box", 1, false },
+  dropdown =          minf { "dropdown", 1, true },
+  checkbox =          minf { "checkbox", 1, true },
+  scrollbar =         minf { "scrollbar", 1, true },
+  scrollbaroptions =  minf { "scrollbaroptions", 1, false },
+  table =             minf { "table", 1, false },
+  tableoptions =      minf { "tableoptions", 1, false }, -- hmm
+  tablecolumns =      minf { "tablecolumns", 1, false }, -- maybe incorporate into table
+  style =             minf { "style", 1, false },
+  style_type =        minf { "style_type", 1, false },
+  set_focus =         minf { "set_focus", 1, false } -- incorporate into form
 }
+local elem_info = respec.internal.supported_elements
 
 local function is_num(v) return type(v) == "number" end
 local function is_str(v) return type(v) == "string" end
@@ -38,28 +81,17 @@ local function valid_size(value)
   return value
 end
 
-local function valid_margin(value)
-  if not is_num(value) then return 0 end
-  return value -- allow negative margins, unless we have an issue later
-end
-
 local function valid_bias(b)
   if is_num(b) then return clamp(b, 0, 1) end
   return 0.5
 end
 
--- check if this is a formspec element we support
-local function verify_fsName(fn)
-  if not is_str(fn) then return false end
-  return supported_elements_info[fn] ~= nil
-end
-
 local function get_visibility(spec)
   local nv = spec.visibility
-  if is_num(nv) and (nv == con.visible or nv == con.invisible or nv == con.gone) then
+  if is_num(nv) and (nv == VISIBLE or nv == INVISIBLE or nv == GONE) then
     return nv
   else
-    return con.visible
+    return VISIBLE
   end
 end
 
@@ -92,10 +124,10 @@ local function get_align(spec)
   local al = {ref = "", side = UNSET}
   local ar = {ref = "", side = UNSET}
 
-  if spec.top_to_parent_top == true       then at.side = con.parent end
-  if spec.bottom_to_parent_bottom == true then ab.side = con.parent end
-  if spec.start_to_parent_start == true   then al.side = con.parent end
-  if spec.end_to_parent_end == true       then ar.side = con.parent end
+  if spec.top_to_parent_top == true       then at.side = PARENT end
+  if spec.bottom_to_parent_bottom == true then ab.side = PARENT end
+  if spec.start_to_parent_start == true   then al.side = PARENT end
+  if spec.end_to_parent_end == true       then ar.side = PARENT end
 
   alref(spec.top_to_top_of,    function(r) at.ref = r ; at.side = TOP end)
   alref(spec.top_to_bottom_of, function(r) at.ref = r ; at.side = BOT end)
@@ -110,44 +142,57 @@ local function get_align(spec)
   alref(spec.end_to_end_of,   function(r) ar.ref = r ; ar.side = RGT end)
 
   if at.side == UNSET and ab.side == UNSET then
-    at.side = con.parent
+    at.side = PARENT
   end
   if al.side == UNSET and ar.side == UNSET then
-    al.side = con.parent
+    al.side = PARENT
   end
 
   -- d.log("aligns = "..dump({ [TOP] = at, [BOT] = ab, [LFT] = al, [RGT] = ar }))
   return { [TOP] = at, [BOT] = ab, [LFT] = al, [RGT] = ar }
 end
 
+local elem_unique_id = 0
+local function  get_unique_id()
+  elem_unique_id = elem_unique_id + 1 -- overflow doesn't matter
+  return tostring(elem_unique_id)
+end
+
 ----------------------------------------------------------------
 -- public functions
 ----------------------------------------------------------------
 
--- base element only has a formspec name and tostring
+-- base element, for non-physical elements
 respec.Element = Class()
 
-function respec.Element:init(fsName)
-  -- members
-  self.fsName = fsName or ""
+function respec.Element:init(fselem)
+  if fselem and fselem.name and elem_info[fselem.name] then
+    self.fsName = fselem.name
+    self.info = fselem
+  else
+    respec.log_error("Unsupported element created: "..dump(fselem))
+  end
   self.physical = false
+  self.internalId = get_unique_id()
 end
 
 respec.PhysicalElement = Class(respec.Element)
 
 -- To be overriden by child classes
-function respec.Element:to_formspec_string(formspecVersion) respec.log_warn("called base to_formspec_string") ; return "" end -- to be overriden by specific elements
+function respec.Element:to_formspec_string(formspecVersion)
+  respec.log_warn("called base to_formspec_string") ; return ""
+end
 
 --[[
 --- Do not use directly. Use one of the `respec.elements.` functions instead
---- `fsName` must tbe the formspec element name per Luanti's formspec API
+--- `fselem` must be an entry from the respec.internal.supported_elements table
 --- `spec` must be a table as documented in doc/api.md
 ]]
-function respec.PhysicalElement:init(fsName, spec)
+function respec.PhysicalElement:init(fselem, spec)
   -- o = respec.Element:new(o, fsName)
   -- setmetatable(o, self)
   -- self.__index = self
-  respec.Element.init(self, fsName)
+  respec.Element.init(self, fselem)
   self.id = valid_id(spec.id)
   self.width = valid_size(spec.width or spec.w)  -- the width set by user
   self.height = valid_size(spec.height or spec.h) -- the height set by user
@@ -162,6 +207,7 @@ function respec.PhysicalElement:init(fsName, spec)
       w = UNSET, h = UNSET, -- the actual elements (not bounds) w/h
       xOffset = 0, yOffset = 0 -- customX/Y add an offset
   }
+  self.on_interact = function(...) end -- to be overwritten by interactive elements
 
   self.physical = true
 end

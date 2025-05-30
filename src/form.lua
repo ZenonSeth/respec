@@ -1,9 +1,48 @@
 local con = respec.const
 
-local formspecID = 0
+local engine = respec.util.engine
+
+-- shownForms entries format: { form = formRef, state = state }
+local shownForms = {}
 
 local function is_str(v) return type(v) == "string" end
 
+local function set_shown_form_data(playerName, formId, data)
+  if not shownForms[playerName] then shownForms[playerName] = { count = 0 } end
+  local formData = shownForms[playerName]
+  formData.count = formData.count + 1
+  formData[formId] = data -- just override anything else here before
+end
+
+-- returns the data for this form, or nil
+local function get_shown_form_data(playerName, formId)
+  if not shownForms[playerName] then
+    return nil
+  end
+  return shownForms[playerName][formId]
+end
+
+local function remove_shown_form_data(playerName, formId)
+  if not shownForms[playerName] then
+    respec.log_warn("Trying to remove form data for a player that wasn't there?")
+    return
+  end
+  local formData = shownForms[playerName]
+  formData[formId] = nil
+  formData.count = formData.count - 1
+  if formData.count <= 0 then -- it shoudn't be negative, but just in case
+    shownForms[playerName] = nil
+  end
+end
+
+local function remove_all_shown_form_data_for(playerName)
+  shownForms[playerName] = nil
+end
+
+----------------------------------------------------------------
+-- Form creation util
+----------------------------------------------------------------
+---
 local function verify_specification(spec)
   if not spec or type(spec) ~= "table" then
     error("Specification was not a table!")
@@ -18,9 +57,10 @@ local function verify_specification(spec)
   return spec
 end
 
+local formspecID = 0
 local function getNextFormspaceName()
   formspecID = formspecID + 1 -- overflow doesn't really matter here
-  return "respec_"..(formspecID)
+  return "respec:form_"..(formspecID)
 end
 
 local function fsc(n,x,y)
@@ -120,6 +160,7 @@ local function handle_spec(self, state)
   return true
 end
 
+-- self is the form
 local function get_layout_data(self, state)
   if type(self.init_layout) == "table" then
     return self.init_layout
@@ -136,39 +177,148 @@ local function get_layout_data(self, state)
   end
 end
 
+-- `self` is the form
+-- return true if successful, false otherwise
+local function setup_form_for_showing(self, state)
+  if not handle_spec(self, state) then return false end
+  local layoutData = get_layout_data(self, state)
+  if not layoutData then return false end
+  self.layout:set_elements(layoutData)
+  return true
+end
+
+-- returns a new table with keys being the user-specified IDs of each element
+local function get_translated_fields(fields, interactiveElems)
+  local translated = {}
+  for k, v in pairs(interactiveElems) do
+    local fieldVal = fields[k]
+    if fieldVal and v.id ~= "" then
+      translated[v.id] = fieldVal
+    end
+  end
+  return translated
+end
+
+----------------------------------------------------------------
+-- Event handling functions
+----------------------------------------------------------------
+
+local function on_receive_fields(player, formname, fields)
+  if not player or not player:is_player() then return false end
+  local playerName = player:get_player_name()
+  local formData = get_shown_form_data(playerName, formname)
+  if not formData then return false end
+  local form = formData.form
+
+  local interactiveElems = form.layout:get_interactive_elements()
+  local translatedFields = get_translated_fields(fields, interactiveElems)
+  local reshow = false
+  for elemId, elem in pairs(interactiveElems) do
+    if fields[elemId] then
+      local requestedReshow = elem.on_interact(formData.state, translatedFields)
+      reshow = requestedReshow or reshow
+    end
+  end
+
+  -- Keep this last
+  if fields.quit then
+    remove_shown_form_data(playerName, formname)
+    -- TODO call form on quit func
+  end
+
+  if reshow then
+    form:reshow(playerName)
+  end
+
+  return true
+end
+
+local function on_player_leave(obj, _)
+  if not obj or not obj:is_player() then return end
+  local playerName = obj:get_player_name()
+  remove_all_shown_form_data_for(playerName)
+end
+
 ----------------------------------------------------------------
 -- Public API
 ----------------------------------------------------------------
 
-respec.FormClass = {}
+respec.Form = respec.util.Class()
 
 --[[
   Create a form, with the given specification and layoutBuilder function
 ]]
-function respec.Form(specification, layoutBuilder)
+function respec.Form:init(specification, layoutBuilder)
+  self.id = getNextFormspaceName()
+  self.init_spec = specification
+  self.init_layout = layoutBuilder
+end
 
-  function respec.FormClass:new(uniqueID, spec, layout)
-    local obj = {}
-    setmetatable(obj, self)
-    self.__index = self
-    self.id = uniqueID
-    self.init_spec = spec
-    self.init_layout = layout
-    return obj
+--[[ 
+  Show the formspec to the player by the given name.
+  `playerName` is required, must be a string
+  `state` is optional, and is the object passed to the build function. 
+   If not specified, an empty table will be passed to the creation functions.
+  returns true if successfully shown, false otherwise
+--]]
+function respec.Form:show(playerName, state)
+  state = state or {}
+  if not setup_form_for_showing(self, state) then return false end
+
+  local id = self.id
+  local existing = get_shown_form_data(playerName, id)
+  if existing then -- why was this already there? remove it.
+    remove_shown_form_data(playerName, id)
   end
 
-  return respec.FormClass:new(getNextFormspaceName(), specification, layoutBuilder)
+  engine.show_formspec(playerName, id, get_formspec_string(self))
+  set_shown_form_data(playerName, id, { form = self, state = state })
+  return true
 end
 
---[[ Show the formspec to the player by the given name.
-  `playerName` is required, must be a string
-  `state` is optional, and is the object passed to the build function (if empty, its )
---]]
-function respec.FormClass:show(playerName, state)
-  state = state or {}
-  if not handle_spec(self, state) then return end
-  local layoutData = get_layout_data(self, state)
-  if not layoutData then return end
-  self.layout:set_elements(layoutData)
-  core.show_formspec(playerName, self.id, get_formspec_string(self))
+-- reshows the form to the player, only if it was already shown!
+-- returns true if successfully reshown, false otherwise
+function respec.Form:reshow(playerName)
+  local data = get_shown_form_data(playerName, self.id)
+  if not data then return false end
+  local state = data.state
+  d.log("reshowing form "..self.id.." state = "..dump(state))
+  if not setup_form_for_showing(self, state) then return false end
+  engine.show_formspec(playerName, self.id, get_formspec_string(self))
+  return true
 end
+
+--[[ 
+  `extraState` is optional, can be nil
+  `checkProtection` is optional, if `true` then the function will check against protection
+  This method will automatically add some data to the `state`
+  See doc/api.md for information
+]]
+local get_meta = respec.util.engine.get_meta
+local is_protected = respec.util.engine.is_protected
+function respec.Form:show_from_node_rightclick(extraState, checkProtection)
+  return function(pos, node, user, itemstack, pointed_thing)
+    if not user or not user:is_player() then return end
+    local playerName = user:get_player_name() ; if type(playerName) ~= "string" then return end
+    if checkProtection then
+      if is_protected(pos, playerName) then return end
+    end
+    self:show(playerName, {
+      pos = pos,
+      node = node,
+      nodeMeta = get_meta(pos),
+      player = user,
+      playerName = playerName,
+      itemstack = itemstack,
+      pointed_thing = pointed_thing,
+      extra = extraState
+    })
+  end
+end
+
+----------------------------------------------------------------
+-- Minetest callbacks registration
+----------------------------------------------------------------
+
+engine.register_on_player_receive_fields(on_receive_fields)
+engine.register_on_leaveplayer(on_player_leave)

@@ -1,7 +1,7 @@
 
 local ri = respec.internal
+local suppElems = ri.supported_elements
 local con = respec.const
-local UNSET = con.unset
 
 local layoutCount = 0
 local function unique_layout_id()
@@ -41,8 +41,9 @@ respec.Layout = respec.util.Class(respec.PhysicalElement)
 
 function respec.Layout:init(layoutId, spec)
   if not spec.id then spec.id = unique_layout_id() end
-  respec.PhysicalElement.init(self, "_LAYOUT", spec)
+  respec.PhysicalElement.init(self, suppElems._LAYOUT, spec)
   self.elements = {}
+  self.fieldElemsById = {}
   self.elementsGraph = respec.graph.new()
   self.ids = {}
   self.padding = 0
@@ -55,12 +56,17 @@ local function do_add(self, element)
     -- TODO: check if anything related to layouting has changed, if not return last serialization
   end
   local newId = element.id
+  if not element.info then return end -- invalid element
   if newId and newId ~= "" and self.ids[newId] then
     -- multiple elements with no ID are allowed, but not two with same ID
     respec.log_error("Elements within the same layout cannot have the same ID: "..newId)
     return self
   end
   table.insert(self.elements, element)
+
+  if element.info.inFields then
+    self.fieldElemsById[element.internalId] = element
+  end
   self.elementsGraph:add_element(element)
   self.ids[newId] = true
   return self
@@ -70,6 +76,7 @@ end
 -- Use one of the `respec.elements.` functions to create elements.
 function respec.Layout:set_elements(elementsList)
   self.elements = {}
+  self.fieldElemsById = {}
   for _, element in ipairs(elementsList) do
     do_add(self, element)
   end
@@ -92,10 +99,17 @@ function respec.Layout:to_formspec_string(formspecVersion)
     self.serialized = true
     local tbl = {}
     for _, el in ipairs(self.elements) do
-      table.insert(tbl, el:to_formspec_string(formspecVersion))
+      if el.fsName ~= nil then
+        table.insert(tbl, el:to_formspec_string(formspecVersion))
+      end
     end
     self.serialized = table.concat(tbl, "")
   end
   local debug = get_debug_formspec(self)
   return debug..self.serialized
+end
+
+function respec.Layout:get_interactive_elements()
+  -- TODO handle sub-layouts
+  return self.fieldElemsById
 end

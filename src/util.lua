@@ -58,23 +58,22 @@ respec.util.Class = function (base, init)
   return c
 end
 
-if core and core.log and type(core.log) == "function" then
-  respec.log_error = function(msg)
-    core.log("error", msg)
-    print("ReSpec ERROR: "..msg)
-  end
-else
-  respec.log_error = function(msg)
-    print("ReSpec ERROR: "..msg)
-  end
-end
+respec.util.engine = core or minetest
+local engine = respec.util.engine
 
-if core and core.log and type(core.log) == "function" then
+if type(engine.log) == "function" then
+  respec.log_error = function(msg)
+    engine.log("error", msg)
+    print("ReSpec ERROR: "..msg)
+  end
   respec.log_warn = function(msg)
-    core.log("warning", msg)
+    engine.log("warning", msg)
     print("ReSpec WARNING: "..msg)
   end
 else
+  respec.log_error = function(msg)
+    print("ReSpec ERROR: "..msg)
+  end
   respec.log_warn = function(msg)
     print("ReSpec WARNING: "..msg)
   end
@@ -145,8 +144,8 @@ end
 
 d = {} -- bad debug
 local dlog = function(str)
-  core.log("info", str)
-  core.chat_send_all(str)
+  engine.log("info", str)
+  engine.chat_send_all(str)
 end
 d.log = function(str)
   dlog("--->>>")

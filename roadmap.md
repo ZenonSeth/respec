@@ -2,7 +2,7 @@
 
 ## Missing Features
 - Event handling callbacks for all interactive elements
-- Guidelines: same and constraint layout guidelines
+- Guidelines: same as constraint layout guidelines
 - Element Chains: same as constraint layout chains
   - packed/packed-inside/spread
 - Nested Layouts
@@ -26,7 +26,7 @@ Checked ones are done (or mostly done).
 - [x] `padding`
 - [x] `no_prepend`
 - [x] `allow_close`
-- [ ] `bgcolor`: To be added to Form specification
+- [x] `bgcolor`: To be added to Form specification
 
 - [ ] `scroll_container`: to contain its own layout
 - [ ] `list` : Needs special attention since w/h are specified in num slots, not size

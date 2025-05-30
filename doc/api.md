@@ -7,7 +7,7 @@ respec.Form(specFunction, builderFunction)
 ```
 
 ## State
-Forms have a concept of `state` - a lua table, that can be given to its `show()` function, and is also passed when creating the form, and to any event-handlers (e.g. button click listeners) where the state can be modified and will persist until the form is closed.
+Forms have a concept of `state` - a lua table, that can be given to its `show()` function, and is also passed when creating the form, and to any event-handlers (e.g. button click listeners) where the `state` can be modified and will persist until the form is closed.
 
 ## `specFunction`
 `specFunction` must be a either:
@@ -66,28 +66,87 @@ Forms have a concept of `state` - a lua table, that can be given to its `show()`
     -- "neither": Only if formspec_ver >= 3. No background color is drawn.
  }
 ```
-## `layoutBuilder`
-The `layoutBuilder` param can be either:
+## `builderFunction`
+The `builderFunction` param can be either:
 - A simple table
 - A function `function(state)` which gets passed the Form's `state`, and must return a table
  
-In both cases, the table must be a list of `respec.elements`
+In both cases, the table must be a list of `respec.elements` which will be shown on the form.
 
 ## Showing the Form
 Forms can be shown by calling their `:show(playerName, state)` function, where:
 - `playerName` is the player to whom you want to show the form.
-- `state` is optional, and should be a lua table which will then get passed to the applicable functions, as listed above.
+- `state` is optional, and should be a lua table which will then get passed to the applicable functions, as listed above.<br>
+  If omitted, the form functions will still get an empty table as their state
+
+## Reshowing a Form
+If for some reason you have a reference to a form (say `myForm`), and need to manually reshow it, you can do so by calling:
+```lua
+  myForm:reshow(playerName) -- playerName must be a string
+```
+This function won't do anything if the form isn't already shown to this player.
+
+## Showing a Form for a Node's `on_rightclick`
+If you need to show a form from a node's `on_rightclick` callback, the Form class provides a utility method to do so easily:
+
+```lua
+function Form:show_from_node_rightclick(extraState, checkProtection)
+```
+Parameters:
+- `extraState`: optional. The data to be sent in the `state.extra` field - see table below
+- `checkProtection`: optional. If true, the form will check `core.is_protected(pos)`, and only show the form to players who have access to the position
+
+When you use this method, the `Form`'s `builderFunction` will automatically receive the following data in the `state` variable when a showing to the user:
+```lua
+  {
+    pos = position,
+    -- the pos param from the callback, is a vector with x,y,z coords
+    
+    node = nodeTable,
+    -- the node table callback param
+
+    nodeMeta = meta,
+    -- the node's looked-up meta-data object, using core.get_meta(pos) function
+    
+    player = objectRef,
+    -- the `clicker` callback param, the live object reference to a Player (checked to be a player)
+
+    playerName = string,
+    -- the name of the player who right-clicked
+    
+    itemstack = ItemStack,
+    -- the callback param, ItemStack object that the user used to right-click on the node
+    
+    pointed_thing = pointed_thing,
+    -- the pointed thing data passed by callback
+    
+    extra = extraState
+    -- the optional `extraState` variable passed in `show_from_node_rightclick` - can be `nil`
+  }
+```
+For further info on these params see Luanti's [Node definition]() documentation.
+
+Example:
+```lua
+  local myForm = respec.Form(...) -- create a new form
+  core.register_node("mymod:mynode", {
+    -- other defs here
+    on_rightclick = myForm:show_from_node_rightclick(nil, true)
+     -- form will be shown when user right-clicks this node, but only if the user has protection access
+  })
+```
 
 ## Example
-Creating and immediately showing a formspec:
+Creating and immediately showing a formspec to `singleplayer`:
  ```lua
   respec.Form({
-    formspec_version = 5,
-    margins = 0.25,
-  },
-  function(state) return {
-    respec.elements.Label { w = 3, h = 0.5, text = "Hello World!" },
-  } end):show()
+      formspec_version = 5,
+      margins = 0.25,
+    },
+    {
+      respec.elements.Label { w = 3, h = 0.5, text = "Hello World!" },
+    }
+  ):show("singleplayer")
  end
  ```
 
@@ -104,10 +163,10 @@ Nested layouts are planned, but not yet supported.
 An element simply corresponds to a formspec element.
 Elements come in two categories: Physical and Non-Physical.
 
+## List of Non-physical Elements
+
 Non-Physical elements are just elements that aren't displayed, but instead perform some sort of configuration.
 These elements each have their own custom specifications, see below for each.
-
-## List of Non-physical Elements
 
 ### Listring
 Corresponds to the `listring` formspec element.
@@ -121,7 +180,8 @@ Created via:
 Spec:
 ```lua
 {
-  {"inventory_location", "list_name"},
+  {"inventory_location1", "list_name1"},
+  {"inventory_location2", "list_name2"},
   -- Can be repeated - specifies inv locations to add to this listring.
   -- Each entry will create, in the order they're specified, a separate `listring[inv_location, list_name]` formspec element
 }
@@ -271,9 +331,10 @@ Spec:
   text = "Button text",
   -- string to be shown in Button
   
-  on_click = function(state) return true end,
+  on_click = function(state, fields) return true end,
   -- a function to be called when the button is clicked
   -- `state` is the data object that gets passed to the `spec_builder` in the form, which can be modified by this function to affect what's shown
+  -- `fields` is the value of the fields in the form (see luanti docs). Note that only fields with specified IDs will be present
   -- return `true` to re-show the formspec to the user
 }
 ```
