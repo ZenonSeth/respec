@@ -24,8 +24,9 @@
       text = "Relative Formspec Layout Demo",
       w = 3, h = 0.5,
       top_to_bottom_of = "moveupbtn",
-      start_to_parent_start = true,
-      end_to_parent_end = true,
+      center_hor = true, -- equivalent of the two commented out lines below
+      -- start_to_parent_start = true,
+      -- end_to_parent_end = true,
     },
     elem.Label {
       id = "label1",
@@ -52,11 +53,12 @@
     },
     elem.Label {
       id = "label2",
-      w = 2.2, h = 0.5,
-      text ="Hello there "..(initState.playerName or ""),
+      w = 1.2, h = 0.5,
+      text ="Hi "..(initState.playerName or ""),
       margins = 0.25,
       top_to_bottom_of = "btn_id",
-      start_to_start_of = "btn_id",
+      --start_to_start_of = "btn_id",
+      center_hor = "btn_id",
       area = true, -- no effect unless formspec_version >= 9
       end_to_end_of = "btn_id",
     },
@@ -91,8 +93,7 @@
       id = "moveupbtn",
       w = 1, h = 0.3,
       top_to_parent_top = true,
-      start_to_parent_start = true,
-      end_to_parent_end = true,
+      center_hor = true,
       text = "^",
       on_click = function(state)
         state.posy = math.max(state.posy - mv, 0) ; return true
@@ -101,8 +102,7 @@
     elem.Button {
       w = 1, h = 0.3,
       bottom_to_parent_bottom = true,
-      start_to_parent_start = true,
-      end_to_parent_end = true,
+      center_hor = true,
       text = "v",
       on_click = function(state)
         state.posy = math.max(state.posy + mv, 0) ; return true
@@ -111,8 +111,7 @@
     elem.Button {
       w = 0.3, h = 1,
       start_to_parent_start = true,
-      top_to_parent_top = true,
-      bottom_to_parent_bottom = true,
+      center_ver = true,
       text = "<",
       on_click = function(state)
         state.posx = math.max(state.posx - mv, 0) ; return true
@@ -121,8 +120,7 @@
     elem.Button {
       w = 0.3, h = 1,
       end_to_parent_end = true,
-      top_to_parent_top = true,
-      bottom_to_parent_bottom = true,
+      center_ver = true,
       text = ">",
       on_click = function(state)
         state.posx = math.max(state.posx + mv, 0) ; return true

@@ -238,7 +238,19 @@ This spec is common between all physical elements, and each Physical Element has
 -- Alignment isn't affected by the other element's margins
 -- Aligning to elements which have visibility = gone is allowed, and the alignment
 -- will instead inherit the gone element's alignment
-  
+
+  center_hor = true,
+  -- shorthand for specifying both start_to_parent_start and end_to_parent_end
+
+  center_ver = true,
+  -- shorthand for specifying both top_to_parent_top and bottom_to_parent_bottom
+
+  center_hor = "other_id",
+  -- shorthand for specifying both start_to_start_of="other_id" and end_to_end_of="other_id"
+
+  center_ver = "other_id",
+  -- shorthand for specifying both top_to_top_of="other_id" and bottom_to_bottom_of="other_id"
+
   top_to_top_of = "other_id",
   -- aligns the top of this element to the top of another element with the provided "other_id"
 

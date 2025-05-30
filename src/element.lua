@@ -124,6 +124,20 @@ local function get_align(spec)
   local al = {ref = "", side = UNSET}
   local ar = {ref = "", side = UNSET}
 
+  local chor = spec.center_hor
+  local cver = spec.center_ver
+  if chor == true then al.side = PARENT ; ar.side = PARENT
+  elseif is_str(chor) then
+    al.ref = chor ; al.side = LFT
+    ar.ref = chor ; ar.side = RGT
+  end
+
+  if cver == true then at.side = PARENT ; ab.side = PARENT
+  elseif is_str(cver) then
+    at.ref = cver ; at.side = TOP
+    ab.ref = cver ; ab.side = BOT
+  end
+
   if spec.top_to_parent_top == true       then at.side = PARENT end
   if spec.bottom_to_parent_bottom == true then ab.side = PARENT end
   if spec.start_to_parent_start == true   then al.side = PARENT end
