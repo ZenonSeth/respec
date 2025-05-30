@@ -56,7 +56,6 @@ respec.internal.supported_elements = {
   tablecolumns =      minf { "tablecolumns", 1, false }, -- maybe incorporate into table
   style =             minf { "style", 1, false },
   style_type =        minf { "style_type", 1, false },
-  set_focus =         minf { "set_focus", 1, false } -- incorporate into form
 }
 local elem_info = respec.internal.supported_elements
 
@@ -215,6 +214,7 @@ function respec.PhysicalElement:init(fselem, spec)
   self.align = get_align(spec)
   self.horBias = valid_bias(spec.hor_bias)
   self.verBias = valid_bias(spec.ver_bias)
+  self.borderColor = spec.borderColor
   self.chainType = UNSET
   self.measured = { -- represents the location of the outer bounds that include margins
       [TOP] = UNSET, [BOT] = UNSET, [LFT] = UNSET, [RGT] = UNSET,

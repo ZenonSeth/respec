@@ -2,6 +2,10 @@
 local ri = respec.internal
 local suppElems = ri.supported_elements
 local con = respec.const
+local TOP = con.top
+local BOT = con.bottom
+local LFT = con.left
+local RGT = con.right
 
 local layoutCount = 0
 local function unique_layout_id()
@@ -12,17 +16,28 @@ end
 local function get_debug_formspec(layout)
   local s = ""
   if respec.settings.debug() then
-    s=s.."box[0,0;"..layout.margins[con.left]..","..layout.measured[con.bottom]..";#FFFF0028]"
-    s=s.."box[0,0;"..layout.measured[con.right]..","..layout.margins[con.top]..";#FFFF0028]"
+    s=s.."box[0,0;"..layout.margins[LFT]..","..layout.measured[BOT]..";#FFFF0028]"
+    s=s.."box[0,0;"..layout.measured[RGT]..","..layout.margins[TOP]..";#FFFF0028]"
     s=s.."box[0,"..
-        (layout.measured[con.bottom] - layout.margins[con.bottom])..";"..
-        layout.measured[con.right]..","..layout.margins[con.bottom]..";#FFFF0028]"
-    s=s.."box["..(layout.measured[con.right] - layout.margins[con.right])..
+        (layout.measured[BOT] - layout.margins[BOT])..";"..
+        layout.measured[RGT]..","..layout.margins[BOT]..";#FFFF0028]"
+    s=s.."box["..(layout.measured[RGT] - layout.margins[RGT])..
         ",0;"..
-        layout.margins[con.right]..","..layout.measured[con.bottom]..";#FFFF0028]"
+        layout.margins[RGT]..","..layout.measured[BOT]..";#FFFF0028]"
   end
   return s
 end
+
+local fs_elem_box = respec.internal.fs_elem_box
+local function add_common_formspec_string(elem, str)
+  local ret = str
+  ret = fs_elem_box(elem)..ret
+  if not elem.disableCustom and type(elem.borderColor) == "string" then
+    ret = ret..fs_elem_box(elem, true, elem.borderColor)
+  end
+  return ret
+end
+
 ----------------------------------------------------------------
 -- Layout class public functions
 ----------------------------------------------------------------
@@ -100,7 +115,7 @@ function respec.Layout:to_formspec_string(formspecVersion)
     local tbl = {}
     for _, el in ipairs(self.elements) do
       if el.fsName ~= nil then
-        table.insert(tbl, el:to_formspec_string(formspecVersion))
+        table.insert(tbl, add_common_formspec_string(el, el:to_formspec_string(formspecVersion)))
       end
     end
     self.serialized = table.concat(tbl, "")

@@ -2,10 +2,10 @@ local PATH = respec.MODPATH.."/src/"
 respec.internal = {}
 
 -- order matters
+dofile(PATH.."const.lua")
 dofile(PATH.."settings.lua")
 dofile(PATH.."util.lua")
 dofile(PATH.."register.lua")
-dofile(PATH.."const.lua")
 dofile(PATH.."graph.lua")
 dofile(PATH.."element.lua")
 dofile(PATH.."elements.lua")

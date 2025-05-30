@@ -7,7 +7,7 @@ local RGT = con.right
 local UNSET = con.unset
 local PARENT = con.parent
 
-local function min0(value) if value < 0 then return 0 else return value end end
+local min0 = respec.util.min0
 local function clamp(value, min, max)
   if value < min then return min elseif value > max then return max else return value end
 end

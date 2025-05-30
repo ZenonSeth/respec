@@ -1,4 +1,9 @@
 respec.util = {}
+local con = respec.const
+local TOP = con.top
+local BOT = con.bottom
+local LFT = con.left
+local RGT = con.right
 
 ----------------------------------------------------------------
 -- helpers
@@ -128,19 +133,65 @@ end
 -- make an outline with given x,y and width,height (ints)
 -- optClr (string) is optional
 local fme = respec.util.fs_make_elem
+local olf = 0.012 -- tricky..
 function respec.util.fs_make_outline(x, y, w, h, optClr)
   local bx = ""
   if not optClr then optClr = "#FF00FFAA" end
   bx=bx..fme("box", x..","..y, "0,"..h, optClr) -- left
   bx=bx..fme("box", x..","..y, w..",0", optClr) -- top
-  bx=bx..fme("box", (x+w)..","..y, "0,"..h, optClr) -- right
-  bx=bx..fme("box", x..","..(y+h), w..",0", optClr) -- bot
+  bx=bx..fme("box", (x+w-olf)..","..y, "0,"..h, optClr) -- right
+  bx=bx..fme("box", x..","..(y+h-olf), w..",0", optClr) -- bot
   return bx
 end
+local outl = respec.util.fs_make_outline
+
+function respec.util.num_or(v, o) if type(v) == "number" then return v else return o end end
+function respec.util.str_or(v, o) if type(v) == "string" then return v else return o end end
+
+local num_or = respec.util.num_or
+function respec.util.min0(value)
+  if num_or(value, 0) <= 0 then return 0 else return value end
+end
+local min0 = respec.util.min0
 
 ----------------------------------------------------------------
 -- debug stuff
 ----------------------------------------------------------------
+
+function respec.internal.fs_elem_box(obj, notDebug, clr)
+  if notDebug or respec.settings.debug() then
+    local ms = obj.measured
+    local mg = obj.margins
+    local mgt = min0(mg[TOP])
+    local mgb = min0(mg[BOT])
+    local mgl = min0(mg[LFT])
+    local mgr = min0(mg[RGT])
+    local boundColor = clr or "#0000FF38"
+    local elemColor = clr or "#00FF0038"
+    local bound = ""
+    local elem = ""
+
+    if not notDebug then
+      local bx = ms[LFT] + min0(ms.xOffset)
+      local by = ms[TOP] + min0(ms.yOffset)
+      local bw = ms.w + mgl + mgr
+      local bh = ms.h + mgt + mgb
+      bound = "box["..bx..","..by..";"..bw..","..bh..";"..boundColor.."]"
+      bound = bound..outl(bx, by, bw, bh)
+    end
+
+    local ex = ms[LFT] + mgl + min0(ms.xOffset)
+    local ey = ms[TOP] + mgt + min0(ms.yOffset)
+    local ew = ms.w
+    local eh = ms.h
+    if not notDebug then
+      elem = "box["..ex..","..ey..";"..ew..","..eh..";"..elemColor.."]"
+    end
+    elem = elem..outl(ex, ey, ew, eh)
+    return bound..elem
+  else return "" end
+end
+
 
 d = {} -- bad debug
 local dlog = function(str)

@@ -2,18 +2,13 @@
 
 local con = respec.const
 local TOP = con.top
-local BOT = con.bottom
 local LFT = con.left
-local RGT = con.right
 
 -- utility funcs
 
-local function num_or(v, o) if type(v) == "number" then return v else return o end end
-local function str_or(v, o) if type(v) == "string" then return v else return o end end
-
-local function min0(value)
-  if num_or(value, 0) < 0 then return 0 else return value end
-end
+local num_or = respec.util.num_or
+local str_or =  respec.util.str_or
+local min0 = respec.util.min0
 
 -- minv/maxv in range 0-255
 local function randclrval(minv, maxv)
@@ -21,41 +16,13 @@ local function randclrval(minv, maxv)
 end
 
 local fesc = respec.util.engine.formspec_escape
-local outl = respec.util.fs_make_outline
 local elemInfo = respec.internal.supported_elements
 
 --- debug box stuff
-local function get_debug_box(obj)
-  if respec.settings.debug() then
-    local ms = obj.measured
-    local mg = obj.margins
-    local mgt = min0(mg[TOP])
-    local mgb = min0(mg[BOT])
-    local mgl = min0(mg[LFT])
-    local mgr = min0(mg[RGT])
-    local boundColor = "#0000FF38"
-    local elemColor = "#00FF0038"
-
-    local bx = ms[LFT] + min0(ms.xOffset)
-    local by = ms[TOP] + min0(ms.yOffset)
-    local bw = ms.w + mgl + mgr
-    local bh = ms.h + mgt + mgb
-    local bound = "box["..bx..","..by..";"..bw..","..bh..";"..boundColor.."]"
-    bound = bound..outl(bx, by, bw, bh)
-
-    local ex = ms[LFT] + mgl + min0(ms.xOffset)
-    local ey = ms[TOP] + mgt + min0(ms.yOffset)
-    local ew = ms.w
-    local eh = ms.h
-    local elem = "box["..ex..","..ey..";"..ew..","..eh..";"..elemColor.."]"
-    elem = elem..outl(ex, ey, ew, eh)
-    return bound..elem
-  else return "" end
-end
 
 local fsmakeelem = respec.util.fs_make_elem
 local make_elem = function (obj, ...)
-  return get_debug_box(obj)..fsmakeelem(obj.fsName, ...)
+  return fsmakeelem(obj.fsName, ...)
 end
 
 -- common funcs

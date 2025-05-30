@@ -51,8 +51,10 @@ Forms have a concept of `state` - a lua table, that can be given to its `show()`
     -- Optional: if false, disable using closing formspec via esc or similar. Corresponds to `allow_close[]`
 
     -- Background Color config: these 3 elements correspond to a `bgcolor[]` formspec element
+
     bgcolor = "#RRGGBB",
     -- Optional: the background color of the formspec, in a formspec `ColorString` format
+    -- Usually requires `no_prepend = true` in order to have an effect
 
     fbgcolor = "#RRGGBB",
     -- Optional: Only if formspec_ve >= 3. The full-screen background color when showing the formspec, in a formspec `ColorString` format
@@ -64,6 +66,14 @@ Forms have a concept of `state` - a lua table, that can be given to its `show()`
     -- "true": Only the fullscreen background color is drawn.
     -- "both": Only if formspec_ver >= 3. The non-fullscreen and the fullscreen background color are drawn.
     -- "neither": Only if formspec_ver >= 3. No background color is drawn.
+
+    borderColor = "#RRGGBB",
+    -- Optional. Specify the color of a 1px border to be drawn around the form
+    -- Note that the right and bottom borders may disappear on some screen resolutions
+
+    set_focus = "id",
+    -- Corresponds to set_focus[id]. Set which element is focused when the form is opened.
+    -- Only certain elements can be focused, see: https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#set_focusnameforce
  }
 ```
 ## `builderFunction`
@@ -124,7 +134,7 @@ When you use this method, the `Form`'s `builderFunction` will automatically rece
     -- the optional `extraState` variable passed in `show_from_node_rightclick` - can be `nil`
   }
 ```
-For further info on these params see Luanti's [Node definition]() documentation.
+For further info on these params see Luanti's [Node definition](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#node-definition) documentation.
 
 Example:
 ```lua
@@ -303,6 +313,10 @@ This spec is common between all physical elements, and each Physical Element has
   -- the horizontal bias, defaults to 0.5 if not specified. Requires a start and end constraint to be set
   ver_bias = 0.5,
   -- the vertical bias, default to 0.5 if not specified. Requires a top and bottom constraint to be set.
+
+  borderColor = "#RRGGBB",
+  -- Optional. Specify the color of a 1px border to be drawn around the element (not including margins)
+  -- This doesn't use the formspec style[] element, it is manually done on top of whatever style[] you set. This is here primarily because not all elements support an outline in style[]
 }
 ```
 ## List of Physical Elements
@@ -325,7 +339,7 @@ Spec:
   -- string to be shown in label
   area = true,
   -- if set to `true` then make this an area label, which constraints its text to the size.
-  -- See formspec doc for more info
+  -- For more info see: https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#labelxywhlabel
 }
 ```
 
@@ -346,7 +360,8 @@ Spec:
   on_click = function(state, fields) return true end,
   -- a function to be called when the button is clicked
   -- `state` is the data object that gets passed to the `spec_builder` in the form, which can be modified by this function to affect what's shown
-  -- `fields` is the value of the fields in the form (see luanti docs). Note that only fields with specified IDs will be present
-  -- return `true` to re-show the formspec to the user
+  -- `fields` is the value of the fields in the form (see luanti docs under `register_on_player_receive_fields`).
+  -- Note that only fields with specified IDs will be present
+  -- @return `true` from this function to re-show the formspec to the user
 }
 ```

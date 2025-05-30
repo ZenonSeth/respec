@@ -82,25 +82,26 @@ local function get_valid_fullscreen(str)
 end
 
 -- not public - return the form defition string
+local ins = table.insert
 local function get_form_str(form)
-  local ltm = form.layout.measured
   local sp = form.spec
-  local str = "formspec_version["..sp.formspec_version.."]"
-  str = str..fsc("size", sp.w, sp.h)
+  local tbl = {}
+  ins(tbl, "formspec_version["..sp.formspec_version.."]")
+  ins(tbl, fsc("size", sp.w, sp.h))
   if sp.pos_x and sp.pos_y then
-    str = str..fsc("position", sp.pos_x, sp.pos_y)
+    ins(tbl, fsc("position", sp.pos_x, sp.pos_y))
   end
   if sp.anchor_x and sp.anchor_y then
-    str = str..fsc("anchor", sp.anchor_x, sp.anchor_y)
+    ins(tbl, fsc("anchor", sp.anchor_x, sp.anchor_y))
   end
   if sp.screen_padding_x and sp.screen_padding_y then
-    str = str..fsc("padding", sp.screen_padding_x, sp.screen_padding_y)
+    ins(tbl, fsc("padding", sp.screen_padding_x, sp.screen_padding_y))
   end
   if sp.no_prepend then
-    str = str.."no_prepend[]"
+    ins(tbl, "no_prepend[]")
   end
   if sp.allow_close == false then
-    str = str.."allow_close[false]"
+    ins(tbl, "allow_close[false]")
   end
   local bgC = get_valid_color(sp.bgcolor)
   local fbgC = get_valid_color(sp.fbgcolor)
@@ -112,9 +113,15 @@ local function get_form_str(form)
     else
       bgcf = respec.util.fs_make_elem("bgcolor", bgC, bgF)
     end
-    str = str..bgcf
+    ins(tbl, bgcf)
   end
-  return str
+  if is_str(sp.set_focus) then
+    ins(tbl, "set_focus["..sp.set_focus.."]")
+  end
+  if is_str(sp.borderColor) then
+    ins(tbl, respec.util.fs_make_outline(0, 0, sp.w, sp.h, sp.borderColor))
+  end
+  return table.concat(tbl, "")
 end
 
 -- not public

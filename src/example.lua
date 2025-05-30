@@ -9,6 +9,7 @@
     formspec_version = 5,
     margins = 0.2,
     bgcolor = "#252525CC",
+    borderColor = "#0FF",
     -- fbgcolor = "#0000FFAA",
     pos_x = state.posx, pos_y = state.posy,
     no_prepend = true,
@@ -45,6 +46,7 @@
       start_to_end_of = "label1",
       margins_ver = 0.25,
       margins_hor = 0.25,
+      borderColor = "#00FF",
       on_click = function(state, fields)
         d.log("click fields = ".. dump(fields):gsub("\n", " "))
         state.count = (state.count or 0) + 1
