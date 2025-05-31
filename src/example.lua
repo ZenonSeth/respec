@@ -164,6 +164,7 @@
       toTop = true,
       center_hor = true,
       text = "^",
+      margin_top = -0.2, -- negative margins are allowed, though may not work as expected
       on_click = function(state)
         state.posy = math.max(state.posy - mv, 0)
       end
@@ -172,6 +173,7 @@
       w = 1, h = 0.3, margins = 0,
       toBottom = true,
       center_hor = true,
+      margin_bottom = -0.2, -- negative margins are allowed, though may not work as expected
       text = "v",
       on_click = function(state)
         state.posy = math.max(state.posy + mv, 0)
@@ -181,6 +183,7 @@
       w = 0.3, h = 1, margins = 0,
       toStart = true,
       center_ver = true,
+      margin_start = -0.2, -- negative margins are allowed, though may not work as expected
       text = "<",
       on_click = function(state)
         state.posx = math.max(state.posx - mv, 0)
@@ -190,6 +193,7 @@
       w = 0.3, h = 1, margins = 0,
       toEnd = true,
       center_ver = true,
+      margin_end = -0.2, -- negative margins are allowed, though may not work as expected
       text = ">",
       on_click = function(state)
         state.posx = math.max(state.posx + mv, 0)

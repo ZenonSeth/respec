@@ -47,7 +47,8 @@ Forms have a concept of `state` - a lua table, that can be given to its `show()`
     -- Optional: disables player:set_formspec_prepend. Corresponds to `no_prepend[]`
     
     allow_close = true,
-    -- Optional: if false, disable using closing formspec via esc or similar. Corresponds to `allow_close[]`
+    -- Optional. Default is true. If set to false, disable using closing formspec via esc or similar.
+    -- Corresponds to `allow_close[]`
 
     -- Background Color config: these 3 elements correspond to a `bgcolor[]` formspec element
 
@@ -56,7 +57,8 @@ Forms have a concept of `state` - a lua table, that can be given to its `show()`
     -- Usually requires `no_prepend = true` in order to have an effect
 
     fbgcolor = "#RRGGBB",
-    -- Optional: Only if formspec_ve >= 3. The full-screen background color when showing the formspec, in a formspec `ColorString` format
+    -- Optional: Only if formspec_ve >= 3.
+    -- The full-screen background color when showing the formspec, in a formspec `ColorString` format
 
     bgfullscreen = "false",
     -- Optional, if formspec_ver >= 3, otherwise must be present if `bgcolor` is present.
@@ -72,7 +74,8 @@ Forms have a concept of `state` - a lua table, that can be given to its `show()`
 
     set_focus = "id",
     -- Corresponds to set_focus[id]. Set which element is focused when the form is opened.
-    -- Only certain elements can be focused, see: https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#set_focusnameforce
+    -- Only certain elements can be focused.
+    -- See: https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#set_focusnameforce
 
     reshowOnInteract = false,
     -- Optional. Default is `true`
@@ -248,7 +251,7 @@ This spec is common between all physical elements, and each Physical Element has
   
 -- Margins: All margins are optional. Default value is 0 for all of them.
 -- Any combination of the below are acceptable.
--- Negative margins may not work as expected
+-- Negative margins are allowed, though behavior may not be as expected.
 -- If multiple are present, then more specific margins override the more general ones
 
   margins = 4, -- sets all margins to 4
@@ -320,18 +323,18 @@ This spec is common between all physical elements, and each Physical Element has
   -- Shorthand align flags
   -- The above flags are more technically correct, but they are more quite verbose.
   -- The following flags do the same as the above, but are easier to write:
-    alignTop = "other_id",    -- shorthand for top_to_top_of
-    alignBottom = "other_id", -- shorthand for bottom_to_bottom_of
-    alignStart = "other_id",  -- shorthand for start_to_start_of
-    alignEnd = "other_id",    -- shorthand for end_to_end_of
-    below = "other_id",       -- shorthand for top_to_bottom_of
-    above = "other_id",       -- shorthand for bottom_to_top_of
-    before = "other_id",      -- shorthand for end_to_start_of
-    after = "other_id"        -- shorthand for start_to_end_of
-    toTop = true,             -- shorthand for top_to_parent_top
-    toBottom = true,          -- shorthand for bottom_to_parent_bottom
-    toStart = true,           -- shorthand for start_to_parent_start
-    toEnd = true,             -- shorthand for end_to_parent_end
+  alignTop = "other_id",    -- shorthand for top_to_top_of
+  alignBottom = "other_id", -- shorthand for bottom_to_bottom_of
+  alignStart = "other_id",  -- shorthand for start_to_start_of
+  alignEnd = "other_id",    -- shorthand for end_to_end_of
+  below = "other_id",       -- shorthand for top_to_bottom_of
+  above = "other_id",       -- shorthand for bottom_to_top_of
+  before = "other_id",      -- shorthand for end_to_start_of
+  after = "other_id"        -- shorthand for start_to_end_of
+  toTop = true,             -- shorthand for top_to_parent_top
+  toBottom = true,          -- shorthand for bottom_to_parent_bottom
+  toStart = true,           -- shorthand for start_to_parent_start
+  toEnd = true,             -- shorthand for end_to_parent_end
 
 -- Biases: all are optional. 
 -- When applicable, they shift how far along the element is positioned between its start and end points.
