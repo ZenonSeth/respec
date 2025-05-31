@@ -25,15 +25,14 @@ Forms have a concept of `state` - a lua table, that can be given to its `show()`
     formspec_version = 4, 
     -- Required: cannot be lower than 2 (due to real_coordinates)  Corresponds to `formspec_version[]`
     
-    -- Margins are all optional, and combination may be used.
-    -- Form margins will push all elements inwards from the corresponding edge.
-    margins = 4, -- sets margins on all sides to this value
-    margins_hor = 3, -- sets horizontal (start/end) margins to this value
-    margins_ver = 3, -- sets vertical (top/bottom) margins to this value
-    margin_top = 2, -- set the top margin to this value
-    margin_bottom = 2, -- set the bottom margin to this value
-    margin_start = 2, -- set the start margin to this value
-    margin_end = 2, -- set the end margin to this value
+    -- Paddings are all optional.
+    -- Form (aka Layout) Paddings will push all elements inwards from the corresponding edge.
+    paddings = 3,
+     -- sets all four default paddings to 3
+    paddings = { hor = 4, ver = 2 }
+     -- sets before/after paddings to 4 and above/below paddings to 2
+    paddings = { before = 3, after = 3, above = 3, below = 4 }
+    -- sets the paddings on each side correspondingly
 
     pos_x = 0.5, pos_y = 0.5, 
     -- Optional: the position on the screen (0-1). Corresponds to `position[]` formspec element
@@ -69,7 +68,7 @@ Forms have a concept of `state` - a lua table, that can be given to its `show()`
 
     borderColor = "#RRGGBB",
     -- Optional. Specify the color of a 1px border to be drawn around the form
-    -- Note that the right and bottom borders may disappear on some screen resolutions
+    -- Note that in order to render correctly, this also sets all box[] elements to noclip
 
     set_focus = "id",
     -- Corresponds to set_focus[id]. Set which element is focused when the form is opened.
@@ -81,6 +80,16 @@ Forms have a concept of `state` - a lua table, that can be given to its `show()`
     -- interact with an element that triggers a callback
     -- When `false`, each individual element is required to `return true` from its 
     -- individual interaction function in order to reshow the form to the user.
+
+    -- Default margins. Optional. All 3 versions do the same thing, but allow shorthands
+    -- If present, the default margins will be used for any element that doesn't specify a corresponding margin
+
+    defaultElementMargins = 3,
+     -- sets all four default margins to 3
+    defaultElementMargins = { hor = 4, ver = 2 }
+     -- sets before/after margins to 4 and above/below ,margins to 2
+    defaultElementMargins = { before = 3, after = 3, above = 3, below = 4 }
+     -- sets the default margins to given values
  }
 ```
 ## `builderFunction`
@@ -308,6 +317,22 @@ This spec is common between all physical elements, and each Physical Element has
   end_to_parent_end = true,
   -- when set to `true, aligns the end of the element to the parent Layout's end
 
+  -- Shorthand align flags
+  -- The above flags are more technically correct, but they are more quite verbose.
+  -- The following flags do the same as the above, but are easier to write:
+    alignTop = "other_id",    -- shorthand for top_to_top_of
+    alignBottom = "other_id", -- shorthand for bottom_to_bottom_of
+    alignStart = "other_id",  -- shorthand for start_to_start_of
+    alignEnd = "other_id",    -- shorthand for end_to_end_of
+    below = "other_id",       -- shorthand for top_to_bottom_of
+    above = "other_id",       -- shorthand for bottom_to_top_of
+    before = "other_id",      -- shorthand for end_to_start_of
+    after = "other_id"        -- shorthand for start_to_end_of
+    toTop = true,             -- shorthand for top_to_parent_top
+    toBottom = true,          -- shorthand for bottom_to_parent_bottom
+    toStart = true,           -- shorthand for start_to_parent_start
+    toEnd = true,             -- shorthand for end_to_parent_end
+
 -- Biases: all are optional. 
 -- When applicable, they shift how far along the element is positioned between its start and end points.
 --
@@ -329,7 +354,13 @@ This spec is common between all physical elements, and each Physical Element has
   -- Optional. Specify the color of a 1px border to be drawn around the element (not including margins)
   -- This doesn't use the formspec style[] element, it is manually done on top of whatever style[] you set. This is here primarily because not all elements support an outline in style[]
 }
+
 ```
+### Notes on Visibility
+When an element is `visible` or `invisible` it will take up space for the purposes of other elements aligning to it.
+
+When an element is set to `gone` (aka `visible = false`) then any other element aligning to it will try to inherit the alignment of the `gone` element as best as it can. This means that a series elements where each aligns to the one before it should still work if an element in the series is set to `visible = false`.
+
 ## List of Physical Elements
 
 All Physical Elements take a `spec` table as input.

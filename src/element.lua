@@ -97,7 +97,7 @@ local function get_visibility(spec)
 end
 
 local function get_margins(spec)
-  local margins = {[TOP] = 0, [BOT] = 0, [LFT] = 0, [RGT] = 0}
+  local margins = {[TOP] = UNSET, [BOT] = UNSET, [LFT] = UNSET, [RGT] = UNSET}
   if is_num(spec.margins) then
     local mg = spec.margins
     margins[TOP] = mg ; margins[BOT] = mg ; margins[LFT] = mg ; margins[RGT] = mg
@@ -118,7 +118,7 @@ local function get_margins(spec)
   return margins
 end
 
-local function alref(v, func) if is_str(v) then func(v) end end
+local function alref(v, a, func) if is_str(v) then func(v) elseif is_str(a) then func(a) end end
 local function get_align(spec)
   local at = {ref = "", side = UNSET}
   local ab = {ref = "", side = UNSET}
@@ -139,22 +139,22 @@ local function get_align(spec)
     ab.ref = cver ; ab.side = BOT
   end
 
-  if spec.top_to_parent_top == true       then at.side = PARENT end
-  if spec.bottom_to_parent_bottom == true then ab.side = PARENT end
-  if spec.start_to_parent_start == true   then al.side = PARENT end
-  if spec.end_to_parent_end == true       then ar.side = PARENT end
+  if spec.top_to_parent_top == true or spec.toTop == true           then at.side = PARENT end
+  if spec.bottom_to_parent_bottom == true or spec.toBottom == true  then ab.side = PARENT end
+  if spec.start_to_parent_start == true or spec.toStart == true     then al.side = PARENT end
+  if spec.end_to_parent_end == true or spec.toEnd == true           then ar.side = PARENT end
 
-  alref(spec.top_to_top_of,    function(r) at.ref = r ; at.side = TOP end)
-  alref(spec.top_to_bottom_of, function(r) at.ref = r ; at.side = BOT end)
+  alref(spec.top_to_top_of, spec.alignTop,    function(r) at.ref = r ; at.side = TOP end)
+  alref(spec.top_to_bottom_of, spec.below,    function(r) at.ref = r ; at.side = BOT end)
 
-  alref(spec.bottom_to_top_of,    function(r) ab.ref = r ; ab.side = TOP end)
-  alref(spec.bottom_to_bottom_of, function(r) ab.ref = r ; ab.side = BOT end)
+  alref(spec.bottom_to_top_of, spec.above,          function(r) ab.ref = r ; ab.side = TOP end)
+  alref(spec.bottom_to_bottom_of, spec.alignBottom, function(r) ab.ref = r ; ab.side = BOT end)
 
-  alref(spec.start_to_start_of, function(r) al.ref = r ; al.side = LFT end)
-  alref(spec.start_to_end_of,   function(r) al.ref = r ; al.side = RGT end)
+  alref(spec.start_to_start_of, spec.alignStart,    function(r) al.ref = r ; al.side = LFT end)
+  alref(spec.start_to_end_of, spec.after,           function(r) al.ref = r ; al.side = RGT end)
 
-  alref(spec.end_to_start_of, function(r) ar.ref = r ; ar.side = LFT end)
-  alref(spec.end_to_end_of,   function(r) ar.ref = r ; ar.side = RGT end)
+  alref(spec.end_to_start_of, spec.before,    function(r) ar.ref = r ; ar.side = LFT end)
+  alref(spec.end_to_end_of, spec.alignEnd,    function(r) ar.ref = r ; ar.side = RGT end)
 
   if at.side == UNSET and ab.side == UNSET then
     at.side = PARENT

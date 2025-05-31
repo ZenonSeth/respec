@@ -159,7 +159,7 @@ local function handle_spec(self, state)
   if not spec.w and not spec.width then spec.w = con.wrap_content end
   if not spec.h and not spec.height then spec.h = con.wrap_content end
   self.spec = verify_specification(spec)
-  self.layout = respec.Layout((self.id or "").."_layout", spec)
+  self.layout = respec.Layout(spec)
   self.state = spec.state or {}
   self.bgcolor = spec.bgcolor
   self.fbgcolor = spec.fbgcolor

@@ -111,11 +111,11 @@ function respec.util.grid(width, height, divsPerUnit)
     end
   end
   local lines = ""
-  for i = 0, width * divsPerUnit do
-    lines=lines.."box["..(i / divsPerUnit)..",0;0.01,"..h..";#888888]"
+  for i = 0, (w + 1)  * divsPerUnit do
+    lines=lines.."box["..(i / divsPerUnit)..",0;0.01,"..(h + 1)..";#888888]"
   end
-  for j = 1, height * divsPerUnit do
-    lines=lines.."box[0,"..(j / divsPerUnit)..";"..w..",0.01;#888888]"
+  for j = 1, (h + 1) * divsPerUnit do
+    lines=lines.."box[0,"..(j / divsPerUnit)..";"..(w + 1)..",0.01;#888888]"
   end
 
   return table.concat(tmp, "")..lines

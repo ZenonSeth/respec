@@ -8,12 +8,14 @@ local UNSET = con.unset
 local PARENT = con.parent
 local GONE = con.gone
 
+local num_or = respec.util.num_or
 local min0 = respec.util.min0
 local function clamp(value, min, max)
   if value < min then return min elseif value > max then return max else return value end
 end
 
 local function update_container_measurements(side, value, layoutMeasurements)
+  -- d.log("layoutMea = "..dump(layoutMeasurements).. " value = "..dump(value))
   if side == TOP or side == BOT then
     if value > layoutMeasurements.max_y then layoutMeasurements.max_y = value end
   else
@@ -73,6 +75,17 @@ local function set_dynamic_size_if_possible(element, measured, margins)
   end
 end
 
+-- returns a new table with valid margins, which may be 0
+-- expects defaultMargins to be 0 if they're
+local function merge_margins(elemM, defaultMargins)
+  local mar = {}
+  for _, SIDE in ipairs({TOP, BOT, LFT, RGT}) do
+    local ems = elemM[SIDE] ; if ems == UNSET then ems = nil end
+    mar[SIDE] = num_or(ems, defaultMargins[SIDE])
+  end
+  return mar
+end
+
 --[[
  S1: nearer to zero side
  S2: futher from zero, opposite side
@@ -85,12 +98,13 @@ end
  set_measured_custom_offset: func to set the custom X/Y offset
 ]]
 local function update_side_logic(isGone, S1, S2, align, measured, margins, size, bias, set_measured_size, set_measured_custom_offset)
+  -- NOTE: nested ifs cannot be flattened! Logic needs to hold as it is
   if align[S1].side == UNSET and align[S2].side == UNSET then
     -- not a good user case, S2h S1/S2 were unset. But resolve it now
     if isGone then
       measured[S1] = 0 ; measured[S2] = 0
     else
-      measured[S1] = 0 ; measured[S2] = size + min0(margins[S1]) + min0(margins[S2])
+      measured[S1] = 0 ; measured[S2] = size + margins[S1] + margins[S2]
       set_measured_size(size)
     end
   elseif align[S1].side == UNSET then -- S1 was unset but S2 was set
@@ -99,7 +113,7 @@ local function update_side_logic(isGone, S1, S2, align, measured, margins, size,
     else
       if measured[S2] ~= UNSET and size > 0 then -- S2 was also already measured
         -- d.log("setting side 2 based on side 1 for"..elem.id..": "..measured[S1].." + "..size.." + "..min0(margins[S1]).." + "..min0(margins[S2]))
-        measured[S1] = measured[S2] - size - min0(margins[S1]) - min0(margins[S2])
+        measured[S1] = measured[S2] - size - margins[S1] - margins[S2]
         set_measured_size(size)
       end
     end
@@ -109,7 +123,7 @@ local function update_side_logic(isGone, S1, S2, align, measured, margins, size,
     else
       if measured[S1] ~= UNSET and size > 0 then -- S1 was also already measured
         -- d.log("setting side 2 based on side 1 for"..elem.id..": "..measured[S1].." + "..size.." + "..min0(margins[S1]).." + "..min0(margins[S2]))
-        measured[S2] = measured[S1] + size + min0(margins[S1]) + min0(margins[S2])
+        measured[S2] = measured[S1] + size + margins[S1] + margins[S2]
         set_measured_size(size)
       end
     end
@@ -130,12 +144,9 @@ local function update_side_logic(isGone, S1, S2, align, measured, margins, size,
   end
 end
 
-local function update_element_sides_based_on_align(elem, side)
+local function update_element_sides_based_on_align(elem, side, measured, margins)
   local align = elem.align
-  local margins = elem.margins
-  local measured = elem.measured
   local isGone = elem.visibility == GONE
-  -- NOTE: nested ifs cannot be flattened! Logic needs to hold as it is
   if side == TOP or side == BOT then
     -- d.log("update side logic top/bot.. elem = "..dump(elem))
     update_side_logic(isGone, TOP, BOT, align, measured, margins, elem.height, elem.verBias,
@@ -196,13 +207,13 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
       end
 
       local marginSign = 1 ; if side == BOT or side == RGT then marginSign = -1 end
-      value = value + marginSign * min0(layout.margins[side])
-      -- d.log("align "..elem.id..":"..side.." to parent. LayoutMargins = "..dump(layout.margins).." value = "..value)
+      value = value + marginSign * margins[side]
+      -- d.log("align "..elem.id..":"..side.." to parent. LayoutMargins = "..dump(margins).." value = "..value)
 
       measured[side] = value
 
       set_dynamic_size_if_possible(elem, measured, margins)
-      update_element_sides_based_on_align(elem, side)
+      update_element_sides_based_on_align(elem, side, measured, margins)
       update_container_measurements(side, value, containerMeasurements)
       -- node.resolvedVal = elem.measured[side]
       node.resolved = true
@@ -214,7 +225,7 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
       return true
     elseif refSide == UNSET then
       -- check if other side is set
-      update_element_sides_based_on_align(elem, side)
+      update_element_sides_based_on_align(elem, side, measured, margins)
       update_container_measurements(side, measured[side], containerMeasurements)
       if measured[side] ~= UNSET then -- we set it
         node.resolved = true
@@ -238,7 +249,7 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
     if refValue == nil or refValue == UNSET then respec.log_error("parent node was not measured?") ; return false end -- should not happen
     node.element.measured[side] = refValue
     set_dynamic_size_if_possible(elem, measured, margins)
-    update_element_sides_based_on_align(elem, side)
+    update_element_sides_based_on_align(elem, side, measured, margins)
     -- node.resolvedVal = elem.measured[side]
     node.resolved = true
     update_container_measurements(side, refValue, containerMeasurements)
@@ -254,18 +265,17 @@ end
 local function update_container_measurements_if_necessary(layout, containerMeasurements)
   local align = layout.align
   local measured = layout.measured
-  local margins = layout.margins
 
   if layout.width == con.wrap_content then
     if align[LFT].side == UNSET and align[RGT] == UNSET then
       -- both left/right were unaligned - treat this as a root
-      measured[LFT] = 0 ; measured[RGT] = min0(margins[LFT]) + min0(margins[RGT]) + containerMeasurements.max_x
+      measured[LFT] = 0 ; measured[RGT] = containerMeasurements.max_x
       measured.w = containerMeasurements.max_x
     elseif align[LFT].side == UNSET then -- left was usnet but right was set
-      measured[LFT] = measured[RGT] - margins[LFT] - margins[RGT] - containerMeasurements.max_x -- unsure if this is correct..
+      measured[LFT] = measured[RGT] - containerMeasurements.max_x -- unsure if this is correct..
       measured.w = containerMeasurements.max_x
     elseif align[RGT].side == UNSET then -- right was usnet but left was set
-      measured[RGT] = measured[LFT] + margins[RGT] + containerMeasurements.max_x
+      measured[RGT] = measured[LFT] + containerMeasurements.max_x
       measured.w = containerMeasurements.max_x
     -- else: both set? wrap content will be ignored
     end
@@ -273,13 +283,13 @@ local function update_container_measurements_if_necessary(layout, containerMeasu
   if layout.height == con.wrap_content then
     if align[TOP].side == UNSET and align[BOT] == UNSET then
       -- both left/right were unaligned - treat this as a root
-      measured[TOP] = 0 ; measured[BOT] = min0(margins[TOP]) + min0(margins[BOT]) + containerMeasurements.max_y
+      measured[TOP] = 0 ; measured[BOT] = containerMeasurements.max_y
       measured.h = containerMeasurements.max_y
     elseif align[TOP].side == UNSET then -- left was usnet but right was set
-      measured[TOP] = measured[BOT] - margins[TOP] - margins[BOT] - containerMeasurements.max_y -- unsure if this is correct..
+      measured[TOP] = measured[BOT] - containerMeasurements.max_y -- unsure if this is correct..
       measured.h = containerMeasurements.max_y
     elseif align[BOT].side == UNSET then -- right was usnet but left was set
-      measured[BOT] = measured[TOP] + margins[BOT] + containerMeasurements.max_y
+      measured[BOT] = measured[TOP] + containerMeasurements.max_y
       measured.h = containerMeasurements.max_y
     -- else: both set? wrap content will be ignored
     end
@@ -302,6 +312,12 @@ function respec.internal.perform_layout(layout, containerMeasurements)
   local remaining = {}
   local numRemaining = 0
   local containerMeasurements = containerMeasurements or { max_x = 0, max_y = 0 }
+  -- merge all elements margins
+  for _, elem in ipairs(layout.elements) do
+    if elem.physical == true then
+      elem.margins = merge_margins(elem.margins, layout.defaultMargins)
+    end
+  end
   -- d.log("layout graph = "..dump(graph))
   for _, root in pairs(graph.roots) do
     local res = perform_layout_of_node(layout, root, containerMeasurements)
@@ -363,9 +379,9 @@ end
 function respec.internal.perform_layout_of_form_layout(formLayout)
   -- form root layout always starts at 0, 0 - but may have wrap width/height
   local ms = formLayout.measured
-  local mg = formLayout.margins
-  ms[LFT] = 0
-  ms[TOP] = 0
+  local mg = formLayout.paddings
+  ms[LFT] = mg[LFT]
+  ms[TOP] = mg[TOP]
   if formLayout.width > 0 then
     ms[RGT] = formLayout.width
     ms.w = formLayout.width - min0(mg[LFT]) - min0(mg[RGT])

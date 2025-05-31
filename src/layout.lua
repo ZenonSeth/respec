@@ -17,14 +17,15 @@ end
 local function get_debug_formspec(layout)
   local s = ""
   if respec.settings.debug() then
-    s=s.."box[0,0;"..layout.margins[LFT]..","..layout.measured[BOT]..";#FFFF0028]"
-    s=s.."box[0,0;"..layout.measured[RGT]..","..layout.margins[TOP]..";#FFFF0028]"
+    local inset = layout.paddings
+    s=s.."box[0,0;"..inset[LFT]..","..layout.measured[BOT]..";#FFFF0028]"
+    s=s.."box[0,0;"..layout.measured[RGT]..","..inset[TOP]..";#FFFF0028]"
     s=s.."box[0,"..
-        (layout.measured[BOT] - layout.margins[BOT])..";"..
-        layout.measured[RGT]..","..layout.margins[BOT]..";#FFFF0028]"
-    s=s.."box["..(layout.measured[RGT] - layout.margins[RGT])..
+        (layout.measured[BOT] - inset[BOT])..";"..
+        layout.measured[RGT]..","..inset[BOT]..";#FFFF0028]"
+    s=s.."box["..(layout.measured[RGT] - inset[RGT])..
         ",0;"..
-        layout.margins[RGT]..","..layout.measured[BOT]..";#FFFF0028]"
+        inset[RGT]..","..layout.measured[BOT]..";#FFFF0028]"
   end
   return s
 end
@@ -39,32 +40,56 @@ local function add_common_formspec_string(elem, str)
   return ret
 end
 
+local num_or = respec.util.num_or
+
+local function parse_common_padd_marg_into(inf, tbl)
+  if not inf then return tbl end
+  if type(inf) == "number" then
+    tbl[TOP] = inf ; tbl[BOT] = inf ; tbl[LFT] = inf ; tbl[RGT] = inf
+  elseif type(inf) == table then
+    local mL = num_or(inf.hor, 0) ; local mR = mL
+    local mT = num_or(inf.ver, 0) ; local mB = mT
+    mT = num_or(inf.above,  mT)
+    mB = num_or(inf.below,  mB)
+    mL = num_or(inf.before, mL)
+    mR = num_or(inf.after,  mR)
+    tbl[TOP] = mT ; tbl[BOT] = mB ; tbl[LFT] = mL ; tbl[RGT] = mR
+  end
+end
+
+-- return a table of paddings, with 0 if not set
+local function get_paddings(spec)
+  local pad = {[TOP] = 0, [BOT] = 0, [LFT] = 0, [RGT] = 0}
+  local inf = spec.paddings
+  parse_common_padd_marg_into(inf, pad)
+  return pad
+end
+
+local function get_default_element_margins(spec)
+  local defM = {[TOP] = 0, [BOT] = 0, [LFT] = 0, [RGT] = 0}
+  local inf = spec.defaultElementMargins
+  parse_common_padd_marg_into(inf, defM)
+  return defM
+end
+
 ----------------------------------------------------------------
 -- Layout class public functions
 ----------------------------------------------------------------
 
 -- creates a new layout class that handles laying out other elements (including nested Layouts)
--- spec: table with the following format:
--- {
---     `id` : String, optional - used for alinging other elements to this layout
---     `w`: Required: width of the layout, 0 to set width via align left/right
---     `h`: Required: height of the layout, 0 to set height via align top/bottom
---    padding = 1,  -- WIP NOT WORKING! Optional, only used when WRAP_CONTENT is used for width or height. 
---                  -- The extra padding to include between elements and the border of the form when wrapping them
---
-
+-- spec: table. A subset of the form's spec- see doc/api.md.
+-- There shouldn't be a need to ever use this manually
 respec.Layout = respec.util.Class(respec.PhysicalElement)
 
-function respec.Layout:init(layoutId, spec)
-  if not spec.id then spec.id = unique_layout_id() end
+function respec.Layout:init(spec)
+  if type(spec.id) ~= "string" then spec.id = unique_layout_id() end
   respec.PhysicalElement.init(self, suppElems._LAYOUT, spec)
   self.elements = {}
   self.fieldElemsById = {}
   self.elementsGraph = respec.graph.new()
   self.ids = {}
-  self.padding = 0
-  -- defaultMarginsHor = UNSET -- not used
-  -- defaultMarginsVer = UNSET -- not used
+  self.paddings = get_paddings(spec)
+  self.defaultMargins = get_default_element_margins(spec)
   self.serialized = nil
 end
 local function do_add(self, element)
@@ -96,6 +121,8 @@ function respec.Layout:set_elements(elementsList)
   for _, element in ipairs(elementsList) do
     do_add(self, element)
   end
+  -- cleanup
+  self.ids = nil
   return self
 end
 
