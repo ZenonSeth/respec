@@ -1,9 +1,10 @@
 
 respec.settings = {}
-local override = true
+local override = false
 
 local debugOverrides = {}
 function respec.settings.debug(playerName)
+  if override then return override end
   if not playerName then playerName = "singleplayer" end
   return debugOverrides[playerName] == true
 end

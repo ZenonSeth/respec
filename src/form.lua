@@ -119,7 +119,7 @@ local function get_form_str(form)
     ins(tbl, "set_focus["..sp.set_focus.."]")
   end
   if is_str(sp.borderColor) then
-    ins(tbl, respec.util.fs_make_outline(0, 0, sp.w, sp.h, sp.borderColor))
+    ins(tbl, respec.util.fs_make_outline(0, 0, sp.w, sp.h, sp.borderColor, true))
   end
   return table.concat(tbl, "")
 end
@@ -137,7 +137,7 @@ local function get_formspec_string(form)
     debugGrid = respec.util.grid(spec.w, spec.h, 5)
   end
   local layoutFs = form.layout:to_formspec_string(spec.formspec_version)
-  d.log((formDef..layoutFs):gsub("]", "]\n"))
+  -- d.log((formDef..layoutFs):gsub("]", "]\n"))
   return formDef..debugGrid..layoutFs
 end
 
@@ -164,6 +164,8 @@ local function handle_spec(self, state)
   self.bgcolor = spec.bgcolor
   self.fbgcolor = spec.fbgcolor
   self.bgfullscreen = spec.bgfullscreen
+  self.reshowOnInteract = true
+  if spec.reshowOnInteract == false then self.reshowOnInteract = false end
   return true
 end
 
@@ -219,7 +221,7 @@ local function on_receive_fields(player, formname, fields)
 
   local interactiveElems = form.layout:get_interactive_elements()
   local translatedFields = get_translated_fields(fields, interactiveElems)
-  local reshow = false
+  local reshow = form.reshowOnInteract
   for elemId, elem in pairs(interactiveElems) do
     if fields[elemId] then
       local requestedReshow = elem.on_interact(formData.state, translatedFields)
@@ -289,7 +291,6 @@ function respec.Form:reshow(playerName)
   local data = get_shown_form_data(playerName, self.id)
   if not data then return false end
   local state = data.state
-  d.log("reshowing form "..self.id.." state = "..dump(state))
   if not setup_form_for_showing(self, state) then return false end
   engine.show_formspec(playerName, self.id, get_formspec_string(self))
   return true

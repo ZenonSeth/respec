@@ -6,6 +6,7 @@ local TOP = con.top
 local BOT = con.bottom
 local LFT = con.left
 local RGT = con.right
+local VISIBLE = con.visible
 
 local layoutCount = 0
 local function unique_layout_id()
@@ -114,8 +115,10 @@ function respec.Layout:to_formspec_string(formspecVersion)
     self.serialized = true
     local tbl = {}
     for _, el in ipairs(self.elements) do
-      if el.fsName ~= nil then
-        table.insert(tbl, add_common_formspec_string(el, el:to_formspec_string(formspecVersion)))
+      if el.visibility == VISIBLE then
+        if el.fsName ~= nil then
+          table.insert(tbl, add_common_formspec_string(el, el:to_formspec_string(formspecVersion)))
+        end
       end
     end
     self.serialized = table.concat(tbl, "")

@@ -74,6 +74,13 @@ Forms have a concept of `state` - a lua table, that can be given to its `show()`
     set_focus = "id",
     -- Corresponds to set_focus[id]. Set which element is focused when the form is opened.
     -- Only certain elements can be focused, see: https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#set_focusnameforce
+
+    reshowOnInteract = false,
+    -- Optional. Default is `true`
+    -- When `true` (default), the form will always be re-shown to the user after they
+    -- interact with an element that triggers a callback
+    -- When `false`, each individual element is required to `return true` from its 
+    -- individual interaction function in order to reshow the form to the user.
  }
 ```
 ## `builderFunction`
@@ -225,6 +232,10 @@ This spec is common between all physical elements, and each Physical Element has
   -- Visible elements take up space and are drawn in the formspec.
   -- Invisible elements take up space, but are not drawn in the formspec.
   -- Gone elements don't take up space, nor are they drawn in the formspec.
+
+  visible = true -- or false : accepts booleans instead of constants
+  -- Optional. Can be used instead of specifying `visibility`
+  -- Same as specifying visibility = VISIBLE or visibility = GONE
   
 -- Margins: All margins are optional. Default value is 0 for all of them.
 -- Any combination of the below are acceptable.
@@ -359,9 +370,29 @@ Spec:
   
   on_click = function(state, fields) return true end,
   -- a function to be called when the button is clicked
-  -- `state` is the data object that gets passed to the `spec_builder` in the form, which can be modified by this function to affect what's shown
-  -- `fields` is the value of the fields in the form (see luanti docs under `register_on_player_receive_fields`).
+  -- `state` is the form's state, can be modified here.
+  -- `fields` is the value of the fields in the form
   -- Note that only fields with specified IDs will be present
-  -- @return `true` from this function to re-show the formspec to the user
+  -- if reshowOnInteract is false, then return `true` from this function to re-show the formspec
 }
+```
+### Checkbox
+Corresponds to formspec `checkbox`
+
+Created via:
+```lua
+  respec.elements.Checkbox(spec)
+```
+
+Spec:
+```lua
+  text = "Chexbox text",
+  -- string to be shown (to the right of the checkbox)
+
+  on_click = function(state, fields) return true end
+  -- a function to be called when the checkbox is clicked
+  -- `state` is the form's state, can be modified here
+  -- `fields` is the value of the fields in the form
+  -- Note that only fields with specified IDs will be present
+  -- if reshowOnInteract is false, then return `true` from this function to re-show the formspec
 ```

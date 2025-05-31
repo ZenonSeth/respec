@@ -90,7 +90,9 @@ local function get_visibility(spec)
   if is_num(nv) and (nv == VISIBLE or nv == INVISIBLE or nv == GONE) then
     return nv
   else
-    return VISIBLE
+    if spec.visible == true then return VISIBLE
+    elseif spec.visible == false then return GONE
+    else return VISIBLE end
   end
 end
 
@@ -209,7 +211,7 @@ function respec.PhysicalElement:init(fselem, spec)
   self.id = valid_id(spec.id)
   self.width = valid_size(spec.width or spec.w)  -- the width set by user
   self.height = valid_size(spec.height or spec.h) -- the height set by user
-  self.visbility = get_visibility(spec)
+  self.visibility = get_visibility(spec)
   self.margins = get_margins(spec) -- the margins
   self.align = get_align(spec)
   self.horBias = valid_bias(spec.hor_bias)

@@ -92,12 +92,19 @@ function respec.util.list_to_set(table)
   return set
 end
 
+function respec.util.opposite_side(side)
+  if side == TOP then return BOT
+  elseif side == BOT then return TOP
+  elseif side == LFT then return RGT
+  else return LFT end
+end
+
 function respec.util.grid(width, height, divsPerUnit)
   divsPerUnit = divsPerUnit or 4
   if divsPerUnit <= 0 then divsPerUnit = 1 end
   local tmp = {}
-  local w = math.floor(width) + 1
-  local h = math.floor(height) + 1
+  local w = math.floor(width)
+  local h = math.floor(height)
   for x = 0, w do
     for y = 0, h do
       table.insert(tmp, grid_cell(x, y))
@@ -133,9 +140,10 @@ end
 -- make an outline with given x,y and width,height (ints)
 -- optClr (string) is optional
 local fme = respec.util.fs_make_elem
-local olf = 0.012 -- tricky..
-function respec.util.fs_make_outline(x, y, w, h, optClr)
+local olf = 0.01 -- tricky..
+function respec.util.fs_make_outline(x, y, w, h, optClr, noclip)
   local bx = ""
+  if noclip then bx = "style_type[box;noclip=true]" end
   if not optClr then optClr = "#FF00FFAA" end
   bx=bx..fme("box", x..","..y, "0,"..h, optClr) -- left
   bx=bx..fme("box", x..","..y, w..",0", optClr) -- top

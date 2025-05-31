@@ -89,6 +89,26 @@ function respec.elements.Button:to_formspec_string(_)
   return make_elem(self, pos_and_size(self), self.internalId, fesc(self.txt))
 end
 
+
+-- checkbox
+
+respec.elements.Checkbox = Class(respec.PhysicalElement)
+function respec.elements.Checkbox:init(spec)
+  respec.PhysicalElement.init(self, elemInfo.checkbox, spec)
+  self.txt = str_or(spec.text, "")
+  self.checked = spec.checked == true
+  if type(spec.on_click) == "function" then
+    self.on_interact = spec.on_click
+  end
+end
+
+-- override
+function respec.elements.Checkbox:to_formspec_string(ver)
+  local yOffset = 0
+  if ver >= 3 then yOffset = self.measured.h / 2 end
+  return make_elem(self, pos_only(self, yOffset), self.internalId, fesc(self.txt), tostring(self.checked))
+end
+
 ----------------------------------------------------------------
 -- Non-Physical Elements
 ----------------------------------------------------------------

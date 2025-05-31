@@ -2,7 +2,6 @@
 
 ## Missing Features
 - Event handling callbacks for all interactive elements
-- Guidelines: same as constraint layout guidelines
 - Element Chains: same as constraint layout chains
   - packed/packed-inside/spread
 - Nested Layouts
@@ -12,6 +11,9 @@
 - `wrap_contents` width for certain elements:
   - using `core.get_player_window_information(player_name)` to scale on 5.7+ clients
   - label, button, button_url, vertlabel,
+- Guidelines: same as constraint layout guidelines
+  - Why? Because they're not really that hard to implement tbh.
+  - Why not? Because Luanti formspecs aren't nearly as dynamic as Layouts on Android
 
 
 
@@ -59,7 +61,7 @@ Checked ones are done (or mostly done).
 - [ ] `tabheader` : may support requiring height - maybe
 - [ ] `box`
 - [ ] `dropdown` : may require w+h
-- [ ] `checkbox` : also has issues like label - only x,y
+- [x] `checkbox` : Still needs wrap_content, if necessary
 - [ ] `scrollbar`
 - [ ] `scrollbaroptions` : nonphysical
 - [ ] `table`
