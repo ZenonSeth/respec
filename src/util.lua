@@ -4,6 +4,8 @@ local TOP = con.top
 local BOT = con.bottom
 local LFT = con.left
 local RGT = con.right
+local PARENT = con.parent
+local UNSET = con.unset
 
 ----------------------------------------------------------------
 -- helpers
@@ -90,6 +92,16 @@ function respec.util.list_to_set(table)
     set[v] = true
   end
   return set
+end
+
+function respec.util.side_to_str(side)
+  if side == TOP then return "Top"
+  elseif side == BOT then return "Bottom"
+  elseif side == LFT then return "Left"
+  elseif side == RGT then return "Right"
+  elseif side == PARENT then return "Parent"
+  elseif side == UNSET then return "Unset"
+  else return "<unknown>" end
 end
 
 function respec.util.opposite_side(side)

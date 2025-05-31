@@ -119,7 +119,7 @@ local function get_form_str(form)
     ins(tbl, "set_focus["..sp.set_focus.."]")
   end
   if is_str(sp.borderColor) then
-    ins(tbl, respec.util.fs_make_outline(0, 0, sp.w, sp.h, sp.borderColor, true))
+    ins(tbl, respec.util.fs_make_outline(0, 0, sp.w, sp.h, sp.borderColor, false))
   end
   return table.concat(tbl, "")
 end

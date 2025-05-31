@@ -5,7 +5,7 @@
     if not state.posx then state.posx = 0.5 end
     if not state.posy then state.posy = 0.5 end
     return {
-    -- w = respec.const.wrap_content, h = 6.2,
+    --w = 13, h = 4,
     formspec_version = 5,
     paddings = 0.2,
     bgcolor = "#252525CC",
@@ -14,7 +14,7 @@
     pos_x = state.posx, pos_y = state.posy,
     no_prepend = true,
     bgfullscreen = "both",
-    defaultElementMargins = 0.2,
+    --defaultElementMargins = 0.2,
   }
   end
   ,
@@ -28,7 +28,7 @@
       id = "title",
       text = "Relative Formspec Layout Demo",
       w = 3, h = 0.5,
-      below = "moveupbtn",
+      -- below = "moveupbtn",
       center_hor = true, -- equivalent of the two commented out lines below
       -- start_to_parent_start = true,
       -- end_to_parent_end = true,
@@ -39,8 +39,8 @@
       text = "Count = "..(iState.count or "0"),
       area = true, -- no effect unless formspec_version >= 9
       below = "title",
-      margins_hor = 0.25,
-      margins_ver = 0.25,
+      -- margins_hor = 0.25,
+      -- margins_ver = 0.25,
     },
     elem.Button {
       id = "btn1",
@@ -51,7 +51,7 @@
       margins_ver = 0.25,
       margins_hor = 0.25,
       visible = iState.ch1 == true,
-      borderColor = "#0000FF",
+      -- borderColor = "#0000FF",
       on_click = function(state, fields)
         state.count = (state.count or 0) + 1
       end,
@@ -63,8 +63,8 @@
       alignTop = "btn1",
       before = "btn3",
       visible = iState.ch2 == true,
-      margins = 0.25,
-      borderColor = "#0000FF",
+      -- margins = 0.25,
+      -- borderColor = "#0000FF",
       on_click = function(state, fields)
         state.count = (state.count or 0) + 2
       end,
@@ -77,7 +77,7 @@
       toEnd = true,
       visible = iState.ch3 == true,
       margins = 0.25,
-      borderColor = "#0000FF",
+      -- borderColor = "#0000FF",
       on_click = function(state, fields)
         state.count = (state.count or 0) + 3
       end,
@@ -87,7 +87,7 @@
       w = 1.2, h = 0.5,
       text ="Hi "..(iState.playerName or ""),
       margins = 0.25,
-      below = "label1",
+      below = "label3",
       alignStart = "btn1",
       center_hor = true,
       area = true, -- no effect unless formspec_version >= 9
@@ -95,110 +95,112 @@
     },
     elem.Label {
       id = "label3",
-      w = 9.8, h = 0.4,
+      w = 12.8, h = 0.4,
       text = "You right-clicked on a node at: "..dump(iState.pos):gsub("\n"," "),
-      below = "label2",
+      below = "btn1",
+      margins = 0.1,
+      -- center_hor = true,
       toStart = true,
       -- end_to_parent_end = true,
     },
-    elem.Label {
-      id = "label4",
-      w = 0.8, h = 0.4,
-      text = "--==--",
-      below = "label3",
-      toStart = true,
-      toEnd = true,
-      hor_bias = 0.75,
-    },
-    elem.Label {
-      id = "label5",
-      -- margin_end = 1,
-      w = 0.8, h = 0.4,
-      text = "--==--",
-      below = "label4",
-      toEnd = true,
-    },
-    elem.Checkbox {
-      id = "ch1",
-      margins = 0.2,
-      w = 1.8, h = 0.4,
-      text = "Btn1 Toggle",
-      checked = iState.ch1 == true,
-      below = "label5",
-      on_click = function(state, fields)
-        d.log("ch1, fields = "..dump(fields))
-        state.ch1 = fields["ch1"] == "true"
-      end
-    },
-    elem.Checkbox {
-      id = "ch2",
-      margins = 0.2,
-      w = 1.8, h = 0.4,
-      text = "Btn2 Toggle",
-      checked = iState.ch2 == true,
-      center_ver = "ch1",
-      after = "ch1",
-      on_click = function(state, fields)
-        d.log("ch2, fields = "..dump(fields))
-        state.ch2 = fields["ch2"] == "true"
-      end
-    },
-    elem.Checkbox {
-      id = "ch3",
-      margins = 0.2,
-      w = 1.8, h = 0.4,
-      text = "Btn3 Toggle",
-      center_ver = "ch1",
-      after = "ch2",
-      checked = iState.ch3 == true,
-      below = "label5",
-      on_click = function(state, fields)
-        d.log("ch3, fields = "..dump(fields))
-        state.ch3 = fields["ch3"] == "true"
-      end
-    },
-    -- test buttons to move form around screen
-    elem.Button {
-      id = "moveupbtn",
-      w = 1, h = 0.3, margins = 0,
-      toTop = true,
-      center_hor = true,
-      text = "^",
-      margin_top = -0.2, -- negative margins are allowed, though may not work as expected
-      on_click = function(state)
-        state.posy = math.max(state.posy - mv, 0)
-      end
-    },
-    elem.Button {
-      w = 1, h = 0.3, margins = 0,
-      toBottom = true,
-      center_hor = true,
-      margin_bottom = -0.2, -- negative margins are allowed, though may not work as expected
-      text = "v",
-      on_click = function(state)
-        state.posy = math.max(state.posy + mv, 0)
-      end
-    },
-    elem.Button {
-      w = 0.3, h = 1, margins = 0,
-      toStart = true,
-      center_ver = true,
-      margin_start = -0.2, -- negative margins are allowed, though may not work as expected
-      text = "<",
-      on_click = function(state)
-        state.posx = math.max(state.posx - mv, 0)
-      end
-    },
-    elem.Button {
-      w = 0.3, h = 1, margins = 0,
-      toEnd = true,
-      center_ver = true,
-      margin_end = -0.2, -- negative margins are allowed, though may not work as expected
-      text = ">",
-      on_click = function(state)
-        state.posx = math.max(state.posx + mv, 0)
-      end
-    },
+    -- elem.Label {
+    --   id = "label4",
+    --   w = 0.8, h = 0.4,
+    --   text = "--==--",
+    --   below = "label3",
+    --   toStart = true,
+    --   toEnd = true,
+    --   hor_bias = 0.75,
+    -- },
+    -- elem.Label {
+    --   id = "label5",
+    --   -- margin_end = 1,
+    --   w = 0.8, h = 0.4,
+    --   text = "--==--",
+    --   below = "label4",
+    --   toEnd = true,
+    -- },
+    -- elem.Checkbox {
+    --   id = "ch1",
+    --   margins = 0.2,
+    --   w = 1.8, h = 0.4,
+    --   text = "Btn1 Toggle",
+    --   checked = iState.ch1 == true,
+    --   below = "label5",
+    --   on_click = function(state, fields)
+    --     d.log("ch1, fields = "..dump(fields))
+    --     state.ch1 = fields["ch1"] == "true"
+    --   end
+    -- },
+    -- elem.Checkbox {
+    --   id = "ch2",
+    --   margins = 0.2,
+    --   w = 1.8, h = 0.4,
+    --   text = "Btn2 Toggle",
+    --   checked = iState.ch2 == true,
+    --   center_ver = "ch1",
+    --   after = "ch1",
+    --   on_click = function(state, fields)
+    --     d.log("ch2, fields = "..dump(fields))
+    --     state.ch2 = fields["ch2"] == "true"
+    --   end
+    -- },
+    -- elem.Checkbox {
+    --   id = "ch3",
+    --   margins = 0.2,
+    --   w = 1.8, h = 0.4,
+    --   text = "Btn3 Toggle",
+    --   center_ver = "ch1",
+    --   after = "ch2",
+    --   checked = iState.ch3 == true,
+    --   below = "label5",
+    --   on_click = function(state, fields)
+    --     d.log("ch3, fields = "..dump(fields))
+    --     state.ch3 = fields["ch3"] == "true"
+    --   end
+    -- },
+    -- -- test buttons to move form around screen
+    -- elem.Button {
+    --   id = "moveupbtn",
+    --   w = 1, h = 0.3, margins = 0,
+    --   toTop = true,
+    --   center_hor = true,
+    --   text = "^",
+    --   margin_top = -0.2, -- negative margins are allowed, though may not work as expected
+    --   on_click = function(state)
+    --     state.posy = math.max(state.posy - mv, 0)
+    --   end
+    -- },
+    -- elem.Button {
+    --   w = 1, h = 0.3, margins = 0,
+    --   toBottom = true,
+    --   center_hor = true,
+    --   margin_bottom = -0.2, -- negative margins are allowed, though may not work as expected
+    --   text = "v",
+    --   on_click = function(state)
+    --     state.posy = math.max(state.posy + mv, 0)
+    --   end
+    -- },
+    -- elem.Button {
+    --   w = 0.3, h = 1, margins = 0,
+    --   toStart = true,
+    --   center_ver = true,
+    --   margin_start = -0.2, -- negative margins are allowed, though may not work as expected
+    --   text = "<",
+    --   on_click = function(state)
+    --     state.posx = math.max(state.posx - mv, 0)
+    --   end
+    -- },
+    -- elem.Button {
+    --   w = 0.3, h = 1, margins = 0,
+    --   toEnd = true,
+    --   center_ver = true,
+    --   margin_end = -0.2, -- negative margins are allowed, though may not work as expected
+    --   text = ">",
+    --   on_click = function(state)
+    --     state.posx = math.max(state.posx + mv, 0)
+    --   end
+    -- },
   } end)
 
 respec.util.engine.register_node("respec:gui_builder", {

@@ -8,6 +8,7 @@ local UNSET = con.unset
 local PARENT = con.parent
 local GONE = con.gone
 
+local side_to_str = respec.util.side_to_str
 local num_or = respec.util.num_or
 local min0 = respec.util.min0
 local function clamp(value, min, max)
@@ -23,19 +24,23 @@ local function update_container_measurements(side, value, layoutMeasurements)
   end
 end
 
-local function invalidate_tree(root, isWidth)
+local function invalidate_tree_and_opposite_if_unset(root, isWidth, checkOpposite)
   if not root then return end
   root.resolved = false
-  root.element.measured[root.side] = UNSET
-  if isWidth then
-    root.element.measured.w = UNSET
-    root.element.measured.xOffset = UNSET
-  else
-    root.element.measured.h = UNSET
-    root.element.measured.yOffset = UNSET
+  local ms = root.element.measured
+  ms[root.side] = UNSET
+  if checkOpposite then
+    if isWidth then
+      ms.w = UNSET ; ms.xOffset = UNSET
+    else
+      ms.h = UNSET ; ms.yOffset = UNSET
+    end
   end
   for _, child in ipairs(root.childNodes) do
-    invalidate_tree(child, isWidth)
+    invalidate_tree_and_opposite_if_unset(child, isWidth, true)
+  end
+  if checkOpposite and root.oppositeNode and root.oppositeNode.side == UNSET then
+    invalidate_tree_and_opposite_if_unset(root.oppositeNode, isWidth, false)
   end
 end
 
@@ -181,16 +186,6 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
     return true
   end
 
-  -- if elem.visibility == GONE then
-  --   -- don't lay out current element, but do lay out children (they should skip this if its GONE)
-  --   node.resolved = true
-  --   for _, child in ipairs(node.childNodes) do
-  --     local ret = perform_layout_of_node(layout, child, containerMeasurements, node)
-  --     if not ret then return false end -- in theory this shouldn't happen
-  --   end
-  --   return true
-  -- end
-
   if elem.elements ~= nil then -- this is a sub-layout
     -- perform the layout of this sub-layout before proceeding - this may also set its size
     respec.internal.perform_layout(elem)
@@ -198,8 +193,12 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
 
   if not parentNode then
     -- root node 
-    -- check if it has absolute measurement set
-    if refSide == PARENT then
+    -- check if refSide was set
+    if refSide ~= UNSET  then
+      if refSide ~= PARENT then
+        -- this is an error, and should be fixed - but still continue as though we're aligned to parent
+        respec.log_error("Side ["..side_to_str(side).."] of '"..elem.id.."' references unknown elemnt: '"..ref.ref.."'")
+      end
       local value = layout.measured[side]
       -- d.log("align "..elem.id..":"..side.." to parent, rawval = "..value)
       if value == UNSET then -- parent layout hasn't set its bounds yet, likely due to wrap content
@@ -207,8 +206,8 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
       end
 
       local marginSign = 1 ; if side == BOT or side == RGT then marginSign = -1 end
-      value = value + marginSign * margins[side]
-      -- d.log("align "..elem.id..":"..side.." to parent. LayoutMargins = "..dump(margins).." value = "..value)
+      value = value + marginSign * layout.paddings[side]
+      -- d.log("align "..elem.id..":"..side_to_str(side).." to parent. LayoutMargins = "..dump(margins).." value = "..value)
 
       measured[side] = value
 
@@ -223,7 +222,7 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
         if not ret then return false end -- in theory this shouldn't happen
       end
       return true
-    elseif refSide == UNSET then
+    else --if refSide == UNSET then
       -- check if other side is set
       update_element_sides_based_on_align(elem, side, measured, margins)
       update_container_measurements(side, measured[side], containerMeasurements)
@@ -237,8 +236,6 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
         end
         return true -- child nodes should resolve fine because they only depend on parent (hmm)
       else return false end -- could happen when side depends on opposite side, but that wasn't resolved yet
-    else -- root node but not parent aligned, nor other side set yet. Can probably resolve later
-      return false
     end
   else -- a child node (aka side) should be ready to resolve from parent node (aka referenced side)
     -- get the aligned side's measured value
@@ -247,6 +244,7 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
 
     -- d.log("Peform layout of child node. ChildSide = "..side..", parentSide = "..refSide..", parent val = "..refValue)
     if refValue == nil or refValue == UNSET then respec.log_error("parent node was not measured?") ; return false end -- should not happen
+    -- d.log("align "..elem.id..":"..side_to_str(side).." to "..parentNode.element.id..":"..side_to_str(refSide)..", refValue = "..refValue.."LayoutMargins = "..dump(margins))
     node.element.measured[side] = refValue
     set_dynamic_size_if_possible(elem, measured, margins)
     update_element_sides_based_on_align(elem, side, measured, margins)
@@ -262,20 +260,21 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
   -- not reachable here
 end
 
-local function update_container_measurements_if_necessary(layout, containerMeasurements)
+local function update_container_based_on_measurements(layout, containerMeasurements)
   local align = layout.align
   local measured = layout.measured
+  local paddings = layout.paddings
 
   if layout.width == con.wrap_content then
     if align[LFT].side == UNSET and align[RGT] == UNSET then
       -- both left/right were unaligned - treat this as a root
-      measured[LFT] = 0 ; measured[RGT] = containerMeasurements.max_x
+      measured[LFT] = 0 ; measured[RGT] = containerMeasurements.max_x + paddings[RGT]-- - paddings[RGT] - paddings[LFT]
       measured.w = containerMeasurements.max_x
     elseif align[LFT].side == UNSET then -- left was usnet but right was set
       measured[LFT] = measured[RGT] - containerMeasurements.max_x -- unsure if this is correct..
       measured.w = containerMeasurements.max_x
     elseif align[RGT].side == UNSET then -- right was usnet but left was set
-      measured[RGT] = measured[LFT] + containerMeasurements.max_x
+      measured[RGT] = measured[LFT] + containerMeasurements.max_x + paddings[RGT] -- - paddings[RGT]
       measured.w = containerMeasurements.max_x
     -- else: both set? wrap content will be ignored
     end
@@ -283,17 +282,29 @@ local function update_container_measurements_if_necessary(layout, containerMeasu
   if layout.height == con.wrap_content then
     if align[TOP].side == UNSET and align[BOT] == UNSET then
       -- both left/right were unaligned - treat this as a root
-      measured[TOP] = 0 ; measured[BOT] = containerMeasurements.max_y
+      measured[TOP] = 0 ; measured[BOT] = containerMeasurements.max_y + paddings[BOT] -- - paddings[BOT] - paddings[TOP]
       measured.h = containerMeasurements.max_y
     elseif align[TOP].side == UNSET then -- left was usnet but right was set
       measured[TOP] = measured[BOT] - containerMeasurements.max_y -- unsure if this is correct..
       measured.h = containerMeasurements.max_y
     elseif align[BOT].side == UNSET then -- right was usnet but left was set
-      measured[BOT] = measured[TOP] + containerMeasurements.max_y
+      measured[BOT] = measured[TOP] + containerMeasurements.max_y + paddings[BOT] -- - paddings[BOT]
       measured.h = containerMeasurements.max_y
     -- else: both set? wrap content will be ignored
     end
   end
+end
+
+-- returns true if anything was invalidated
+local function invalidate_roots_that_align_to_parent(graph, SIDE)
+  local invalidated = false
+  for _, root in pairs(graph.roots) do
+    if root.side == SIDE and root.element.align[SIDE].side == PARENT then
+      invalidate_tree_and_opposite_if_unset(root, true, true)
+      invalidated = true
+    end
+  end
+  return invalidated
 end
 
 --================================================================
@@ -323,11 +334,9 @@ function respec.internal.perform_layout(layout, containerMeasurements)
     local res = perform_layout_of_node(layout, root, containerMeasurements)
     if not res then table.insert(remaining, root) ; numRemaining = numRemaining + 1 end
   end
-  update_container_measurements_if_necessary(layout, containerMeasurements)
+  update_container_based_on_measurements(layout, containerMeasurements)
 
   -- BIG TODO: Figure out how to handle chains the way Android does
-
-  -- TODO : iterate and remove remaining, ensuring number of remaining always decreases
 
   local oldMaxX = containerMeasurements.max_x
   local oldMaxY = containerMeasurements.max_y
@@ -344,7 +353,7 @@ function respec.internal.perform_layout(layout, containerMeasurements)
     numRemaining = newRemainig
   end
 
-  update_container_measurements_if_necessary(layout, containerMeasurements)
+  update_container_based_on_measurements(layout, containerMeasurements)
 
   local changedEnd = oldMaxX ~= containerMeasurements.max_x
   local changedBot = oldMaxY ~= containerMeasurements.max_y
@@ -353,20 +362,12 @@ function respec.internal.perform_layout(layout, containerMeasurements)
     -- invalidate corresponding nodes
     local mustRelayout = false
     if changedEnd then
-      for _, root in pairs(graph.roots) do
-        if root.side == RGT and root.element.align[RGT].side == PARENT then
-          invalidate_tree(root, true)
-          mustRelayout = true
-        end
-      end
+      local res = invalidate_roots_that_align_to_parent(graph, RGT)
+      mustRelayout = res or mustRelayout
     end
     if changedBot then
-      for _, root in pairs(graph.roots) do
-        if root.side == BOT and root.element.align[BOT].side == PARENT then
-          invalidate_tree(root, false)
-          mustRelayout = true
-        end
-      end
+      local res = invalidate_roots_that_align_to_parent(graph, BOT)
+      mustRelayout = res or mustRelayout
     end
     if mustRelayout then
       respec.internal.perform_layout(layout, containerMeasurements)
@@ -380,15 +381,16 @@ function respec.internal.perform_layout_of_form_layout(formLayout)
   -- form root layout always starts at 0, 0 - but may have wrap width/height
   local ms = formLayout.measured
   local mg = formLayout.paddings
-  ms[LFT] = mg[LFT]
-  ms[TOP] = mg[TOP]
+  ms[LFT] = 0 -- mg[LFT]
+  ms[TOP] = 0 -- mg[TOP]
   if formLayout.width > 0 then
-    ms[RGT] = formLayout.width
-    ms.w = formLayout.width - min0(mg[LFT]) - min0(mg[RGT])
+    ms[RGT] = formLayout.width -- - min0(mg[RGT])
+    ms.w = formLayout.width --  - min0(mg[LFT]) - min0(mg[RGT])
   end
   if formLayout.height > 0 then
-    ms[BOT] = formLayout.height
-    ms.h = formLayout.height - min0(mg[TOP]) - min0(mg[BOT])
+    ms[BOT] = formLayout.height -- - min0(mg[BOT])
+    ms.h = formLayout.height -- - min0(mg[TOP]) - min0(mg[BOT])
   end
+  -- d.log("root layout, measured = "..dump(ms):gsub("\n", " ")..", paddings = "..dump(mg):gsub("\n", " "))
   respec.internal.perform_layout(formLayout) -- do the rest of the layout
 end

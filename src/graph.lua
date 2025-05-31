@@ -46,6 +46,7 @@ end
 
   -- element - the table raf to the element
   -- side: one of consts.top/bottom/left/right
+  -- returns the new node created, or nil if it failed
 local function add_side(self, element, side)
   local sideRef = element.align[side]
   if sideRef.ref ~= "" and sideRef.ref == element.id then
@@ -89,16 +90,21 @@ local function add_side(self, element, side)
       end
     end
   end
+
+  return newNode
 end
 
 local function add_sides_with_dependency_check(self, elem, S1, S2)
+  local n1, n2
   if elem.align[S1] == UNSET then -- side 1 _might_ depend on S2
-    add_side(self, elem, S2)
-    add_side(self, elem, S1)
+    n1 = add_side(self, elem, S2)
+    n2 = add_side(self, elem, S1)
   else -- anything else just add them in order
-    add_side(self, elem, S1)
-    add_side(self, elem, S2)
+    n1 = add_side(self, elem, S1)
+    n2 = add_side(self, elem, S2)
   end
+  if n1 then n1.oppositeNode = n2 end
+  if n2 then n2.oppositeNode = n1 end
 end
 
 -- Public functions
