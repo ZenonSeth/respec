@@ -67,8 +67,8 @@ Checked ones are done (or mostly done).
 - [ ] `table`
 - [ ] `tableoptions` : maybe as param to table
 - [ ] `tablecolumns` : maybe as special class only available in table
-- [ ] `style` : nonphysical. Hmm, may try to incorporate into supported elements
-- [ ] `style_type` : nonphysical
+- [x] `style` : nonphysical. Incorporated into physical elements' spec.
+- [x] `style_type` : nonphysical
 
 
 ## Explicitly Unsupported Formspec Elements
