@@ -7,6 +7,12 @@ local RGT = con.right
 local PARENT = con.parent
 local UNSET = con.unset
 
+
+respec.util.engine = core or minetest
+local engine = respec.util.engine
+
+respec.TRANSLATOR = engine.get_translator(respec.MODNAME)
+
 ----------------------------------------------------------------
 -- helpers
 ----------------------------------------------------------------
@@ -64,9 +70,6 @@ respec.util.Class = function (base, init)
   setmetatable(c, mt)
   return c
 end
-
-respec.util.engine = core or minetest
-local engine = respec.util.engine
 
 if type(engine.log) == "function" then
   respec.log_error = function(msg)
@@ -133,17 +136,12 @@ function respec.util.grid(width, height, divsPerUnit)
   return table.concat(tmp, "")..lines
 end
 
--- makes a "element[...]" string
+-- makes a "name[arg1;arg2;arg3]" string
 function respec.util.fs_make_elem(name, ...)
   local str = name.."["
   if ... ~= nil then
     local args = {...}
-    if #args > 0 then
-      for i, a in ipairs(args) do
-        local sep = "" ; if i > 1 then sep = ";" end
-        str = str..sep..a
-      end
-    end
+    str = str..table.concat(args, ";")
   end
   str = str.."]"
   return str
@@ -215,7 +213,7 @@ end
 
 d = {} -- bad debug
 local dlog = function(str)
-  engine.log("info", str)
+  print(str)
   engine.chat_send_all(str)
 end
 d.log = function(str)

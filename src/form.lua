@@ -39,6 +39,17 @@ local function remove_all_shown_form_data_for(playerName)
   shownForms[playerName] = nil
 end
 
+local function new_id_gen()
+  return {
+    idIndex = 0,
+    id = function(self)
+      local idi = self.idIndex + 1
+      self.idIndex = idi
+      return "id_"..idi
+    end
+  }
+end
+
 ----------------------------------------------------------------
 -- Form creation util
 ----------------------------------------------------------------
@@ -137,7 +148,7 @@ local function get_formspec_string(form)
     debugGrid = respec.util.grid(spec.w, spec.h, 5)
   end
   local layoutFs = form.layout:to_formspec_string(spec.formspec_version)
-  -- d.log((formDef..layoutFs):gsub("]", "]\n"))
+  d.log((formDef..layoutFs):gsub("]", "]\n"))
   return formDef..debugGrid..layoutFs
 end
 
@@ -192,7 +203,8 @@ local function setup_form_for_showing(self, state)
   if not handle_spec(self, state) then return false end
   local layoutData = get_layout_data(self, state)
   if not layoutData then return false end
-  self.layout:set_elements(layoutData)
+  local idGen = new_id_gen()
+  self.layout:set_elements(layoutData, idGen)
   return true
 end
 

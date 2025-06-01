@@ -1,5 +1,13 @@
 Note: This is still work in progress - docs are missing and existing api may change in the near future.
 
+# General Info
+
+Respec's API implements almost all features from the [Luanti Formspec API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#formspec).
+
+Respec provides utitlies for easier positioning and sizing of elements, callbacks to elements, as well as some other conveniences.
+
+Each `respec.elements` class corresponds to a Luanti `formspec` element, and while some (like `Button`s or `Label`s) are self explanatory, others - like `Listring`s require some knowledge of the formspec API.
+
 # Form
 To create a form use:
 ```lua
@@ -189,26 +197,24 @@ Layouts themselves are Physical Elements, and can be created by calling `respec.
 
 Nested layouts are planned, but not yet supported.
 
-# Elements
+# Non-physical Elements
 
 An element simply corresponds to a formspec element.
 Elements come in two categories: Physical and Non-Physical.
 
-## List of Non-physical Elements
-
 Non-Physical elements are just elements that aren't displayed, but instead perform some sort of configuration.
 These elements each have their own custom specifications, see below for each.
 
-### Listring
-Corresponds to the `listring` formspec element.
+# List of Non-physical Elements
 
-Created via:
+## Listring
+Corresponds to the `listring` formspec element. [Lua API doc](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#listringinventory-locationlist-name)
 ```lua
   respec.elements.ListRing(spec)
 ```
 `spec` is an optional parameter that may be omitted/nil to simply create a `listring[]`
 
-Spec:
+spec:
 ```lua
 {
   {"inventory_location1", "list_name1"},
@@ -217,6 +223,51 @@ Spec:
   -- Each entry will create, in the order they're specified, a separate `listring[inv_location, list_name]` formspec element
 }
 ```
+
+## StyleType
+Corresponds to the `style_type` formspec element
+```lua
+  respec.elements.StyleType(spec)
+```
+
+Note:<br>
+This element must be specified **before** any other elements that you wish to style with this style.
+
+spec:<br>
+```lua
+{
+  target = "selector1,selector2,.." 
+  -- Required. Specifies which element types this Style applies to. See below for format.
+  styleName1 = "value1",
+  styleName2 = "value2", -- repeated for as many styles as wanted. 
+  -- "styleName" should be one of the valid styles for the target element type
+  -- The valid styles are listed in each element's definition.
+}
+```
+- An individual `selector` should be either `<element_type>` or `<element_type>:<state>`
+- `<state>` is a list of states, separated by the `+` character if more than one
+  - valid states: `hovered`, `pressed`, `focused`
+- `<element_type>`s which are supported: (taken from Luanti docs)
+  - `animated_image` - by default inherits style from "image"
+  - `box`
+  - `button`
+  - `button_exit` - by default inherits style from "button"
+  - `checkbox`
+  - `dropdown`
+  - `field`
+  - `image`
+  - `image_button`
+  - `item_image_button`
+  - `label`
+  - `list`
+  - `model`
+  - `pwdfield` - by default inherits style from "field"
+  - `scrollbar`
+  - `tabheader`
+  - `table`
+  - `textarea`
+  - `textlist`
+  - `vertlabel` - by default inherits style from "label"
 
 # Physical Element
 
@@ -355,31 +406,61 @@ This spec is common between all physical elements, and each Physical Element has
   ver_bias = 0.5,
   -- the vertical bias, default to 0.5 if not specified. Requires a top and bottom constraint to be set.
 
-  borderColor = "#RRGGBB",
-  -- Optional. Specify the color of a 1px border to be drawn around the element (not including margins)
-  -- This doesn't use the formspec style[] element, it is manually done on top of whatever style[] you set. This is here primarily because not all elements support an outline in style[]
+  style = styleDef, -- see the [Element Style Definition] section below.
+  -- Optional. 
+  -- Defines the style of this specific element. Each entry corresponds to a style prop.
+
+  customBorderColor = "#RRGGBB",
+  -- Optional. Separate from style above. If not specified, no border is drawn.
+  -- Specify the color of a 1px border to be drawn around the element (not including margins)
+  -- This doesn't use the formspec style[] element, it is manually done on top of whatever style[] you set. This is here primarily because not all elements support a border in style[]
 }
 
 ```
-### Notes on Visibility
+## Notes on Visibility
 When an element is `visible` or `invisible` it will take up space for the purposes of other elements aligning to it.
 
 When an element is set to `gone` (aka `visible = false`) then any other element aligning to it will try to inherit the alignment of the `gone` element as best as it can. This means that a series elements where each aligns to the one before it should still work if an element in the series is set to `visible = false`.
 
-## List of Physical Elements
+## Element Style Definition
+Note:<br> Due to the formspec api, only these elements support individual styling:<br>
+`AnimatedImage`, `Model`, `Field`, `TextArea`, `Hypertext`, [Button](#button), `ButtonUrl`, `ImageButton`, `ItemImageButton`, `TextList`, `TabHeader`, `Dropdown`, [Checkbox](#checkbox), `Scrollbar`, `Table`
+
+All other elements may instead be styled collectively by their type using [StyleType](#styletype).
+
+
+The `style` field for a supported Physical Element must be specified as a table:
+```lua
+{
+    styleName1 = "value1",
+    styleName2 = "value2", -- repeated for as many styles as wanted. 
+    -- "styleName" is one of the valid styles for this element (or element type),
+
+    "state" = { 
+      styleName1 = "value1", -- as above, repeated
+    }
+    -- Optional. "state" can be "hovered", "pressed", or "focused" or a combination, e.g.: "hovered+focused"
+    -- Only applies for certain elements that support it.
+    -- If present, these styles are applied to the element, or type of element, when in those states
+}
+```
+The above styles, values, and states get mapped directly to a `style[]` formspec element.
+
+The supported style and their values are listed in each element's entry below.
+
+For details on styleName and values functionality see :<br> https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#styling-formspecs
+
+# List of Physical Elements
 
 All Physical Elements take a `spec` table as input.
 This `spec` table may contain any of the common physical elements spec above, alongside element-specific specifications listed below.
 
-### Label
+## Label
 Corresponds to formspec `label`
-
-Created via:
 ```lua
   respec.elements.Label(spec)
 ```
-
-Spec:
+spec:
 ```lua
 {
   text = "Label text here",
@@ -389,16 +470,17 @@ Spec:
   -- For more info see: https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#labelxywhlabel
 }
 ```
+Styling
+- Only supports type-styling via [StyleType()](#styletype)
+- Supported style properties:<br>
+  `font`, `font_size`, `noclip`
 
-### Button
+## Button
 Corresponds to formspec `button`
-
-Created via:
 ```lua
   respec.elements.Button(spec)
 ```
-
-Spec:
+spec:
 ```lua
 {
   text = "Button text",
@@ -412,17 +494,20 @@ Spec:
   -- if reshowOnInteract is false, then return `true` from this function to re-show the formspec
 }
 ```
-### Checkbox
-Corresponds to formspec `checkbox`
+Styling:
+- Supports per-element `style` entry in their spec.
+- Supports type-styling via [StyleType()](#styletype)
+- Supported style properties:<br>
+  `alpha`, `bgcolor`, `bgimg`, `bgimg_middle`, `font`, `font_size`, `border`, `content_offset`, `noclip`, `sound`, `textcolor`
 
-Created via:
+## Checkbox
+Corresponds to formspec `checkbox`
 ```lua
   respec.elements.Checkbox(spec)
 ```
-
-Spec:
+spec:
 ```lua
-  text = "Chexbox text",
+  text = "Checkbox text",
   -- string to be shown (to the right of the checkbox)
 
   on_click = function(state, fields) return true end
@@ -432,3 +517,8 @@ Spec:
   -- Note that only fields with specified IDs will be present
   -- if reshowOnInteract is false, then return `true` from this function to re-show the formspec
 ```
+Styling:
+- Supports per-element `style` entry in their spec.
+- Supports type-styling via [StyleType()](#styletype)
+- Supported style properties:<br>
+  `noclip`, `sound`

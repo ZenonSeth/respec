@@ -14,7 +14,7 @@ local function unique_layout_id()
   return "LAYOUT_"..layoutCount
 end
 
-local function get_debug_formspec(layout)
+local function get_layout_debug_formspec(layout)
   local s = ""
   if respec.settings.debug() then
     local inset = layout.paddings
@@ -30,10 +30,22 @@ local function get_debug_formspec(layout)
   return s
 end
 
+local function get_style_string_for_element(elem)
+  if not elem.style then return "" end
+  local ret = {}
+  local elemName = elem.internalId
+  for state, props in pairs(elem.style) do
+    local st = "" ; if state ~= "" then st = ":"..state end
+    table.insert(ret, "style["..elemName..st..";"..props.."]")
+  end
+  return table.concat(ret, "")
+end
+
 local fs_elem_box = respec.internal.fs_elem_box
-local function add_common_formspec_string(elem, str)
+local function add_common_physical_formspec_string(elem, str)
   local ret = str
-  ret = fs_elem_box(elem)..ret
+  ret = get_style_string_for_element(elem)..str -- the style must be defined before the element
+  ret = fs_elem_box(elem)..ret -- adds the debug backgrounds, checks if debug is on
   if not elem.disableCustom and type(elem.borderColor) == "string" then
     ret = ret..fs_elem_box(elem, true, elem.borderColor)
   end
@@ -92,10 +104,11 @@ function respec.Layout:init(spec)
   self.defaultMargins = get_default_element_margins(spec)
   self.serialized = nil
 end
-local function do_add(self, element)
+local function do_add(self, element, idGen)
   if self.serialized then
     -- TODO: check if anything related to layouting has changed, if not return last serialization
   end
+  -- TODO: handle sublayouts with idGen assining unique internal IDs
   local newId = element.id
   if not element.info then return end -- invalid element
   if newId and newId ~= "" and self.ids[newId] then
@@ -103,23 +116,25 @@ local function do_add(self, element)
     respec.log_error("Elements within the same layout cannot have the same ID: "..newId)
     return self
   end
+  if newId then self.ids[newId] = true end
   table.insert(self.elements, element)
 
   if element.info.inFields then
     self.fieldElemsById[element.internalId] = element
   end
   self.elementsGraph:add_element(element)
-  self.ids[newId] = true
   return self
 end
 
 -- Sets the content of this layout. If any previous content was set, it will be overwritten
 -- Use one of the `respec.elements.` functions to create elements.
-function respec.Layout:set_elements(elementsList)
+-- idGen should be an object that has a :id() function to provide a unique ID
+function respec.Layout:set_elements(elementsList, idGen)
   self.elements = {}
   self.fieldElemsById = {}
   for _, element in ipairs(elementsList) do
-    do_add(self, element)
+    element.internalId = idGen:id()
+    do_add(self, element, idGen)
   end
   -- cleanup
   self.ids = nil
@@ -142,15 +157,17 @@ function respec.Layout:to_formspec_string(formspecVersion)
     self.serialized = true
     local tbl = {}
     for _, el in ipairs(self.elements) do
-      if el.visibility == VISIBLE then
-        if el.fsName ~= nil then
-          table.insert(tbl, add_common_formspec_string(el, el:to_formspec_string(formspecVersion)))
+      if el.fsName ~= nil then
+        if el.physical == false then
+          table.insert(tbl, el:to_formspec_string(formspecVersion))
+        elseif el.visibility == VISIBLE then
+          table.insert(tbl, add_common_physical_formspec_string(el, el:to_formspec_string(formspecVersion)))
         end
       end
     end
     self.serialized = table.concat(tbl, "")
   end
-  local debug = get_debug_formspec(self)
+  local debug = get_layout_debug_formspec(self)
   return debug..self.serialized
 end
 

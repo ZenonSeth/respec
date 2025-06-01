@@ -13,6 +13,14 @@ local PARENT = con.parent
 respec.elements = {} -- init this table here
 local Class = respec.util.Class
 
+local elementsWithName = {
+  animated_image = true, model = true, pwdfield = true, field = true,
+  textarea = true, hypertext = true, button = true, button_url = true,
+  image_button = true, item_image_button = true, button_exit = true,
+  button_url_exit = true, image_button_exit = true, textlist = true,
+  tabheader = true, dropdown = true, checkbox = true, scrollbar = true, table = true
+}
+
 local function minf(tbl) return { name = tbl[1], minVer = tbl[2], inFields = tbl[3] } end
 
 -- format is { name = "formspec_name", minVer = MIN_VERSION_INT, inFields = IS_FIELD_SENT }
@@ -167,11 +175,33 @@ local function get_align(spec)
   return { [TOP] = at, [BOT] = ab, [LFT] = al, [RGT] = ar }
 end
 
-local elem_unique_id = 0
-local function  get_unique_id()
-  elem_unique_id = elem_unique_id + 1 -- overflow doesn't matter
-  return tostring(elem_unique_id)
+-- returns a table (or nil): {"":"prop=val;prop=val",} - where the key is the state and the value is the string of props
+local function get_valid_style(fsName, styleSpec)
+  if fsName ~= "style_type" and not elementsWithName[fsName] then return nil end
+  local parsed = {}
+  local baseProps = {}
+  if type(styleSpec) ~= "table" then return end
+  for k, v in pairs(styleSpec) do
+    local vType = type(v)
+    if k == "target" then
+      -- skip this one, due to this function being used from elements.StyleType()
+    elseif vType == "string" then
+      table.insert(baseProps, tostring(k).."="..v)
+    elseif vType == "table" then
+      local props = {}
+      for subK, subV in pairs(v) do
+        if type(subV) == "string" then
+          table.insert(props, tostring(subK).."="..subV)
+        end
+      end
+      parsed[tostring(k)] = table.concat(props, ";")
+    end
+  end
+  parsed[""] = table.concat(baseProps, ";")
+  return parsed
 end
+-- export for use in elements.lua
+respec.elements.get_valid_style = get_valid_style
 
 ----------------------------------------------------------------
 -- public functions
@@ -188,7 +218,6 @@ function respec.Element:init(fselem)
     respec.log_error("Unsupported element created: "..dump(fselem))
   end
   self.physical = false
-  self.internalId = get_unique_id()
 end
 
 respec.PhysicalElement = Class(respec.Element)
@@ -216,13 +245,14 @@ function respec.PhysicalElement:init(fselem, spec)
   self.align = get_align(spec)
   self.horBias = valid_bias(spec.hor_bias)
   self.verBias = valid_bias(spec.ver_bias)
-  self.borderColor = spec.borderColor
+  self.borderColor = spec.customBorderColor
   self.chainType = UNSET
   self.measured = { -- represents the location of the outer bounds that include margins
       [TOP] = UNSET, [BOT] = UNSET, [LFT] = UNSET, [RGT] = UNSET,
       w = UNSET, h = UNSET, -- the actual elements (not bounds) w/h
       xOffset = 0, yOffset = 0 -- customX/Y add an offset
   }
+  self.style = get_valid_style(self.fsName, spec.style)
   self.on_interact = function(...) end -- to be overwritten by interactive elements
 
   self.physical = true

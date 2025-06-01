@@ -10,6 +10,9 @@ local num_or = respec.util.num_or
 local str_or =  respec.util.str_or
 local min0 = respec.util.min0
 
+local get_valid_style = respec.elements.get_valid_style
+respec.elements.get_valid_style = nil
+
 -- minv/maxv in range 0-255
 local function randclrval(minv, maxv)
   return string.format("%x", math.random(minv, maxv))
@@ -130,4 +133,23 @@ function respec.elements.ListRing:to_formspec_string(_)
   end
   if s == "" then s = make_elem(self) end
   return s
+end
+
+----------------------------------------------------------------
+-- style_type
+----------------------------------------------------------------
+respec.elements.StyleType = Class(respec.Element)
+function respec.elements.StyleType:init(spec)
+  respec.Element.init(self, elemInfo.style_type)
+  self.target = str_or(spec.target, nil)
+  if self.target then
+    self.style = get_valid_style(self.fsName, spec)
+  end
+end
+-- override
+function respec.elements.StyleType:to_formspec_string(_)
+  if not self.target or type(self.style) ~= "table" then return "" end
+  local propsStr = self.style[""]
+  if propsStr == "" then return "" end
+  return make_elem(self, fesc(self.target), fesc(propsStr))
 end

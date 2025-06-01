@@ -1,6 +1,7 @@
+local S = respec.TRANSLATOR
 
   local elem = respec.elements
-  local myForm = respec.Form(
+  local form1 = respec.Form(
   function(state)
     if not state.posx then state.posx = 0.5 end
     if not state.posy then state.posy = 0.5 end
@@ -33,6 +34,10 @@
       -- start_to_parent_start = true,
       -- end_to_parent_end = true,
     },
+    elem.StyleType {
+      target = "label",
+      font = "mono",
+    },
     elem.Label {
       id = "label1",
       w = 1, h = 0.5,
@@ -55,6 +60,13 @@
       on_click = function(state, fields)
         state.count = (state.count or 0) + 1
       end,
+      style = {
+        font = "mono"
+      }
+    },
+    elem.StyleType {
+      target = "button:pressed",
+      font_size = "+5",
     },
     elem.Button {
       id = "btn2",
@@ -203,10 +215,34 @@
     -- },
   } end)
 
+local form2 = respec.Form({
+    --w = 13, h = 4,
+    formspec_version = 9,
+    paddings = 0.2,
+  },
+function (state)
+
+local tbl = {}
+for C = 0,150,1 do
+  table.insert(tbl, string.format("%x", 22 + C).."|"..string.char(22 + C).."|")
+end
+
+local myS = S("Hey there!")
+d.log("MYS = ["..myS.."]")
+
+return {
+  elem.Label {
+    w = 10, h = 25,
+    borderColor = "#343",
+    text = table.concat(tbl, " "),
+    area = true,
+  }
+} end)
+
 respec.util.engine.register_node("respec:gui_builder", {
   description = "GUI Builder",
   drawtype = "normal",
   tiles = {"default_mossycobble.png"},
   groups = {oddly_breakable_by_hand = 3},
-  on_rightclick = myForm:show_from_node_rightclick(nil, true)
+  on_rightclick = form1:show_from_node_rightclick(nil, true)
 })
