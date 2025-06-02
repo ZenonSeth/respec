@@ -115,6 +115,13 @@ local S = respec.TRANSLATOR
       toStart = true,
       -- end_to_parent_end = true,
     },
+    elem.List {
+      w = 3, h = 2,
+      inv = respec.inv.node("in"),
+      below = "label3",
+      borderColor = "#ff0",
+      margins = 0.25,
+    }
     -- elem.Label {
     --   id = "label4",
     --   w = 0.8, h = 0.4,
@@ -244,5 +251,11 @@ respec.util.engine.register_node("respec:gui_builder", {
   drawtype = "normal",
   tiles = {"default_mossycobble.png"},
   groups = {oddly_breakable_by_hand = 3},
+  after_place_node = function(pos, placer, itemstack, pointed_thing)
+    local m = core.get_meta(pos)
+    local i = m:get_inventory()
+    i:set_size("in", 16)
+    i:set_size("out", 16)
+  end,
   on_rightclick = form1:show_from_node_rightclick(nil, true)
 })

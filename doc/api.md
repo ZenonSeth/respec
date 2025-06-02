@@ -165,7 +165,7 @@ When you use this method, the `Form`'s `builderFunction` will automatically rece
 ```
 For further info on these params see Luanti's [Node definition](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#node-definition) documentation.
 
-Example:
+Showing From from on_rightclick example:
 ```lua
   local myForm = respec.Form(...) -- create a new form
   core.register_node("mymod:mynode", {
@@ -186,7 +186,6 @@ Creating and immediately showing a formspec to `singleplayer`:
       respec.elements.Label { w = 3, h = 0.5, text = "Hello World!" },
     }
   ):show("singleplayer")
- end
  ```
 
 # Layout
@@ -207,22 +206,29 @@ These elements each have their own custom specifications, see below for each.
 
 # List of Non-physical Elements
 
-## Listring
+## ListRing
 Corresponds to the `listring` formspec element. [Lua API doc](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#listringinventory-locationlist-name)
 ```lua
   respec.elements.ListRing(spec)
 ```
 `spec` is an optional parameter that may be omitted/nil to simply create a `listring[]`
 
-spec:
+`spec` example:
 ```lua
 {
+  respec.inv.player("main"),
+  -- you can use the utility functions to easily create inventory location/listname pairs
+  respec.inv.node("input"),
+  respec.inv.player("main"),
+
   {"inventory_location1", "list_name1"},
-  {"inventory_location2", "list_name2"},
-  -- Can be repeated - specifies inv locations to add to this listring.
-  -- Each entry will create, in the order they're specified, a separate `listring[inv_location, list_name]` formspec element
+    -- you can also just manually specify the pairs if you really need
+
+  -- Each entry (whether with respec.inv. or manual) will create a new 
+  -- `listring[inv_location, list_name]` formspec element, in the order they're specified.
 }
 ```
+See the [List](#list) element for more details on the `respec.inv.` functions.
 
 ## StyleType
 Corresponds to the `style_type` formspec element
@@ -471,7 +477,7 @@ spec:
 }
 ```
 Styling
-- Only supports type-styling via [StyleType()](#styletype)
+- Only supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `font`, `font_size`, `noclip`
 
@@ -496,7 +502,7 @@ spec:
 ```
 Styling:
 - Supports per-element `style` entry in their spec.
-- Supports type-styling via [StyleType()](#styletype)
+- Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `alpha`, `bgcolor`, `bgimg`, `bgimg_middle`, `font`, `font_size`, `border`, `content_offset`, `noclip`, `sound`, `textcolor`
 
@@ -507,6 +513,7 @@ Corresponds to formspec `checkbox`
 ```
 spec:
 ```lua
+{
   text = "Checkbox text",
   -- string to be shown (to the right of the checkbox)
 
@@ -516,9 +523,61 @@ spec:
   -- `fields` is the value of the fields in the form
   -- Note that only fields with specified IDs will be present
   -- if reshowOnInteract is false, then return `true` from this function to re-show the formspec
+}
 ```
 Styling:
 - Supports per-element `style` entry in their spec.
-- Supports type-styling via [StyleType()](#styletype)
+- Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `noclip`, `sound`
+
+## List
+Corresponds to formspec `list`
+```lua
+  respec.elements.List(spec)
+```
+spec:
+```lua
+{
+  w = 8, h = 4, -- w/h are inherited from common physical element formspec
+  -- Required. The w and h of the List are different than other elements.
+  -- They do NOT measure in coordinates, but rather specify number of inventory slots
+  -- The List element internally calculates its width/height in real units
+  
+  inv = respec.inv.node(listName)
+  -- Required. The location of the inventory, and list name to show.
+  -- It is easiest to use one of the `respec.inv` utility methods.
+  -- The format is { "inventory location", "list name" }
+
+  startIndex = 3,
+  -- Optional. The index of the first (upper-left) item to start from, starting at 0.
+  -- Default is 0.
+}
+```
+For details on using respec.inv. methods see [Inventory utils](#inventory-utils)
+
+Styling:
+- Only supports type-styling via [StyleType](#styletype)
+- Supported style properties:<br>
+  `noclip`, `size`, `spacing`
+
+# Utility Methods
+
+## Inventory utils
+Utility Methods for creating a `{"inventory location", "listname" }` description:
+- `respec.inv.player(playerName, listName)`
+  - `playerName` is a player's name
+  - `listName` is the name of the list to show
+- `respec.inv.player(listName)`
+  - As above, but sets `current_player` as the inventory location
+  - `listName` is the list to show
+- `respec.inv.node(pos, listName)`<br>
+  - `pos` is a vector in the `{x=x, y=y, z=z}` format
+  - `listName` is the name of the list to show
+- `respec.inv.node(listName)`<br>
+  - As above, but sets the inventory location to the `pos` specified in the form's `state`
+  - `listName` is the name of the list to show
+  - Can be used if the form is shown via `show_from_node_rightclick()`, see [Showing a Form from rightlick](#showing-a-form-for-a-nodes-on_rightclick)
+- `respec.inv.detached(invName, listName)`<br>
+  `invName` is the detached inventory name to use.
+  `listName` is the name of the list from the detached inventory to show.

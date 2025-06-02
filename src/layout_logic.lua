@@ -313,7 +313,7 @@ end
 
 -- To be called internally only
 -- Performs the laying-out process of each element
-function respec.internal.perform_layout(layout, containerMeasurements)
+function respec.internal.perform_layout(layout, containerMeasurementsOpt)
   local graph = layout.elementsGraph
   local childLayouts = {} -- TODO: handle child layouting
 
@@ -322,9 +322,13 @@ function respec.internal.perform_layout(layout, containerMeasurements)
 
   local remaining = {}
   local numRemaining = 0
-  local containerMeasurements = containerMeasurements or { max_x = 0, max_y = 0 }
-  -- merge all elements margins
+  local containerMeasurements = containerMeasurementsOpt or { max_x = 0, max_y = 0 }
+
+  -- Common pre-layout functionality
+  local persist = {}
+  layout:before_measure(persist)
   for _, elem in ipairs(layout.elements) do
+    elem:before_measure(persist)
     if elem.physical == true then
       elem.margins = merge_margins(elem.margins, layout.defaultMargins)
     end

@@ -220,13 +220,19 @@ function respec.Element:init(fselem)
   self.physical = false
 end
 
-respec.PhysicalElement = Class(respec.Element)
-
 -- To be overriden by child classes
-function respec.Element:to_formspec_string(formspecVersion)
+-- formspecVersion: an int, the current formspec version
+-- persist: A data object that persists throughout the layout process.
+--   persist.state is the From's `state` object
+function respec.Element:to_formspec_string(formspecVersion, persist)
   respec.log_warn("called base to_formspec_string") ; return ""
 end
 
+-- to be overriden by child elems, if necessary
+-- `persist` is an object that persits and gets passed to all elements, in order they exist
+function respec.Element:before_measure(persist) end
+
+respec.PhysicalElement = Class(respec.Element)
 --[[
 --- Do not use directly. Use one of the `respec.elements.` functions instead
 --- `fselem` must be an entry from the respec.internal.supported_elements table

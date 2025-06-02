@@ -45,6 +45,10 @@ local function pos_and_size(obj, customY)
   return pos_only(obj, customY)..";"..(ms.w)..","..(ms.h)
 end
 
+local function get_list_xywh(self)
+  return pos_only(self)..";"..self.slotW..","..self.slotH
+end
+
 
 local Class = respec.util.Class
 
@@ -66,8 +70,8 @@ function respec.elements.Label:init(spec)
   self.areaLabel = spec.area == true
 end
 -- override
-function respec.elements.Label:to_formspec_string(formspecVersion)
-  if self.areaLabel and formspecVersion >= 9 then
+function respec.elements.Label:to_formspec_string(ver, _)
+  if self.areaLabel and ver >= 9 then
     return make_elem(self, pos_and_size(self), fesc(self.txt))
   else
   local yOffset = self.measured.h / 2
@@ -88,13 +92,13 @@ function respec.elements.Button:init(spec)
 end
 
 -- override
-function respec.elements.Button:to_formspec_string(_)
+function respec.elements.Button:to_formspec_string(_, _)
   return make_elem(self, pos_and_size(self), self.internalId, fesc(self.txt))
 end
 
-
+----------------------------------------------------------------
 -- checkbox
-
+----------------------------------------------------------------
 respec.elements.Checkbox = Class(respec.PhysicalElement)
 function respec.elements.Checkbox:init(spec)
   respec.PhysicalElement.init(self, elemInfo.checkbox, spec)
@@ -106,12 +110,52 @@ function respec.elements.Checkbox:init(spec)
 end
 
 -- override
-function respec.elements.Checkbox:to_formspec_string(ver)
+function respec.elements.Checkbox:to_formspec_string(ver, _)
   local yOffset = 0
   if ver >= 3 then yOffset = self.measured.h / 2 end
   return make_elem(self, pos_only(self, yOffset), self.internalId, fesc(self.txt), tostring(self.checked))
 end
 
+----------------------------------------------------------------
+-- list
+----------------------------------------------------------------
+respec.elements.List = Class(respec.PhysicalElement)
+function respec.elements.List:init(spec)
+  -- TODO: magic for width/height
+  respec.PhysicalElement.init(self, elemInfo.list, spec)
+  if type(spec.inv) ~= "table" then
+    respec.log_error("List spec incorrect, `inv` param must be a table!")
+  else
+    self.inv = spec.inv
+  end
+  self.slotW = self.width -- copy these as they will be overwritten later
+  self.slotH = self.height
+  self.startIndex = min0(num_or(spec.startIndex, 0))
+end
+-- override
+function respec.elements.List:to_formspec_string(_, persist)
+  local idata = self.inv
+  local invLoc = idata[1]
+  local listName = idata[2]
+  local state = persist.state
+  if invLoc == -1  then -- special case to autopopulate with position from state
+    if not state or not state.pos or not state.pos.x then
+      respec.log_error("Error: List cannot be created, did you forget to use `show_from_node_rightclick()`?")
+      return ""
+    end
+    local pos = state.pos
+    invLoc = "nodemeta:"..pos.x..","..pos.y..","..pos.z
+  end
+  return make_elem(self, invLoc, listName, get_list_xywh(self), self.startIndex)
+end
+-- override
+function respec.elements.List:before_measure(persist)
+  -- TODO: account for style config from persist
+  local slotSize = 1
+  local slotPad = 0.25
+  self.width = min0(self.slotW * (slotSize + slotPad) - slotPad)
+  self.height = min0(self.slotH * (slotSize + slotPad) - slotPad)
+end
 ----------------------------------------------------------------
 -- Non-Physical Elements
 ----------------------------------------------------------------
@@ -126,7 +170,7 @@ function respec.elements.ListRing:init(spec)
   if type(self.rings) ~= "table" then self.rings = {} end
 end
 -- override
-function respec.elements.ListRing:to_formspec_string(_)
+function respec.elements.ListRing:to_formspec_string(_, _)
   local s = ""
   for _, ring in ipairs(self.rings) do
     s = s..make_elem(self, fesc(str_or(ring[1], "")), fesc(str_or(ring[2], "")))
@@ -147,7 +191,7 @@ function respec.elements.StyleType:init(spec)
   end
 end
 -- override
-function respec.elements.StyleType:to_formspec_string(_)
+function respec.elements.StyleType:to_formspec_string(_, _)
   if not self.target or type(self.style) ~= "table" then return "" end
   local propsStr = self.style[""]
   if propsStr == "" then return "" end

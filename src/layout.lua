@@ -151,7 +151,7 @@ function respec.Layout:measure(isRoot)
 end
 
 -- override of element func
-function respec.Layout:to_formspec_string(formspecVersion)
+function respec.Layout:to_formspec_string(formspecVersion, persist)
   -- TODO: since elements can be re-set, then check elements state against old state
   if not self.serialized then
     self.serialized = true
@@ -159,9 +159,9 @@ function respec.Layout:to_formspec_string(formspecVersion)
     for _, el in ipairs(self.elements) do
       if el.fsName ~= nil then
         if el.physical == false then
-          table.insert(tbl, el:to_formspec_string(formspecVersion))
+          table.insert(tbl, el:to_formspec_string(formspecVersion, persist))
         elseif el.visibility == VISIBLE then
-          table.insert(tbl, add_common_physical_formspec_string(el, el:to_formspec_string(formspecVersion)))
+          table.insert(tbl, add_common_physical_formspec_string(el, el:to_formspec_string(formspecVersion, persist)))
         end
       end
     end
