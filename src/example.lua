@@ -123,8 +123,8 @@ local S = respec.TRANSLATOR
     elem.ListColors {
       slotBg = "#CCC",
       slotBgHover = "#AAA",
-      tooltipBg = "#FFF",
-      tooltipFont = "#333",
+      -- tooltipBg = "#FFF",
+      -- tooltipFont = "#333",
     },
     elem.List {
       id = "list_in",
@@ -134,12 +134,16 @@ local S = respec.TRANSLATOR
       borderColor = "#ff0",
       margins = 0.25,
     },
-      elem.List {
+    elem.List {
       id = "list_main",
       w = 8, h = 4,
       inv = respec.inv.player("main"),
       below = "list_in",
       margins = 0.25,
+    },
+    elem.ListRing {
+      respec.inv.node("in"),
+      respec.inv.player("main"),
     },
     elem.Label {
       id = "label4",

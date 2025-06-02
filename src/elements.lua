@@ -25,6 +25,22 @@ local function get_style_type_data(spec)
   return entires
 end
 
+-- returns invloc, listname
+local function get_inv_loc_and_name_from_data(data, persist)
+  local invLoc = data[1] or ""
+  local listName = data[2] or ""
+  local state = persist.state
+  if invLoc == -1  then -- special case to autopopulate with position from state
+    if not state or not state.pos or not state.pos.x then
+      respec.log_error("Error: List cannot be created, did you forget to use `show_from_node_rightclick()`?")
+      return ""
+    end
+    local pos = state.pos
+    invLoc = "nodemeta:"..pos.x..","..pos.y..","..pos.z
+  end
+  return invLoc, listName
+end
+
 -- minv/maxv in range 0-255
 local function randclrval(minv, maxv)
   return string.format("%x", math.random(minv, maxv))
@@ -147,17 +163,7 @@ end
 -- override
 function respec.elements.List:to_formspec_string(_, persist)
   local idata = self.inv
-  local invLoc = idata[1]
-  local listName = idata[2]
-  local state = persist.state
-  if invLoc == -1  then -- special case to autopopulate with position from state
-    if not state or not state.pos or not state.pos.x then
-      respec.log_error("Error: List cannot be created, did you forget to use `show_from_node_rightclick()`?")
-      return ""
-    end
-    local pos = state.pos
-    invLoc = "nodemeta:"..pos.x..","..pos.y..","..pos.z
-  end
+  local invLoc, listName = get_inv_loc_and_name_from_data(self.inv, persist)
   return make_elem(self, invLoc, listName, get_list_xywh(self), self.startIndex)
 end
 -- override
@@ -190,10 +196,11 @@ function respec.elements.ListRing:init(spec)
   if type(self.rings) ~= "table" then self.rings = {} end
 end
 -- override
-function respec.elements.ListRing:to_formspec_string(_, _)
+function respec.elements.ListRing:to_formspec_string(_, persist)
   local s = ""
   for _, ring in ipairs(self.rings) do
-    s = s..make_elem(self, fesc(str_or(ring[1], "")), fesc(str_or(ring[2], "")))
+    local invloc, listname = get_inv_loc_and_name_from_data(ring, persist)
+    s = s..make_elem(self, invloc, listname)
   end
   if s == "" then s = make_elem(self) end
   return s
