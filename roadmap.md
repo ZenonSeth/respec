@@ -32,8 +32,8 @@ Checked ones are done (or mostly done).
 
 - [ ] `scroll_container`: to contain its own layout
 - [x] `listring`: Maybe worth rethinking this one
-- [ ] `list` : Needs special attention since w/h are specified in num slots, not size
-- [ ] `listcolors` : probably leave it as standalone element since it can apply to multiple lists
+- [x] `list` : Needs special attention since w/h are specified in num slots, not size
+- [x] `listcolors` : probably leave it as standalone element since it can apply to multiple lists
 - [ ] `tooltip` : gui_element_name ones should be build into each `PhysicalElement`
 - [ ] `tooltip` : area tooltip as standalone element
 - [ ] `image`

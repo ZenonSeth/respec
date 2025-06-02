@@ -118,7 +118,13 @@ local S = respec.TRANSLATOR
     elem.StyleType {
       target = "list",
       size = 0.5,
-      spacing = 0,
+      spacing = "0.2,0.1",
+    },
+    elem.ListColors {
+      slotBg = "#CCC",
+      slotBgHover = "#AAA",
+      tooltipBg = "#FFF",
+      tooltipFont = "#333",
     },
     elem.List {
       id = "list_in",
@@ -126,6 +132,13 @@ local S = respec.TRANSLATOR
       inv = respec.inv.node("in"),
       below = "label3",
       borderColor = "#ff0",
+      margins = 0.25,
+    },
+      elem.List {
+      id = "list_main",
+      w = 8, h = 4,
+      inv = respec.inv.player("main"),
+      below = "list_in",
       margins = 0.25,
     },
     elem.Label {

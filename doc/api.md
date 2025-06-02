@@ -275,6 +275,34 @@ spec:<br>
   - `textlist`
   - `vertlabel` - by default inherits style from "label"
 
+## ListColors
+Corresponds to the `listcolors` formspec element
+```lua
+  respec.elements.ListColors(spec)
+```
+Note:<br>
+This element must be specified **before** any lists you want to affect.
+
+spec:<br>
+```lua
+{
+  slotBg = "#RRGGBB" -- Required
+  -- the background color of list slots, in ColorString format
+  
+  slotBgHover = "#RRGGBB" -- Required
+  -- the background color of list slots when mouse is hovering over it, in ColorString format
+
+  slotBorder = "#RRGGBB" -- Optional, must be present if tooltipBg is present below
+  -- the color of list slot borders, in ColorString format
+
+  tooltipBg = "#RRGGBB" -- Optional, must be specified together with tooltipFont
+  -- Color of list tooltip background
+
+  tooltipFont = "#RRGGBB" -- Optional, must be specified together with tooltipBg
+  -- Color of the font used in list tooltips
+}
+```
+
 # Physical Element
 
 A Physical Element is a type of element that can be displayed, positioned, and resized in some way.

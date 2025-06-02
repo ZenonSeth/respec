@@ -224,5 +224,23 @@ function respec.elements.StyleType:to_formspec_string(_, _)
   if not self.target or type(self.style) ~= "table" then return "" end
   local propsStr = self.style[""]
   if propsStr == "" then return "" end
-  return make_elem(self, fesc(self.target), propsStr)
+  return make_elem(self, self.target, propsStr)
+end
+
+----------------------------------------------------------------
+-- listcolors
+----------------------------------------------------------------
+respec.elements.ListColors = Class(respec.Element)
+function respec.elements.ListColors:init(spec)
+  respec.Element.init(self, elemInfo.listcolors)
+  self.slotStr = str_or(spec.slotBg, "")..";"..str_or(spec.slotBgHover, "")
+  self.borderStr = str_or(spec.slotBorder)
+  if spec.tooltipBg or spec.tooltipFont then
+    self.borderStr = str_or(self.borderStr, "")
+    self.tooltipStr = str_or(spec.tooltipBg, "")..";"..str_or(spec.tooltipFont, "")
+  end
+end
+-- override
+function respec.elements.ListColors:to_formspec_string(_, _)
+  return make_elem(self, self.slotStr, self.borderStr, self.tooltipStr)
 end
