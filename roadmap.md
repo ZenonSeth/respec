@@ -40,8 +40,8 @@ Checked ones are done (or mostly done).
 - [ ] `animated_image`
 - [ ] `model`
 - [ ] `item_image`
-- [ ] `background` : standalone + possibly also incorporate it into each physical element
-- [ ] `background9` : standalone + possibly also incorporate it into each physical element
+- [x] `background` : standalone
+- [x] `background9` : standalone
 - [ ] `pwdfield`
 - [ ] `field`
 - [ ] `field_enter_after_edit` : incorporate as flag in regular field

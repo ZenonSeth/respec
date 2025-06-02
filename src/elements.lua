@@ -149,7 +149,6 @@ end
 ----------------------------------------------------------------
 respec.elements.List = Class(respec.PhysicalElement)
 function respec.elements.List:init(spec)
-  -- TODO: magic for width/height
   respec.PhysicalElement.init(self, elemInfo.list, spec)
   if type(spec.inv) ~= "table" then
     respec.log_error("List spec incorrect, `inv` param must be a table!")
@@ -162,7 +161,6 @@ function respec.elements.List:init(spec)
 end
 -- override
 function respec.elements.List:to_formspec_string(_, persist)
-  local idata = self.inv
   local invLoc, listName = get_inv_loc_and_name_from_data(self.inv, persist)
   return make_elem(self, invLoc, listName, get_list_xywh(self), self.startIndex)
 end
@@ -181,6 +179,44 @@ function respec.elements.List:before_measure(persist)
   end
   self.width = min0(self.slotW * (sizeX + padX) - padX)
   self.height = min0(self.slotH * (sizeY + padY) - padY)
+end
+
+
+----------------------------------------------------------------
+-- Background (background[] and background9[])
+----------------------------------------------------------------
+respec.elements.Background = Class(respec.PhysicalElement)
+function respec.elements.Background:init(spec)
+  spec.width = num_or(spec.width or spec.w, 1)
+  spec.height = num_or(spec.height or spec.h, 1)
+  self.ignoreLayoutPaddings = true -- special flag used in layout_logic
+  d.log("Spec = "..dump(spec))
+  local elem = elemInfo.background
+  if type(spec.middle) == "number" or type(spec.middle) == "string" then elem = elemInfo.background9 end
+
+  respec.PhysicalElement.init(self, elem, spec)
+
+  self.texture = spec.texture
+  if type(spec.fill) == "boolean" then
+    self.fill = spec.fill
+  else
+    self.fill = true
+  end
+  if elem == elemInfo.background9 then
+    self.middle = tostring(spec.middle)
+  end
+end
+-- override
+function respec.elements.Background:to_formspec_string(_, _)
+  if self.middle then
+    local autoclip = self.fill
+    if autoclip == nil then autoclip = true end
+    return make_elem(self, pos_and_size(self), self.texture, tostring(autoclip), self.middle)
+  else
+    local autoclip = self.fill
+    if autoclip ~= nil then autoclip = tostring(autoclip) end
+    return make_elem(self, pos_and_size(self), self.texture, autoclip)
+  end
 end
 ----------------------------------------------------------------
 -- Non-Physical Elements

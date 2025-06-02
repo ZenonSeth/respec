@@ -206,7 +206,9 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
       end
 
       local marginSign = 1 ; if side == BOT or side == RGT then marginSign = -1 end
-      value = value + marginSign * layout.paddings[side]
+      if not elem.ignoreLayoutPaddings then
+        value = value + marginSign * layout.paddings[side]
+      end
       -- d.log("align "..elem.id..":"..side_to_str(side).." to parent. LayoutMargins = "..dump(margins).." value = "..value)
 
       measured[side] = value
@@ -384,7 +386,6 @@ end
 function respec.internal.perform_layout_of_form_layout(formLayout)
   -- form root layout always starts at 0, 0 - but may have wrap width/height
   local ms = formLayout.measured
-  local mg = formLayout.paddings
   ms[LFT] = 0 -- mg[LFT]
   ms[TOP] = 0 -- mg[TOP]
   if formLayout.width > 0 then

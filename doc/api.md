@@ -583,6 +583,37 @@ Styling:
 - Supported style properties:<br>
   `noclip`, `size`, `spacing`
 
+## Background
+Corresponds to formspec `background` and `background9`
+```lua
+  respec.elements.Background(spec)
+```
+spec:
+```lua
+{
+  w,h -- as inherited from PhysicalElement
+  -- w,h: For this element, these are Optional by default, but Required if `fill = false` is set.
+
+  texture = "texture name.png",
+  -- Required. The texture to display at the given coords
+
+  fill = true -- corresponds to formspec auto_clip
+  -- Optional, default is `true`
+  -- When true, w/h are ignored and the background will fill the entire form, with x/y being used as insets
+  -- When false, the background will be drawn at the x/y position with the given w/h
+
+  middle = "x" -- or "x,y" or "x1,y1,x2,y2"
+  -- Optional. Must be integers.
+  -- If present, will draw the background texture as a 9-slice, turning this element into a background9
+  -- specifies how man pixels off the sides the 'middle' of the 9-slice starts.
+  -- "x" : middle starts x pixels from each side
+  -- "x,y" : middle starts x pixels from left/right and y pixels from top/bottom
+  -- "x1,y1,x2,y2" : middle starts x1 from left, x2 from right, y1 from top, y2 from bottom
+}
+```
+Note that this element is special in that ignores Layout padding completely.<br>
+For more info on how background9 works, see: https://en.wikipedia.org/wiki/9-slice_scaling
+
 # Utility Methods
 
 ## Inventory utils
