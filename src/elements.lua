@@ -13,6 +13,18 @@ local min0 = respec.util.min0
 local get_valid_style = respec.elements.get_valid_style
 respec.elements.get_valid_style = nil
 
+local function get_style_type_data(spec)
+  if type(spec) ~= "table" then return nil end
+  local entires = {}
+  for k, v in pairs(spec) do
+    local typeV = type(v)
+    if typeV == "string" or typeV == "number" or typeV == "boolean" then
+      entires[tostring(k)] = tostring(v)
+    end
+  end
+  return entires
+end
+
 -- minv/maxv in range 0-255
 local function randclrval(minv, maxv)
   return string.format("%x", math.random(minv, maxv))
@@ -150,11 +162,19 @@ function respec.elements.List:to_formspec_string(_, persist)
 end
 -- override
 function respec.elements.List:before_measure(persist)
-  -- TODO: account for style config from persist
-  local slotSize = 1
-  local slotPad = 0.25
-  self.width = min0(self.slotW * (slotSize + slotPad) - slotPad)
-  self.height = min0(self.slotH * (slotSize + slotPad) - slotPad)
+  local sizeX = 1 ; local sizeY = 1
+  local padX = 0.25 ; local padY = 0.25
+  local style = persist["style_list"]
+  if style then
+    local size = style["size"] or "1"
+    local v1 = size:split(",", false)
+    sizeX = v1[1] ; sizeY = v1[2] or v1[1]
+    local pad = style["spacing"] or "0.25"
+    local v2 = pad:split(",", false)
+    padX = v2[1] ; padY = v2[2] or v2[1]
+  end
+  self.width = min0(self.slotW * (sizeX + padX) - padX)
+  self.height = min0(self.slotH * (sizeY + padY) - padY)
 end
 ----------------------------------------------------------------
 -- Non-Physical Elements
@@ -188,6 +208,15 @@ function respec.elements.StyleType:init(spec)
   self.target = str_or(spec.target, nil)
   if self.target then
     self.style = get_valid_style(self.fsName, spec)
+    if self.style then
+      self.styleData = get_style_type_data(spec)
+    end
+  end
+end
+-- override
+function respec.elements.StyleType:before_measure(persist)
+  if self.styleData then
+    persist["style_"..self.target] = self.styleData
   end
 end
 -- override
@@ -195,5 +224,5 @@ function respec.elements.StyleType:to_formspec_string(_, _)
   if not self.target or type(self.style) ~= "table" then return "" end
   local propsStr = self.style[""]
   if propsStr == "" then return "" end
-  return make_elem(self, fesc(self.target), fesc(propsStr))
+  return make_elem(self, fesc(self.target), propsStr)
 end

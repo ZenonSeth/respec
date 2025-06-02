@@ -187,6 +187,9 @@ local function get_valid_style(fsName, styleSpec)
       -- skip this one, due to this function being used from elements.StyleType()
     elseif vType == "string" then
       table.insert(baseProps, tostring(k).."="..v)
+    elseif vType == "number" or vType == "boolean" then
+      -- d.log("v = "..tostring(v))
+      table.insert(baseProps, tostring(k).."="..tostring(v))
     elseif vType == "table" then
       local props = {}
       for subK, subV in pairs(v) do
