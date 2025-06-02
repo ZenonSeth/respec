@@ -228,7 +228,7 @@ Corresponds to the `listring` formspec element. [Lua API doc](https://github.com
   -- `listring[inv_location, list_name]` formspec element, in the order they're specified.
 }
 ```
-See the [List](#list) element for more details on the `respec.inv.` functions.
+See the [Inventory utils](#inventory-utils) for details on the `respec.inv.` functions.
 
 ## StyleType
 Corresponds to the `style_type` formspec element
@@ -315,12 +315,12 @@ This spec is common between all physical elements, and each Physical Element has
   id = "string", 
   -- Optional. Can be used by other elements to align to this one. IDs within the same Layout must be unique.
   
-  width = 3, w = 3,
+  w = 3, -- or width = 3, 
   -- Usually required. If not specified, 0 is assumed.
   -- number, in real units, how wide this element is. Pass 0 to let start/end constraints determine width
   -- Can specify either "width" or "w" value for shorthand
   
-  height = 3, h = 3,
+  h = 3, -- or height = 3,
   -- Usually required. If not specified, 0 is assumed.
   -- number, in real units, how tall this element is. Pass 0 to let top/bottom constraints determine width
   -- Can specify either "height" or "h" value for shorthand
@@ -353,23 +353,11 @@ This spec is common between all physical elements, and each Physical Element has
 -- If no vertical alignment specified, top_to_parent_top is assumed.
 -- If no horizontal alignment is specified, start_to_parent_start is assumed.
 -- When height or width are 0, then both the corresponding alignments should be specified instead to determine size.
--- You should not specify multiple alignments - e.g. aligning top to multiple elements.
+-- You should not specify multiple alignments - e.g. don't align top to multiple elements.
 -- If multiple conflicting alignments are present, only one will be used.
--- Alignment isn't affected by the other element's margins
+-- Alignment happens to the outside of an element (which includes their margins)
 -- Aligning to elements which have visibility = gone is allowed, and the alignment
 -- will instead inherit the gone element's alignment
-
-  center_hor = true,
-  -- shorthand for specifying both start_to_parent_start and end_to_parent_end
-
-  center_ver = true,
-  -- shorthand for specifying both top_to_parent_top and bottom_to_parent_bottom
-
-  center_hor = "other_id",
-  -- shorthand for specifying both start_to_start_of="other_id" and end_to_end_of="other_id"
-
-  center_ver = "other_id",
-  -- shorthand for specifying both top_to_top_of="other_id" and bottom_to_bottom_of="other_id"
 
   top_to_top_of = "other_id",
   -- aligns the top of this element to the top of another element with the provided "other_id"
@@ -408,20 +396,27 @@ This spec is common between all physical elements, and each Physical Element has
   -- when set to `true, aligns the end of the element to the parent Layout's end
 
   -- Shorthand align flags
-  -- The above flags are more technically correct, but they are more quite verbose.
+  -- The above flags are more technically correct, but they are verbose.
   -- The following flags do the same as the above, but are easier to write:
   alignTop = "other_id",    -- shorthand for top_to_top_of
   alignBottom = "other_id", -- shorthand for bottom_to_bottom_of
   alignStart = "other_id",  -- shorthand for start_to_start_of
   alignEnd = "other_id",    -- shorthand for end_to_end_of
+  
   below = "other_id",       -- shorthand for top_to_bottom_of
   above = "other_id",       -- shorthand for bottom_to_top_of
   before = "other_id",      -- shorthand for end_to_start_of
   after = "other_id"        -- shorthand for start_to_end_of
+  
   toTop = true,             -- shorthand for top_to_parent_top
   toBottom = true,          -- shorthand for bottom_to_parent_bottom
   toStart = true,           -- shorthand for start_to_parent_start
   toEnd = true,             -- shorthand for end_to_parent_end
+  
+  center_hor = true,        -- shorthand for setting both start_to_parent_start and end_to_parent_end
+  center_ver = true,        -- shorthand for setting both top_to_parent_top and bottom_to_parent_bottom
+  center_hor = "other_id",  -- shorthand for setting both start_to_start_of="other_id" and end_to_end_of="other_id"
+  center_ver = "other_id",  -- shorthand for specifying both top_to_top_of="other_id" and bottom_to_bottom_of="other_id"
 
 -- Biases: all are optional. 
 -- When applicable, they shift how far along the element is positioned between its start and end points.
@@ -434,7 +429,6 @@ This spec is common between all physical elements, and each Physical Element has
 -- |          [ELEMENT]|
 --
 -- Biases apply only when both corresponding side constraints are specified and the corresponding size is fixed (not 0)
-
   hor_bias = 0.5,
   -- the horizontal bias, defaults to 0.5 if not specified. Requires a start and end constraint to be set
   ver_bias = 0.5,
