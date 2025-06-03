@@ -2,9 +2,9 @@ Note: This is still work in progress - docs are missing and existing api may cha
 
 # General Info
 
-Respec's API implements almost all features from the [Luanti Formspec API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#formspec).
+Respec's API aims to implement all features from the [Luanti Formspec API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#formspec), with 3 very minor exceptions.
 
-Respec provides utitlies for easier positioning and sizing of elements, callbacks to elements, as well as some other conveniences.
+Respec provides utilities for easier positioning and sizing of elements, callbacks to elements, as well as some other conveniences.
 
 Each `respec.elements` class corresponds to a Luanti `formspec` element, and while some (like `Button`s or `Label`s) are self explanatory, others - like `Listring`s require some knowledge of the formspec API.
 
