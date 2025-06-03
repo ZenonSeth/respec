@@ -181,7 +181,7 @@ Creating and immediately showing a formspec to `singleplayer`:
       margins = 0.25,
     },
     {
-      respec.elements.Label { w = 3, h = 0.5, text = "Hello World!" },
+      respec.elements.Label { text = "Hello World!" },
     }
   ):show("singleplayer")
  ```
