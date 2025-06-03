@@ -4,6 +4,7 @@ local con = respec.const
 local TOP = con.top
 local LFT = con.left
 local WRAP = con.wrap_content
+local UNSET = con.unset
 
 -- utility funcs
 
@@ -241,6 +242,15 @@ function respec.elements.Field:init(spec)
   respec.PhysicalElement.init(self, elemInfo.field, spec)
   self.txt = str_or(spec.text, "")
   self.label = str_or(spec.label, "")
+end
+-- override
+function respec.elements.Field:before_measure(persist)
+  if self.label ~= "" then
+    if self.margins[TOP] == UNSET then
+      local ms = measure_text(self.label, persist.playerName)
+      self.margins[TOP] = ms.height
+    end
+  end
 end
 -- override
 function respec.elements.Field:to_formspec_string(_, _)

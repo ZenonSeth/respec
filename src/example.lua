@@ -59,16 +59,16 @@ end
     elem.Field {
       id = "field1",
       w = 3, h = 0.5,
-      below = "label1",
+      toTop = true,
       label = "Change Title",
       text = iState.field1 or ""
     },
     elem.Button {
       id = "btn1",
       w = 2, h = 0.5,
-      text = "1!",
-      alignTop = "label1",
-      before = "btn2",
+      text = "Set Title",
+      below = "field1",
+      alignStart = "field1",
       margins_ver = 0.25,
       margins_hor = 0.25,
       visible = iState.ch1 == true,

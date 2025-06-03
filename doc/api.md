@@ -614,6 +614,25 @@ spec:
 Note that this element is special in that ignores Layout padding completely.<br>
 For more info on how background9 works, see: https://en.wikipedia.org/wiki/9-slice_scaling
 
+
+## Field
+Corresponds to formspec `field`
+```lua
+  respec.elements.Field(spec)
+```
+spec:
+```lua
+{
+    text = "Text to be shown in field",
+    -- Optional. Sets the text inside the field
+    
+    label = "Label of field",
+    -- Optional. Shows a small label above the field, describing it.
+    -- Note: Setting this label will automatically add a margin_top the Field,
+    -- to allow for room for the Label to be drawn above the field.
+    -- If you then set margin_top in any other way, it will override this
+}
+```
 # Utility Methods
 
 ## Inventory utils
