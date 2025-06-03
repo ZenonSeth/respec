@@ -10,6 +10,7 @@ local UNSET = con.unset
 
 local num_or = respec.util.num_or
 local str_or =  respec.util.str_or
+local bool_or =  respec.util.bool_or
 local min0 = respec.util.min0
 
 local get_valid_style = respec.elements.get_valid_style
@@ -239,9 +240,18 @@ end
 ----------------------------------------------------------------
 respec.elements.Field = Class(respec.PhysicalElement)
 function respec.elements.Field:init(spec)
-  respec.PhysicalElement.init(self, elemInfo.field, spec)
+  local einf = elemInfo.field
+  local isPassword = (spec.isPassword == true)
+  if isPassword then einf = elemInfo.pwdfield end
+  respec.PhysicalElement.init(self, einf, spec)
+  self.isPassword = isPassword
   self.txt = str_or(spec.text, "")
   self.label = str_or(spec.label, "")
+  self.closeOnEnter = bool_or(spec.closeOnEnter)
+  self.enterAfterEdit = bool_or(spec.enterAfterEdit)
+  if type(spec.onSubmit) == "function" then
+    self.on_interact = spec.onSubmit
+  end
 end
 -- override
 function respec.elements.Field:before_measure(persist)
@@ -254,7 +264,25 @@ function respec.elements.Field:before_measure(persist)
 end
 -- override
 function respec.elements.Field:to_formspec_string(_, _)
-  return make_elem(self, pos_and_size(self), self.internalId, self.label, self.txt)
+  local elems = {}
+  if self.closeOnEnter == false then
+    table.insert(elems, fsmakeelem("field_close_on_enter", self.internalId, "false"))
+  end
+  if self.enterAfterEdit == true then
+    table.insert(elems, fsmakeelem("field_enter_after_edit", self.internalId, "true"))
+  end
+  local deftxt = fesc(self.txt) ; if self.isPassword then deftxt = nil end
+  table.insert(elems, make_elem(self, pos_and_size(self), self.internalId, self.label, deftxt))
+  return table.concat(elems, "")
+end
+
+----------------------------------------------------------------
+-- PasswordField (pwdfield[])
+----------------------------------------------------------------
+respec.elements.PasswordField = Class(respec.elements.Field)
+function respec.elements.PasswordField:init(spec)
+  spec.isPassword = true
+  respec.elements.Field.init(self, spec)
 end
 
 ----------------------------------------------------------------

@@ -43,10 +43,10 @@ Checked ones are done (or mostly done).
 - [ ] `item_image`
 - [x] `background` : standalone
 - [x] `background9` : standalone
-- [ ] `pwdfield`
-- [ ] `field`
-- [ ] `field_enter_after_edit` : incorporate as flag in regular field
-- [ ] `field_close_on_enter` : incorporate as flag in regular field
+- [x] `pwdfield`
+- [x] `field`
+- [x] `field_enter_after_edit` : incorporated as flag in regular field
+- [x] `field_close_on_enter` : incorporated as flag in regular field
 - [ ] `textarea`
 - [x] `label`
 - [ ] `hypertext`
@@ -73,7 +73,7 @@ Checked ones are done (or mostly done).
 - [x] `style_type` : nonphysical
 
 
-## Not planned to be supported Formspec Elements
+## Specifically not supported Formspec Elements
 - `real_coordinates[<bool>]`<br>
   Reason: This is the default past formspec v2, and the layout algorithm is build
   with this being always on in mind. Therefore, we always assume this is true, and

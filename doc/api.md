@@ -517,7 +517,7 @@ spec:
   on_click = function(state, fields) return true end,
   -- a function to be called when the button is clicked
   -- `state` is the form's state, can be modified here.
-  -- `fields` is the value of the fields in the form
+  -- `fields` is the map of value of the fields in the form
   -- Note that only fields with specified IDs will be present
   -- if reshowOnInteract is false, then return `true` from this function to re-show the formspec
 }
@@ -542,7 +542,7 @@ spec:
   on_click = function(state, fields) return true end
   -- a function to be called when the checkbox is clicked
   -- `state` is the form's state, can be modified here
-  -- `fields` is the value of the fields in the form
+  -- `fields` is the map of value of the fields in the form
   -- Note that only fields with specified IDs will be present
   -- if reshowOnInteract is false, then return `true` from this function to re-show the formspec
 }
@@ -615,24 +615,48 @@ Note that this element is special in that ignores Layout padding completely.<br>
 For more info on how background9 works, see: https://en.wikipedia.org/wiki/9-slice_scaling
 
 
-## Field
-Corresponds to formspec `field`
+## Field and PasswordField
+Corresponds to formspec `field` and `pwdfield`
 ```lua
   respec.elements.Field(spec)
+  respec.elements.PasswordField(spec)
 ```
-spec:
+Both elements share the same spec:
 ```lua
 {
     text = "Text to be shown in field",
-    -- Optional. Sets the text inside the field
+    -- Optional. Sets the text inside the field. Not used for PasswordField.
     
     label = "Label of field",
     -- Optional. Shows a small label above the field, describing it.
     -- Note: Setting this label will automatically add a margin_top the Field,
     -- to allow for room for the Label to be drawn above the field.
     -- If you then set margin_top in any other way, it will override this
+
+    closeOnEnter = false,
+    -- Optional. Default is true.
+    -- If set to false, the form won't close when user presses enter while typing in the field.
+
+    enterAfterEdit = true,
+    -- Optional. Experimental - only affects Android clients. Default is false.
+    -- If set to true, pressing "Done" on Android software text input will
+    -- simulate an Enter key press, and submit the field
+
+    onSubmit = function(state, value, fields) end
+  -- a function to be called when the user types and presses Enter in the field
+  -- `state` is the form's state, can be modified here.
+  -- `value` is the value of the Field or PasswordField
+  -- `fields` is the map of value of the fields in the form
+  -- Note that only fields with specified IDs will be present
+  -- if reshowOnInteract is false, then return `true` from this function to re-show the formspec
 }
 ```
+Styling:
+- Supports per-element `style` entry in their spec.
+- Supports type-styling via [StyleType](#styletype)
+- Supported style properties:<br>
+  `border`, `font`, `font_size`, `noclip`, `textcolor`
+
 # Utility Methods
 
 ## Inventory utils

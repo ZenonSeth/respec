@@ -10,6 +10,10 @@ local INVISIBLE = con.invisible
 local GONE = con.gone
 local PARENT = con.parent
 
+local NO_INTERACT = 0
+local SEND_FIELDS = 1
+local SEND_VALUE_AND_FIELDS = 2
+
 respec.elements = {} -- init this table here
 local Class = respec.util.Class
 
@@ -23,47 +27,48 @@ local elementsWithName = {
 
 local function minf(tbl) return { name = tbl[1], minVer = tbl[2], inFields = tbl[3] } end
 
--- format is { name = "formspec_name", minVer = MIN_VERSION_INT, inFields = IS_FIELD_SENT }
+-- format is { name = "formspec_name", minVer = MIN_VERSION_INT, inFields = 0/1/SEND_VALUE_AND_FIELDS }
+
 respec.internal.supported_elements = {
-  _LAYOUT =           minf { "_LAYOUT", 1, false },
-  label =             minf { "label", 1, false },
-  button =            minf { "button", 1, true },
-  scroll_container =  minf { "scroll_container", 3, false },
-  list =              minf { "list", 1, true },
-  listring =          minf { "listring", 1, false },
-  listcolors =        minf { "listcolors", 1, false},
-  tooltip =           minf { "tooltip", 1, false },
-  image =             minf { "image", 1, false },
-  animated_image =    minf { "animated_image", 6, false },
-  model =             minf { "model", 1, false },
-  item_image =        minf { "item_image", 1, false },
-  background =        minf { "background", 1, false },
-  background9 =       minf { "background9", 2, false },
-  pwdfield =          minf { "pwdfield", 1, true }, -- maybe incorporate into "field"
-  field =             minf { "field", 1, true },
-  field_enter_after_edit = minf { "field_enter_after_edit", 7, false }, -- incorporate into field
-  field_close_on_enter =  minf { "field_close_on_enter", 1, false }, -- incorporate into field
-  textarea =          minf { "textarea", 1, true },
-  hypertext =         minf { "hypertext", 1, false },
-  vertlabel =         minf { "vertlabel", 1, false },
-  button_url =        minf { "button_url", 1, true },
-  image_button =      minf { "image_button", 1, true },
-  item_image_button = minf { "item_image_button", 1, true },
-  button_exit =       minf { "button_exit", 1, true }, -- incorporate into button
-  button_url_exit =   minf { "button_url_exit", 1, true }, -- incorporate into button_url
-  image_button_exit = minf { "image_button_exit", 1, true }, -- incorporate into image_button
-  textlist =          minf { "textlist", 1, true },
-  tabheader =         minf { "tabheader", 1, true },
-  box =               minf { "box", 1, false },
-  dropdown =          minf { "dropdown", 1, true },
-  checkbox =          minf { "checkbox", 1, true },
-  scrollbar =         minf { "scrollbar", 1, true },
-  scrollbaroptions =  minf { "scrollbaroptions", 1, false },
-  table =             minf { "table", 1, false },
-  tableoptions =      minf { "tableoptions", 1, false }, -- hmm
-  tablecolumns =      minf { "tablecolumns", 1, false }, -- maybe incorporate into table
-  style =             minf { "style", 1, false },
-  style_type =        minf { "style_type", 1, false },
+  _LAYOUT =           minf { "_LAYOUT", 1, NO_INTERACT },
+  label =             minf { "label", 1, NO_INTERACT },
+  button =            minf { "button", 1, SEND_FIELDS },
+  scroll_container =  minf { "scroll_container", 3, NO_INTERACT },
+  list =              minf { "list", 1, SEND_VALUE_AND_FIELDS },
+  listring =          minf { "listring", 1, NO_INTERACT },
+  listcolors =        minf { "listcolors", 1, NO_INTERACT },
+  tooltip =           minf { "tooltip", 1, NO_INTERACT },
+  image =             minf { "image", 1, NO_INTERACT },
+  animated_image =    minf { "animated_image", 6, NO_INTERACT },
+  model =             minf { "model", 1, NO_INTERACT },
+  item_image =        minf { "item_image", 1, NO_INTERACT },
+  background =        minf { "background", 1, NO_INTERACT },
+  background9 =       minf { "background9", 2, NO_INTERACT },
+  pwdfield =          minf { "pwdfield", 1, SEND_VALUE_AND_FIELDS },
+  field =             minf { "field", 1, SEND_VALUE_AND_FIELDS },
+  field_enter_after_edit = minf { "field_enter_after_edit", 7, NO_INTERACT }, -- incorporate into field
+  field_close_on_enter =  minf { "field_close_on_enter", 1, NO_INTERACT }, -- incorporate into field
+  textarea =          minf { "textarea", 1, SEND_FIELDS },
+  hypertext =         minf { "hypertext", 1, NO_INTERACT },
+  vertlabel =         minf { "vertlabel", 1, NO_INTERACT },
+  button_url =        minf { "button_url", 1, SEND_FIELDS },
+  image_button =      minf { "image_button", 1, SEND_FIELDS },
+  item_image_button = minf { "item_image_button", 1, SEND_FIELDS },
+  button_exit =       minf { "button_exit", 1, SEND_FIELDS }, -- incorporate into button
+  button_url_exit =   minf { "button_url_exit", 1, SEND_FIELDS }, -- incorporate into button_url
+  image_button_exit = minf { "image_button_exit", 1, SEND_FIELDS }, -- incorporate into image_button
+  textlist =          minf { "textlist", 1, SEND_VALUE_AND_FIELDS },
+  tabheader =         minf { "tabheader", 1, SEND_VALUE_AND_FIELDS },
+  box =               minf { "box", 1, NO_INTERACT },
+  dropdown =          minf { "dropdown", 1, SEND_VALUE_AND_FIELDS },
+  checkbox =          minf { "checkbox", 1, SEND_FIELDS },
+  scrollbar =         minf { "scrollbar", 1, SEND_VALUE_AND_FIELDS },
+  scrollbaroptions =  minf { "scrollbaroptions", 1, NO_INTERACT },
+  table =             minf { "table", 1, NO_INTERACT },
+  tableoptions =      minf { "tableoptions", 1, NO_INTERACT }, -- hmm
+  tablecolumns =      minf { "tablecolumns", 1, NO_INTERACT }, -- maybe incorporate into table
+  style =             minf { "style", 1, NO_INTERACT },
+  style_type =        minf { "style_type", 1, NO_INTERACT },
 }
 local elem_info = respec.internal.supported_elements
 

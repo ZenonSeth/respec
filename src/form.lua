@@ -238,7 +238,12 @@ local function on_receive_fields(player, formname, fields)
   local reshow = form.reshowOnInteract
   for elemId, elem in pairs(interactiveElems) do
     if fields[elemId] then
-      local requestedReshow = elem.on_interact(formData.state, translatedFields)
+      local requestedReshow
+      if elem.inFields == 1 then
+        requestedReshow = elem.on_interact(formData.state, translatedFields)
+      else
+        requestedReshow = elem.on_interact(formData.state, fields[elemId], translatedFields)
+      end
       reshow = requestedReshow or reshow
     end
   end

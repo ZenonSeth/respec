@@ -119,7 +119,7 @@ local function do_add(self, element, idGen)
   if newId then self.ids[newId] = true end
   table.insert(self.elements, element)
 
-  if element.info.inFields then
+  if element.info.inFields > 0 then
     self.fieldElemsById[element.internalId] = element
   end
   self.elementsGraph:add_element(element)

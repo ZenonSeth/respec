@@ -39,7 +39,7 @@ end
     },
     elem.Label {
       id = "title",
-      text = (iState.field1 or "The Quick Brown Fox\nJumps Over The Lazy DOG\nJumps Over The Lazy DOG"),
+      text = (iState.title or "The Quick Brown Fox\nJumps Over The Lazy DOG\nJumps Over The Lazy DOG"),
       w = respec.const.wrap_content, h = respec.const.wrap_content,
       -- below = "moveupbtn",
       center_hor = true, -- equivalent of the two commented out lines below
@@ -61,7 +61,12 @@ end
       w = 3, h = 0.5,
       toTop = true,
       label = "Change Title",
-      text = iState.field1 or ""
+      text = iState.field1 or "",
+      closeOnEnter = false,
+      onSubmit = function(state, value, fields)
+        state.field1 = value
+        state.title = value
+      end
     },
     elem.Button {
       id = "btn1",
@@ -74,7 +79,7 @@ end
       visible = iState.ch1 == true,
       -- borderColor = "#0000FF",
       on_click = function(state, fields)
-        iState.field1 = fields["field1"] or ""
+        state.title = fields["field1"] or ""
       end,
       style = {
         font = "mono"

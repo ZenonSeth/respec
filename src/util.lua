@@ -165,6 +165,7 @@ local outl = respec.util.fs_make_outline
 
 function respec.util.num_or(v, o) if type(v) == "number" then return v else return o end end
 function respec.util.str_or(v, o) if type(v) == "string" then return v else return o end end
+function respec.util.bool_or(v, o) if type(v) == "boolean" then return v else return o end end
 
 local num_or = respec.util.num_or
 function respec.util.min0(value)
