@@ -46,6 +46,22 @@ local function get_inv_loc_and_name_from_data(data, persist)
   return invLoc, listName
 end
 
+local function get_merged_styles(persist, useCommon, typeStyleName, elemStyleData)
+  local baseSt = {}
+  if useCommon then
+    local all = persist["style_*"]
+    if all then for k, v in pairs(all) do baseSt[k] = v end end
+  end
+  if typeStyleName then
+    local st = persist[typeStyleName]
+    if st then for k,v in pairs(st) do baseSt[k] = v end end
+  end
+  if type(elemStyleData) == "table" then
+    for k,v in pairs(elemStyleData) do baseSt[k] = v end
+  end
+  return baseSt
+end
+
 -- minv/maxv in range 0-255
 local function randclrval(minv, maxv)
   return string.format("%x", math.random(minv, maxv))
@@ -81,6 +97,10 @@ local function get_list_xywh(self)
   return pos_only(self)..";"..self.slotW..","..self.slotH
 end
 
+local function set_to_wrap_if_absent(spec)
+  if not spec.w and not spec.width then spec.w = WRAP end
+  if not spec.h and not spec.height then spec.h = WRAP end
+end
 
 local Class = respec.util.Class
 
@@ -97,6 +117,7 @@ local Class = respec.util.Class
 ----------------------------------------------------------------
 respec.elements.Label = Class(respec.PhysicalElement) -- PhysElem("label", id, w, h)
 function respec.elements.Label:init(spec)
+  set_to_wrap_if_absent(spec)
   respec.PhysicalElement.init(self, elemInfo.label, spec)
   self.origW = self.width ; self.origH = self.height
   self.txt = str_or(spec.text, "")
@@ -116,7 +137,7 @@ function respec.elements.Label:to_formspec_string(ver, _)
 end
 -- override
 function respec.elements.Label:before_measure(persist)
-  local style = persist["style_label"] or {}
+  local style = get_merged_styles(persist, true, "style_label")
   if self.origW == WRAP or self.origH == WRAP then
     local wh = measure_text(self.txt, persist.playerName, style.font == "mono", style.font_size)
     self.numLines = wh.numLines
@@ -130,13 +151,27 @@ end
 ----------------------------------------------------------------
 respec.elements.Button = Class(respec.PhysicalElement)
 function respec.elements.Button:init(spec)
+  set_to_wrap_if_absent(spec)
   respec.PhysicalElement.init(self, elemInfo.button, spec)
+  self.origW = self.width ; self.origH = self.height
+  self.paddingsHor = num_or(spec.paddingsHor or spec.paddings, 0) * 2
+  self.paddingsVer = num_or(spec.paddingsVer or spec.paddings, 0) * 2
+  self.styleData = get_style_type_data(spec.style)
   self.txt = str_or(spec.text, "")
   if type(spec.on_click) == "function" then
     self.on_interact = spec.on_click
   end
 end
-
+-- override
+function respec.elements.Button:before_measure(persist)
+  if self.origW == WRAP or self.origH == WRAP then
+    local style = get_merged_styles(persist, true, "style_button", self.styleData)
+    local wh = measure_text(self.txt, persist.playerName, style.font == "mono", style.font_size)
+    wh.width = wh.width + 2/5 -- approx width of checkbox
+    if self.origW == WRAP then self.width = wh.width + self.paddingsHor end
+    if self.origH == WRAP then self.height = wh.height + self.paddingsVer end
+  end
+end
 -- override
 function respec.elements.Button:to_formspec_string(_, _)
   return make_elem(self, pos_and_size(self), self.internalId, fesc(self.txt))
@@ -147,14 +182,26 @@ end
 ----------------------------------------------------------------
 respec.elements.Checkbox = Class(respec.PhysicalElement)
 function respec.elements.Checkbox:init(spec)
+  set_to_wrap_if_absent(spec)
   respec.PhysicalElement.init(self, elemInfo.checkbox, spec)
+  self.origW = self.width ; self.origH = self.height
   self.txt = str_or(spec.text, "")
   self.checked = spec.checked == true
+  self.styleData = get_style_type_data(spec.style)
   if type(spec.on_click) == "function" then
     self.on_interact = spec.on_click
   end
 end
-
+-- override
+function respec.elements.Checkbox:before_measure(persist)
+  if self.origW == WRAP or self.origH == WRAP then
+    local style = get_merged_styles(persist, false, "style_checkbox", self.style)
+    local wh = measure_text(self.txt, persist.playerName, style.font == "mono", style.font_size)
+    wh.width = wh.width + 2/5 -- approx width of checkbox
+    if self.origW == WRAP then self.width = wh.width end
+    if self.origH == WRAP then self.height = wh.height end
+  end
+end
 -- override
 function respec.elements.Checkbox:to_formspec_string(ver, _)
   local yOffset = 0

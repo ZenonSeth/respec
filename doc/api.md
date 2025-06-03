@@ -316,14 +316,14 @@ This spec is common between all physical elements, and each Physical Element has
   -- Optional. Can be used by other elements to align to this one. IDs within the same Layout must be unique.
   
   w = 3, -- or width = 3, 
-  -- Usually required. If not specified, 0 is assumed.
-  -- number, in real units, how wide this element is. Pass 0 to let start/end constraints determine width
-  -- Can specify either "width" or "w" value for shorthand
+  -- Usually required. Some elements support wrap_content.
+  -- For these elements, not specifying a width assumes wrap_content: Label, Checkbox, Button
+  -- Set to 0 and use start+end constraints to let constraints determine width
   
   h = 3, -- or height = 3,
-  -- Usually required. If not specified, 0 is assumed.
-  -- number, in real units, how tall this element is. Pass 0 to let top/bottom constraints determine width
-  -- Can specify either "height" or "h" value for shorthand
+  -- Usually required. Some elements support wrap_content.
+  -- For these elements, not specifying a height assumes wrap_content: Label, Checkbox, Button
+  -- Set to 0 and use top+bottom constraints to let constraints determine height
 
   visibility = respec.const.visible,
   -- Optional. Default value is `visible`
@@ -491,8 +491,11 @@ Corresponds to formspec `label`
 spec:
 ```lua
 {
+  w, h, -- Optional. Support respec.const.wrap_content. If absent, defaults to wrap_content
+
   text = "Label text here",
   -- string to be shown in label
+
   area = true,
   -- if set to `true` then make this an area label, which constraints its text to the size.
   -- For more info see: https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#labelxywhlabel
@@ -511,6 +514,14 @@ Corresponds to formspec `button`
 spec:
 ```lua
 {
+  w, h, -- Optional. Support respec.const.wrap_content. If absent, defaults to wrap_content
+
+  paddings = 3, -- set all 4 paddings to 3
+  paddingsHor = 2, paddingsVer = 5, -- sets horizontal paddings to  2, and vertical paddings to 5
+  -- All 3 are Optional. Only used when w/h are wrap_content.
+  -- Unlike margins (common to all elements), this padding adds space inside the Button itself,
+  -- This results in more space between the button's edge and the inner text.
+
   text = "Button text",
   -- string to be shown in Button
   
@@ -536,6 +547,8 @@ Corresponds to formspec `checkbox`
 spec:
 ```lua
 {
+  w, h, -- Optional. Support respec.const.wrap_content. If absent, defaults to wrap_content
+
   text = "Checkbox text",
   -- string to be shown (to the right of the checkbox)
 

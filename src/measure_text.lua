@@ -140,7 +140,7 @@ local function measure_text(string, playerName, isMono, fontSize, adjust)
     i = i + 1
   end
   return {
-    width = width,
+    width = max(width, 0.1), -- for our layout purposes don't let width be exactly 0
     height = numLines * (oneHeight + DEFAULT_LINE_SPACING) - DEFAULT_LINE_SPACING,
     numLines = numLines,
   }

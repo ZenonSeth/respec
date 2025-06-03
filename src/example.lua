@@ -29,17 +29,19 @@ end
   if iState.ch1 == nil then
     iState.ch1 = true ; iState.ch2 = true ; iState.ch3 = true
     iState.fontSize = 0
+    iState.title = "The Quick Brown Fox\nJumps Over The Lazy DOG\nJumps Over The Lazy DOG"
+    iState.field1 = iState.title
   end
   local mv = 0.01
   return {
     elem.StyleType {
-      target = "label",
+      target = "*",
       font = "mono",
       font_size = numToFontMod(iState.fontSize),
     },
     elem.Label {
       id = "title",
-      text = (iState.title or "The Quick Brown Fox\nJumps Over The Lazy DOG\nJumps Over The Lazy DOG"),
+      text = (iState.title),
       w = respec.const.wrap_content, h = respec.const.wrap_content,
       -- below = "moveupbtn",
       center_hor = true, -- equivalent of the two commented out lines below
@@ -47,19 +49,19 @@ end
       -- end_to_parent_end = true,
     },
 
-    elem.Label {
-      id = "label1",
-      w = 1, h = 0.5,
-      text = ""..(iState.count or "0"),
-      area = true, -- no effect unless formspec_version >= 9
-      below = "title",
-      -- margins_hor = 0.25,
-      -- margins_ver = 0.25,
-    },
+    -- elem.Label {
+    --   id = "label1",
+    --   w = 1, h = 0.5,
+    --   text = ""..(iState.count or "0"),
+    --   area = true, -- no effect unless formspec_version >= 9
+    --   below = "title",
+    --   -- margins_hor = 0.25,
+    --   -- margins_ver = 0.25,
+    -- },
     elem.Field {
       id = "field1",
       w = 3, h = 0.5,
-      toTop = true,
+      below = "title",
       label = "Change Title",
       text = iState.field1 or "",
       closeOnEnter = false,
@@ -70,7 +72,8 @@ end
     },
     elem.Button {
       id = "btn1",
-      w = 2, h = 0.5,
+      paddingsHor = 0.5,
+      paddingsVer = 0.1,
       text = "Set Title",
       below = "field1",
       alignStart = "field1",
@@ -82,19 +85,21 @@ end
         state.title = fields["field1"] or ""
       end,
       style = {
-        font = "mono"
+        font = "mono",
+        font_size = "+8",
       }
     },
-    elem.StyleType {
-      target = "button:pressed",
-      font_size = "+5",
-    },
+    -- elem.StyleType {
+    --   target = "button:pressed",
+    --   font_size = "+1",
+    -- },
     elem.Button {
       id = "btn2",
-      w = 2, h = 0.5,
+      paddingsHor = 0.5, paddingsVer = 0.2,
       text = "+ font size",
       alignTop = "btn1",
       before = "btn3",
+      margins = 0.25,
       visible = iState.ch2 == true,
       -- margins = 0.25,
       -- borderColor = "#0000FF",
@@ -105,7 +110,7 @@ end
     },
     elem.Button {
       id = "btn3",
-      w = 2, h = 0.5,
+      paddingsHor = 0.5, paddingsVer = 0.2,
       text = "- font size",
       alignTop = "btn2",
       toEnd = true,
@@ -119,11 +124,12 @@ end
     },
     elem.Label {
       id = "label2",
-      w = respec.const.wrap_content, h = 0.5,
+      -- w = respec.const.wrap_content, h = 0.5,
       text ="Hi "..(iState.playerName or ""),
       margins = 0.25,
       below = "label3",
       alignStart = "btn1",
+      after = "list_in",
       -- area = true, -- no effect unless formspec_version >= 9
       -- alignEnd = "btn1",
     },
@@ -167,64 +173,58 @@ end
       respec.inv.node("in"),
       respec.inv.player("main"),
     },
-    elem.Label {
-      id = "label4",
-      w = 0.8, h = 0.4,
-      text = "--==--",
-      below = "label3",
-      after = "list_in",
-      -- toEnd = true,
-      -- hor_bias = 0.75,
-    },
+    -- elem.Label {
+    --   id = "label4",
+    --   w = 0.8, h = 0.4,
+    --   text = "--==--",
+    --   below = "label3",
+    --   after = "list_in",
+    --   -- toEnd = true,
+    --   -- hor_bias = 0.75,
+    -- },
     elem.Label {
       id = "label5",
       -- margin_end = 1,
-      w = 0.8, h = 0.4,
-      text = "--==--",
-      -- below = "label4",
+      text = "What is this?",
+      below = "list_main",
       after = "list_in",
-      toBottom = true,
-      toEnd = true,
+      margins = 0.2,
+      -- toEnd = true,
     },
-    -- elem.Checkbox {
-    --   id = "ch1",
-    --   margins = 0.2,
-    --   w = 1.8, h = 0.4,
-    --   text = "Btn1 Toggle",
-    --   checked = iState.ch1 == true,
-    --   below = "label5",
-    --   on_click = function(state, fields)
-    --     d.log("ch1, fields = "..dump(fields))
-    --     state.ch1 = fields["ch1"] == "true"
-    --   end
-    -- },
-    -- elem.Checkbox {
-    --   id = "ch2",
-    --   margins = 0.2,
-    --   w = 1.8, h = 0.4,
-    --   text = "Btn2 Toggle",
-    --   checked = iState.ch2 == true,
-    --   center_ver = "ch1",
-    --   after = "ch1",
-    --   on_click = function(state, fields)
-    --     d.log("ch2, fields = "..dump(fields))
-    --     state.ch2 = fields["ch2"] == "true"
-    --   end
-    -- },
-    -- elem.Checkbox {
-    --   id = "ch3",
-    --   margins = 0.2,
-    --   w = 1.8, h = 0.4,
-    --   text = "Btn3 Toggle",
-    --   center_ver = "ch1",
-    --   after = "ch2",
-    --   checked = iState.ch3 == true,
-    --   below = "label5",
-    --   on_click = function(state, fields)
-    --     d.log("ch3, fields = "..dump(fields))
-    --     state.ch3 = fields["ch3"] == "true"
-    --   end
-    -- },
+    elem.Checkbox {
+      id = "ch1",
+      margins = 0.2,
+      text = "Btn1 Toggle",
+      checked = iState.ch1 == true,
+      alignTop = "label5",
+      after = "label5",
+      on_click = function(state, fields)
+        state.ch1 = fields["ch1"] == "true"
+      end
+    },
+    elem.Checkbox {
+      id = "ch2",
+      margins = 0.2,
+      text = "Btn2 Toggle",
+      checked = iState.ch2 == true,
+      center_ver = "ch1",
+      after = "ch1",
+      on_click = function(state, fields)
+        state.ch2 = fields["ch2"] == "true"
+      end
+    },
+    elem.Checkbox {
+      id = "ch3",
+      margins = 0.2,
+      text = "Btn3 Toggle",
+      center_ver = "ch1",
+      after = "ch2",
+      checked = iState.ch3 == true,
+      alingtop = "ch1",
+      on_click = function(state, fields, f)
+        state.ch3 = fields["ch3"] == "true"
+      end
+    },
     -- -- test buttons to move form around screen
     -- elem.Button {
     --   id = "moveupbtn",
