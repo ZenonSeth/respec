@@ -136,7 +136,8 @@ local function get_form_str(form)
 end
 
 -- not public
-local function get_formspec_string(form, state)
+local function get_formspec_string(form, state, playerName)
+  form.layout.playerName = playerName
   form.layout:measure(true)
   local spec = form.spec
   -- update if necessary
@@ -149,7 +150,7 @@ local function get_formspec_string(form, state)
   end
   local persist = { state = state }
   local layoutFs = form.layout:to_formspec_string(spec.formspec_version, persist)
-  d.log((formDef..layoutFs):gsub("]", "]\n"))
+  -- d.log((formDef..layoutFs):gsub("]", "]\n"))
   return formDef..debugGrid..layoutFs
 end
 
@@ -293,7 +294,7 @@ function respec.Form:show(playerName, state)
     remove_shown_form_data(playerName, id)
   end
 
-  engine.show_formspec(playerName, id, get_formspec_string(self, state))
+  engine.show_formspec(playerName, id, get_formspec_string(self, state, playerName))
   set_shown_form_data(playerName, id, { form = self, state = state })
   return true
 end
@@ -305,7 +306,7 @@ function respec.Form:reshow(playerName)
   if not data then return false end
   local state = data.state
   if not setup_form_for_showing(self, state) then return false end
-  engine.show_formspec(playerName, self.id, get_formspec_string(self, state))
+  engine.show_formspec(playerName, self.id, get_formspec_string(self, state, playerName))
   return true
 end
 

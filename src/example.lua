@@ -1,5 +1,11 @@
 local S = respec.TRANSLATOR
 
+local function numToFontMod(n)
+  if not n then return "0" end
+  if n >= 0 then return "+"..tostring(n) end
+  return tostring(n)
+end
+
   local elem = respec.elements
   local form1 = respec.Form(
   function(state)
@@ -22,30 +28,40 @@ local S = respec.TRANSLATOR
   function(iState)
   if iState.ch1 == nil then
     iState.ch1 = true ; iState.ch2 = true ; iState.ch3 = true
+    iState.fontSize = 0
   end
   local mv = 0.01
   return {
+    elem.StyleType {
+      target = "label",
+      font = "mono",
+      font_size = numToFontMod(iState.fontSize),
+    },
     elem.Label {
       id = "title",
-      text = "Relative Formspec Layout Demo",
-      w = 3, h = 0.5,
+      text = (iState.field1 or "The Quick Brown Fox\nJumps Over The Lazy DOG\nJumps Over The Lazy DOG"),
+      w = respec.const.wrap_content, h = respec.const.wrap_content,
       -- below = "moveupbtn",
       center_hor = true, -- equivalent of the two commented out lines below
       -- start_to_parent_start = true,
       -- end_to_parent_end = true,
     },
-    elem.StyleType {
-      target = "label",
-      font = "mono",
-    },
+
     elem.Label {
       id = "label1",
       w = 1, h = 0.5,
-      text = "Count = "..(iState.count or "0"),
+      text = ""..(iState.count or "0"),
       area = true, -- no effect unless formspec_version >= 9
       below = "title",
       -- margins_hor = 0.25,
       -- margins_ver = 0.25,
+    },
+    elem.Field {
+      id = "field1",
+      w = 3, h = 0.5,
+      below = "label1",
+      label = "Change Title",
+      text = iState.field1 or ""
     },
     elem.Button {
       id = "btn1",
@@ -58,7 +74,7 @@ local S = respec.TRANSLATOR
       visible = iState.ch1 == true,
       -- borderColor = "#0000FF",
       on_click = function(state, fields)
-        state.count = (state.count or 0) + 1
+        iState.field1 = fields["field1"] or ""
       end,
       style = {
         font = "mono"
@@ -71,7 +87,7 @@ local S = respec.TRANSLATOR
     elem.Button {
       id = "btn2",
       w = 2, h = 0.5,
-      text = "2!",
+      text = "+ font size",
       alignTop = "btn1",
       before = "btn3",
       visible = iState.ch2 == true,
@@ -79,12 +95,13 @@ local S = respec.TRANSLATOR
       -- borderColor = "#0000FF",
       on_click = function(state, fields)
         state.count = (state.count or 0) + 2
+        state.fontSize = state.fontSize + 1
       end,
     },
     elem.Button {
       id = "btn3",
       w = 2, h = 0.5,
-      text = "3!",
+      text = "- font size",
       alignTop = "btn2",
       toEnd = true,
       visible = iState.ch3 == true,
@@ -92,18 +109,18 @@ local S = respec.TRANSLATOR
       -- borderColor = "#0000FF",
       on_click = function(state, fields)
         state.count = (state.count or 0) + 3
+        state.fontSize = state.fontSize - 1
       end,
     },
     elem.Label {
       id = "label2",
-      w = 1.2, h = 0.5,
+      w = respec.const.wrap_content, h = 0.5,
       text ="Hi "..(iState.playerName or ""),
       margins = 0.25,
       below = "label3",
       alignStart = "btn1",
-      center_hor = true,
-      area = true, -- no effect unless formspec_version >= 9
-      end_to_end_of = "btn1",
+      -- area = true, -- no effect unless formspec_version >= 9
+      -- alignEnd = "btn1",
     },
     elem.Label {
       id = "label3",
@@ -258,9 +275,6 @@ local tbl = {}
 for C = 0,150,1 do
   table.insert(tbl, string.format("%x", 22 + C).."|"..string.char(22 + C).."|")
 end
-
-local myS = S("Hey there!")
-d.log("MYS = ["..myS.."]")
 
 return {
   elem.Label {

@@ -1,21 +1,22 @@
 # Roadmap to ReSpec 1.0
 
 ## Missing Features
-- Event handling callbacks for all interactive elements
-- Element Chains: same as constraint layout chains
-  - packed/packed-inside/spread
-- Nested Layouts
-- Maybe implement custom Tab Headers / helpers
+- `wrap_contents` width for certain elements:
+  - [x] Labels
+  - [ ] Buttons
+  - [ ] Vert Label
+  - [ ] ButtonUrl
+  - [ ] Checkbox
+  - [ ] Use `core.get_player_window_information(player_name)` to scale on 5.7+ clients
+- Nested Layout handling in elements that require it
 
 ## Stretch goals
-- `wrap_contents` width for certain elements:
-  - using `core.get_player_window_information(player_name)` to scale on 5.7+ clients
-  - label, button, button_url, vertlabel,
+- Element Chains: same as constraint layout chains
+  - packed/packed-inside/spread
 - Guidelines: same as constraint layout guidelines
-  - Why? Because they're not really that hard to implement tbh.
+  - Why? Because they're not really that hard to implement.
   - Why not? Because Luanti formspecs aren't nearly as dynamic as Layouts on Android
-
-
+- Maybe implement custom Tab Headers / helpers
 
 ## Supported Formspec Elements
 
@@ -72,17 +73,16 @@ Checked ones are done (or mostly done).
 - [x] `style_type` : nonphysical
 
 
-## Explicitly Unsupported Formspec Elements
-- `real_coordinates[<bool>]`
+## Not planned to be supported Formspec Elements
+- `real_coordinates[<bool>]`<br>
   Reason: This is the default past formspec v2, and the layout algorithm is build
   with this being always on in mind. Therefore, we always assume this is true, and
   don't support turning it off or lower formspec versions.
 
-- `container[<X>,<Y>]`/`container_end[]`
+- `container[<X>,<Y>]`/`container_end[]`<br>
   Reason: Because this library already performs laying out of elements.
   Similar effect can be achieved by using alignment and margins
 
-- Size-less `field[]`
+- Size-less `field[]`<br>
   Reason: Edge-case usage, and most of its usage is for trivial forms that
   don't require any complex laying out of elements
-

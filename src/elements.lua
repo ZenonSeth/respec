@@ -3,6 +3,7 @@
 local con = respec.const
 local TOP = con.top
 local LFT = con.left
+local WRAP = con.wrap_content
 
 -- utility funcs
 
@@ -12,6 +13,8 @@ local min0 = respec.util.min0
 
 local get_valid_style = respec.elements.get_valid_style
 respec.elements.get_valid_style = nil
+local measure_text = respec.internal.measure_text
+respec.internal.measure_text = nil
 
 local function get_style_type_data(spec)
   if type(spec) ~= "table" then return nil end
@@ -61,7 +64,6 @@ end
 -- returns a "x,y" position string
 local function pos_only(obj, customY)
   if not customY then customY = 0 end
-  -- TODO: add offsets from measured class
   local x = obj.measured[LFT] + min0(obj.margins[LFT]) + min0(obj.measured.xOffset)
   local y = obj.measured[TOP] + min0(obj.margins[TOP]) + min0(obj.measured.yOffset) + num_or(customY, 0)
   return ""..x..","..y
@@ -94,6 +96,7 @@ local Class = respec.util.Class
 respec.elements.Label = Class(respec.PhysicalElement) -- PhysElem("label", id, w, h)
 function respec.elements.Label:init(spec)
   respec.PhysicalElement.init(self, elemInfo.label, spec)
+  self.origW = self.width ; self.origH = self.height
   self.txt = str_or(spec.text, "")
   self.areaLabel = spec.area == true
 end
@@ -103,7 +106,20 @@ function respec.elements.Label:to_formspec_string(ver, _)
     return make_elem(self, pos_and_size(self), fesc(self.txt))
   else
   local yOffset = self.measured.h / 2
+  if num_or(self.numLines, 1) > 1 then
+    yOffset = self.measured.h / (self.numLines * 2)
+  end
   return make_elem(self, pos_only(self, yOffset), fesc(self.txt))
+  end
+end
+-- override
+function respec.elements.Label:before_measure(persist)
+  local style = persist["style_label"] or {}
+  if self.origW == WRAP or self.origH == WRAP then
+    local wh = measure_text(self.txt, persist.playerName, style.font == "mono", style.font_size)
+    self.numLines = wh.numLines
+    if self.origW == WRAP then self.width = wh.width end
+    if self.origH == WRAP then self.height = wh.height end
   end
 end
 
@@ -181,7 +197,6 @@ function respec.elements.List:before_measure(persist)
   self.height = min0(self.slotH * (sizeY + padY) - padY)
 end
 
-
 ----------------------------------------------------------------
 -- Background (background[] and background9[])
 ----------------------------------------------------------------
@@ -190,7 +205,6 @@ function respec.elements.Background:init(spec)
   spec.width = num_or(spec.width or spec.w, 1)
   spec.height = num_or(spec.height or spec.h, 1)
   self.ignoreLayoutPaddings = true -- special flag used in layout_logic
-  d.log("Spec = "..dump(spec))
   local elem = elemInfo.background
   if type(spec.middle) == "number" or type(spec.middle) == "string" then elem = elemInfo.background9 end
 
@@ -218,6 +232,21 @@ function respec.elements.Background:to_formspec_string(_, _)
     return make_elem(self, pos_and_size(self), self.texture, autoclip)
   end
 end
+
+----------------------------------------------------------------
+-- Field
+----------------------------------------------------------------
+respec.elements.Field = Class(respec.PhysicalElement)
+function respec.elements.Field:init(spec)
+  respec.PhysicalElement.init(self, elemInfo.field, spec)
+  self.txt = str_or(spec.text, "")
+  self.label = str_or(spec.label, "")
+end
+-- override
+function respec.elements.Field:to_formspec_string(_, _)
+  return make_elem(self, pos_and_size(self), self.internalId, self.label, self.txt)
+end
+
 ----------------------------------------------------------------
 -- Non-Physical Elements
 ----------------------------------------------------------------

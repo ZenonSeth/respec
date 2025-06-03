@@ -5,6 +5,7 @@ respec.internal = {}
 dofile(PATH.."const.lua")
 dofile(PATH.."settings.lua")
 dofile(PATH.."util.lua")
+dofile(PATH.."measure_text.lua")
 dofile(PATH.."register.lua")
 dofile(PATH.."graph.lua")
 dofile(PATH.."element.lua")

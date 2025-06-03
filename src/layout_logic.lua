@@ -327,7 +327,7 @@ function respec.internal.perform_layout(layout, containerMeasurementsOpt)
   local containerMeasurements = containerMeasurementsOpt or { max_x = 0, max_y = 0 }
 
   -- Common pre-layout functionality
-  local persist = {}
+  local persist = { playerName = layout.playerName }
   layout:before_measure(persist)
   for _, elem in ipairs(layout.elements) do
     elem:before_measure(persist)
