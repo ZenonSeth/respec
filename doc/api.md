@@ -186,23 +186,14 @@ Creating and immediately showing a formspec to `singleplayer`:
   ):show("singleplayer")
  ```
 
-# Layout
-
-A layout is the element that positions all other elements. Internally each Form creates its own Layout by default, which doesn't need to be managed or configured.
-
-Layouts themselves are Physical Elements, and can be created by calling `respec.Layout(physicalElementSpec)`
-
-Nested layouts are planned, but not yet supported.
-
-# Non-physical Elements
+# Config Elements
 
 An element simply corresponds to a formspec element.
-Elements come in two categories: Physical and Non-Physical.
+Elements come in two categories: Physical and Config (aka Non-physical).
 
-Non-Physical elements are just elements that aren't displayed, but instead perform some sort of configuration.
-These elements each have their own custom specifications, see below for each.
+Config elements are elements that aren't displayed, and don't take up space on the screen, but instead perform some sort of configuration. These elements each have their own custom specifications, see below for each.
 
-# List of Non-physical Elements
+# List of Config Elements
 
 ## ListRing
 Corresponds to the `listring` formspec element. [Lua API doc](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#listringinventory-locationlist-name)
