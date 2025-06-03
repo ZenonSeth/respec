@@ -78,9 +78,7 @@ Forms have a concept of `state` - a lua table, that can be given to its `show()`
 
     borderColor = "#RRGGBB",
     -- Optional. Specify the color of a 1px border to be drawn around the form
-    -- Note that on smaller resolutions the right and bottom borders may not work right.
-    -- To fix that, you can add noclip configuration for box elements
-    -- Or just specify your own background9 with a 1 pixel border
+    -- This uses a box[] to draw a form's outline. Experimental, may not work right.
 
     set_focus = "id",
     -- Corresponds to set_focus[id]. Set which element is focused when the form is opened.

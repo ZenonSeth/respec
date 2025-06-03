@@ -36,7 +36,7 @@ end
   return {
     elem.StyleType {
       target = "*",
-      font = "mono",
+      -- font = "mono",
       font_size = numToFontMod(iState.fontSize),
     },
     elem.Label {

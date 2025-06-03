@@ -7,6 +7,12 @@ local shownForms = {}
 
 local function is_str(v) return type(v) == "string" end
 
+local function make_form_outline(w, h, borderColor)
+  return
+    "style_type[box;colors=#0000;borderwidths=-1;bordercolors="..borderColor.."]"..
+    "box[0,0;"..w..","..(h-0.02)..";]"
+end
+
 local function set_shown_form_data(playerName, formId, data)
   if not shownForms[playerName] then shownForms[playerName] = { count = 0 } end
   local formData = shownForms[playerName]
@@ -130,7 +136,7 @@ local function get_form_str(form)
     ins(tbl, "set_focus["..sp.set_focus.."]")
   end
   if is_str(sp.borderColor) then
-    ins(tbl, respec.util.fs_make_outline(0, 0, sp.w, sp.h, sp.borderColor, false))
+    ins(tbl, make_form_outline(sp.w, sp.h, sp.borderColor))
   end
   return table.concat(tbl, "")
 end
