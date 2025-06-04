@@ -15,7 +15,18 @@ respec.Form(specFunction, builderFunction)
 ```
 
 ## State
-Forms have a concept of `state` - a lua table, that can be given to its `show()` function, and is also passed when creating the form, and to any event-handlers (e.g. button click listeners) where the `state` can be modified and will persist until the form is closed.
+Forms have a concept of `state` - a lua table that persists from the `show(..)` function, until the form is closed.
+
+The initial table can be given to a form's `show()` function, and the `state` is passed when creating the form, as well as to any event-handler functions in each element (e.g. button click listeners) where the `state` can be modified to change what is displayed on the form.
+
+There are some entires in the `state` table that have special meaning (see [Showing Form From Rightclick](#showing-a-form-for-a-nodes-on_rightclick)):
+```lua
+{
+  rightclick = {}, -- table of entires
+  -- It is automatically set when showing a form via `show_from_node_rightclick`,
+  -- Some values are used by `respec.inv.form(listName)` to auto-populate inventory location
+}
+```
 
 ## `specFunction`
 `specFunction` must be a either:
@@ -133,32 +144,34 @@ Parameters:
 - `extraState`: optional. The data to be sent in the `state.extra` field - see table below
 - `checkProtection`: optional. If true, the form will check `core.is_protected(pos)`, and only show the form to players who have access to the position
 
-When you use this method, the `Form`'s `builderFunction` will automatically receive the following data in the `state` variable when a showing to the user:
+When you use this method, the `Form`'s initial `state` table will have a table entry called `rightclick`:
 ```lua
   {
-    pos = position,
-    -- the pos param from the callback, is a vector with x,y,z coords
-    
-    node = nodeTable,
-    -- the node table callback param
+    rightclick = {
+      pos = position,
+      -- the pos param from the callback, is a vector with x,y,z coords
 
-    nodeMeta = meta,
-    -- the node's looked-up meta-data object, using core.get_meta(pos) function
-    
-    player = objectRef,
-    -- the `clicker` callback param, the live object reference to a Player (checked to be a player)
+      node = nodeTable,
+      -- the node table callback param
 
-    playerName = string,
-    -- the name of the player who right-clicked
-    
-    itemstack = ItemStack,
-    -- the callback param, ItemStack object that the user used to right-click on the node
-    
-    pointed_thing = pointed_thing,
-    -- the pointed thing data passed by callback
-    
-    extra = extraState
-    -- the optional `extraState` variable passed in `show_from_node_rightclick` - can be `nil`
+      nodeMeta = meta,
+      -- the node's looked-up meta-data object, using core.get_meta(pos) function
+
+      player = objectRef,
+      -- the `clicker` callback param, the live object reference to a Player (checked to be a player)
+
+      playerName = string,
+      -- the name of the player who right-clicked
+
+      itemstack = ItemStack,
+      -- the callback param, ItemStack object that the user used to right-click on the node
+
+      pointed_thing = pointed_thing,
+      -- the pointed thing data passed by callback
+
+      extra = extraState
+      -- the optional `extraState` variable passed in `show_from_node_rightclick` - can be `nil`
+    }
   }
 ```
 For further info on these params see Luanti's [Node definition](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#node-definition) documentation.

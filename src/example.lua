@@ -22,6 +22,7 @@ end
     no_prepend = true,
     bgfullscreen = "both",
     --defaultElementMargins = 0.2,
+    set_focus = "field1",
   }
   end
   ,
@@ -125,7 +126,7 @@ end
     elem.Label {
       id = "label2",
       -- w = respec.const.wrap_content, h = 0.5,
-      text ="Hi "..(iState.playerName or ""),
+      text ="Hi "..(iState.rightclick.playerName or ""),
       margins = 0.25,
       below = "label3",
       alignStart = "btn1",
@@ -136,7 +137,7 @@ end
     elem.Label {
       id = "label3",
       w = 12.8, h = 0.4,
-      text = "You right-clicked on a node at: "..dump(iState.pos):gsub("\n"," "),
+      text = "You right-clicked on a node at: "..dump(iState.rightclick.pos):gsub("\n"," "),
       below = "btn1",
       margins = 0.1,
       -- center_hor = true,

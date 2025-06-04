@@ -133,7 +133,12 @@ local function get_form_str(form)
     ins(tbl, bgcf)
   end
   if is_str(sp.set_focus) then
-    ins(tbl, "set_focus["..sp.set_focus.."]")
+    local oID = sp.set_focus
+    local mID = ""
+    for kID, elem in pairs(form.layout.fieldElemsById) do
+      if elem.id == oID then mID = kID ; break end
+    end
+    ins(tbl, "set_focus["..mID.."]")
   end
   if is_str(sp.borderColor) then
     ins(tbl, make_form_outline(sp.w, sp.h, sp.borderColor))
@@ -321,6 +326,15 @@ function respec.Form:reshow(playerName)
   return true
 end
 
+-- Closes the form, if it was shown to the player by `playerName
+-- returns true if the form was shown and got closed, false otherwise
+function respec.Form:close(playerName)
+  local data = get_shown_form_data(playerName, self.id)
+  if not data then return false end
+  engine.close_formspec(playerName, self.id)
+  return true
+end
+
 --[[ 
   `extraState` is optional, can be nil
   `checkProtection` is optional, if `true` then the function will check against protection
@@ -336,7 +350,7 @@ function respec.Form:show_from_node_rightclick(extraState, checkProtection)
     if checkProtection then
       if is_protected(pos, playerName) then return end
     end
-    self:show(playerName, {
+    self:show(playerName, { rightclick = {
       pos = pos,
       node = node,
       nodeMeta = get_meta(pos),
@@ -345,7 +359,7 @@ function respec.Form:show_from_node_rightclick(extraState, checkProtection)
       itemstack = itemstack,
       pointed_thing = pointed_thing,
       extra = extraState
-    })
+    }})
   end
 end
 

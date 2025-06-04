@@ -36,11 +36,11 @@ local function get_inv_loc_and_name_from_data(data, persist)
   local listName = data[2] or ""
   local state = persist.state
   if invLoc == -1  then -- special case to autopopulate with position from state
-    if not state or not state.pos or not state.pos.x then
+    if not state or not state.rightclick or not state.rightclick.pos then
       respec.log_error("Error: List cannot be created, did you forget to use `show_from_node_rightclick()`?")
       return ""
     end
-    local pos = state.pos
+    local pos = state.rightclick.pos
     invLoc = "nodemeta:"..pos.x..","..pos.y..","..pos.z
   end
   return invLoc, listName
