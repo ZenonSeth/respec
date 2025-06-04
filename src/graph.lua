@@ -9,6 +9,7 @@ local LFT = con.left
 local RGT = con.right
 
 local side_to_str = respec.util.side_to_str
+local log_error = respec.log_error
 
 -- recursive search of nodes
 -- find any node, starting from the given `rootNode`, which has the given id + side
@@ -129,7 +130,7 @@ local function check_and_add_to_chains(graph, node1, node2)
   local e1, e2 = node1.element, node2.element
   local s1, s2 = node1.side, node2.side
   if s1 == s2 then -- they represent the same side of different elements, this is an error, not a chain
-    respec.log_error("Elements ["..e1.id.."] and ["..e2.id.."] have their "..side_to_str(s1).." sides reference each other. This is not allowed")
+    log_error("Elements ["..e1.id.."] and ["..e2.id.."] have their "..side_to_str(s1).." sides reference each other. This is not allowed")
     return
   end
 
@@ -171,7 +172,7 @@ local function add_side(self, element, newNode)
   local side = newNode.side
   local sideRef = element.align[side]
   if sideRef.ref ~= "" and sideRef.ref == element.id then
-    respec.log_error("Element with ID "..(element.id)..", side: "..side_to_str(side).." reference itself. This is not allowed")
+    log_error("Element with ID "..(element.id)..", side: "..side_to_str(side).." reference itself. This is not allowed")
     return
   end
 
@@ -273,7 +274,7 @@ function respec.graph.new()
   }
 
   function graph:add_element(elem)
-    if self.finishedAdding then respec.log_error("Can't add element to graph after finish_adding() is called!") ; return end
+    if self.finishedAdding then log_error("Can't add element to graph after finish_adding() is called!") ; return end
     if not elem.physical then return end -- graph is for rendered elements only
     add_sides_with_dependency_check(self, elem, TOP, BOT)
     add_sides_with_dependency_check(self, elem, LFT, RGT)
@@ -281,7 +282,7 @@ function respec.graph.new()
   end
 
   function graph:finish_adding()
-    if self.finishedAdding then respec.log_error("finish_adding() called twice!") ; return end
+    if self.finishedAdding then log_error("finish_adding() called twice!") ; return end
     self.finishedAdding = true
     -- compact the graph roots and chains
     local nr, nrs = compact(self.roots, self.rootsPos)

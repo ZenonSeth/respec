@@ -19,6 +19,8 @@ local SEND_VALUE_AND_FIELDS = 2
 
 respec.elements = {} -- init this table here
 local Class = respec.util.Class
+local log_warn = respec.log_warn
+local log_error = respec.log_error
 
 local elementsWithName = {
   animated_image = true, model = true, pwdfield = true, field = true,
@@ -236,7 +238,7 @@ function respec.Element:init(fselem)
     self.fsName = fselem.name
     self.info = fselem
   else
-    respec.log_error("Unsupported element created: "..dump(fselem))
+    log_error("Unsupported element created: "..dump(fselem))
   end
   self.physical = false
 end
@@ -246,7 +248,7 @@ end
 -- persist: A data object that persists throughout the layout process.
 --   persist.state is the From's `state` object
 function respec.Element:to_formspec_string(formspecVersion, persist)
-  respec.log_warn("called base to_formspec_string") ; return ""
+  log_warn("called base to_formspec_string") ; return ""
 end
 
 -- to be overriden by child elems, if necessary

@@ -12,6 +12,7 @@ local num_or = respec.util.num_or
 local str_or =  respec.util.str_or
 local bool_or =  respec.util.bool_or
 local min0 = respec.util.min0
+local log_error = respec.log_error
 
 local get_valid_style = respec.elements.get_valid_style
 respec.elements.get_valid_style = nil
@@ -37,7 +38,7 @@ local function get_inv_loc_and_name_from_data(data, persist)
   local state = persist.state
   if invLoc == -1  then -- special case to autopopulate with position from state
     if not state or not state.rightclick or not state.rightclick.pos then
-      respec.log_error("Error: List cannot be created, did you forget to use `show_from_node_rightclick()`?")
+      log_error("Error: List cannot be created, did you forget to use `show_from_node_rightclick()`?")
       return ""
     end
     local pos = state.rightclick.pos
@@ -216,7 +217,7 @@ respec.elements.List = Class(respec.PhysicalElement)
 function respec.elements.List:init(spec)
   respec.PhysicalElement.init(self, elemInfo.list, spec)
   if type(spec.inv) ~= "table" then
-    respec.log_error("List spec incorrect, `inv` param must be a table!")
+    log_error("List spec incorrect, `inv` param must be a table!")
   else
     self.inv = spec.inv
   end

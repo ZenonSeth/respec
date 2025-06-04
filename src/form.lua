@@ -1,7 +1,8 @@
 local con = respec.const
 
 local engine = respec.util.engine
-
+local log_warn = respec.log_warn
+local log_error = respec.log_warn
 -- shownForms entries format: { form = formRef, state = state }
 local shownForms = {}
 
@@ -30,7 +31,7 @@ end
 
 local function remove_shown_form_data(playerName, formId)
   if not shownForms[playerName] then
-    respec.log_warn("Trying to remove form data for a player that wasn't there?")
+    log_warn("Trying to remove form data for a player that wasn't there?")
     return
   end
   local formData = shownForms[playerName]
@@ -172,11 +173,11 @@ local function handle_spec(self, state)
   elseif type(self.init_spec) == "function" then
     spec = self.init_spec(state)
     if type(spec) ~= "table" then
-      respec.log_error("specification function did not return a table!")
+      log_error("specification function did not return a table!")
       return
     end
   else
-    respec.log_error("specification must be a table or function!")
+    log_error("specification must be a table or function!")
     return
   end
     -- customs setup of spec since its root layout
@@ -200,12 +201,12 @@ local function get_layout_data(self, state)
   elseif type(self.init_layout) == "function" then
     local data = self.init_layout(state)
     if type(data) ~= "table" then
-      respec.log_error("layoutBuilder returned a value that's not a table!")
+      log_error("layoutBuilder returned a value that's not a table!")
       return nil
     end
     return data
   else
-    respec.log_error("layoutBuilder must be table or function!")
+    log_error("layoutBuilder must be table or function!")
     return nil
   end
 end

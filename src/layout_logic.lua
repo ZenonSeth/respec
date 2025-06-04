@@ -13,6 +13,9 @@ local SPREAD = con.chain_spread
 local side_to_str = respec.util.side_to_str
 local num_or = respec.util.num_or
 local min0 = respec.util.min0
+local log_error = respec.log_error
+local tblmap = respec.util.map
+local concat = table.concat
 local function clamp(value, min, max)
   if value < min then return min elseif value > max then return max else return value end
 end
@@ -193,7 +196,7 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
     if refSide ~= UNSET  then
       if refSide ~= PARENT then
         -- this is an error, and should be fixed - but still continue as though we're aligned to parent
-        respec.log_error("Side ["..side_to_str(side).."] of '"..elem.id.."' references unknown elemnt: '"..ref.ref.."'")
+        log_error("Side ["..side_to_str(side).."] of '"..elem.id.."' references unknown elemnt: '"..ref.ref.."'")
       end
       local value = layout.measured[side]
       if value == UNSET then -- parent layout hasn't set its bounds yet, likely due to wrap content
@@ -238,7 +241,7 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
     -- local refValue = get_parent_value(node, layout.measured, side)
     local refValue = parentNode.element.measured[refSide]
 
-    if refValue == nil or refValue == UNSET then respec.log_error("parent node was not measured?") ; return false end -- should not happen
+    if refValue == nil or refValue == UNSET then log_error("parent node was not measured?") ; return false end -- should not happen
     node.element.measured[side] = refValue
     set_dynamic_size_if_possible(elem, measured, margins)
     update_element_sides_based_on_align(elem, side, measured, margins)
@@ -320,13 +323,13 @@ local function perform_layout_of_chain(chain, S1, S2, getSize, getBias, getChain
   local firstElemStart = chain[1].element.measured[S1]
   local lastElemEnd = chain[chainSize].element.measured[S2]
   if firstElemStart == UNSET then
-    respec.log_error("Element "..(chain[1].element.id)..
+    log_error("Element "..(chain[1].element.id)..
           " is the start of a chain, but doesn't have its"..
           side_to_str(S1).." side aligned! Skipping")
     return
   end
   if lastElemEnd == UNSET then
-    respec.log_error("Element "..(chain[chainSize].element.id)..
+    log_error("Element "..(chain[chainSize].element.id)..
           " is the end of a chain, but doesn't have its"..
           side_to_str(S2).." side aligned! Skipping")
     return
@@ -467,19 +470,19 @@ function respec.internal.perform_layout(layout, containerMeasurementsOpt)
     end
     local newRemainig = #remaining
     if newRemainig == numRemaining then -- this is an issue. At least one should have been resolved
-      respec.log_error(
+      log_error(
         "Unable to resolve some layouts in "..dump(layout.elements)..
-        "\n--graph.roots = \n"..table.concat(respec.util.map(graph.roots,
+        "\n--graph.roots = \n"..concat(tblmap(graph.roots,
           function(n) local e = n.element
             return "  "..tostring(n)
           end), "\n")..
-        "\n--graph.horChains =\n"..table.concat(respec.util.map(graph.horChainLists,
-          function(chain) return table.concat(respec.util.map(chain, function(n)
+        "\n--graph.horChains =\n"..concat(tblmap(graph.horChainLists,
+          function(chain) return concat(tblmap(chain, function(n)
             return "  "..tostring(n)
           end), "\n")
         end), "\n")..
-        "\n--graph.verChains =\n"..table.concat(respec.util.map(graph.verChainLists,
-          function(chain) return table.concat(respec.util.map(chain, function(n)
+        "\n--graph.verChains =\n"..concat(tblmap(graph.verChainLists,
+          function(chain) return concat(tblmap(chain, function(n)
             return "  "..tostring(n)
           end), "\n")
         end), "\n")

@@ -329,7 +329,7 @@ This spec is common between all physical elements, and each Physical Element has
 
   visibility = respec.const.visible,
   -- Optional. Default value is `visible`
-  -- can be one of respec.consts.[visible/invisible/gone]
+  -- can be one of respec.const.[visible/invisible/gone]
   -- Visible elements take up space and are drawn in the formspec.
   -- Invisible elements take up space, but are not drawn in the formspec.
   -- Gone elements don't take up space, nor are they drawn in the formspec.
@@ -493,19 +493,19 @@ This can be extended to any number of elements so long as they follow the chaini
 
 ## Chain types
 
-The default chain type (used when one isn't specified) is `respec.consts.chain_packed` which results in the default laying out of elements (as the above code would result in):
+The default chain type (used when one isn't specified) is `respec.const.chain_packed` which results in the default laying out of elements (as the above code would result in):
 ```
 |       [First][Second][Third]     |
 ```
 Where the elements are packed together in the center and positioned equally from each side.
 
-Using `respec.consts.chain_spread` results in:
+Using `respec.const.chain_spread` results in:
 ```
 |   [First]   [Second]   [Third]   |
 ```
 Where the elements are spread apart by equal distance between themselves and from the sides
 
-Using `respec.consts.chain_spread_inside` results in:
+Using `respec.const.chain_spread_inside` results in:
 ```
 |[First]      [Second]      [Third]|
 ```

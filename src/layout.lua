@@ -7,6 +7,7 @@ local BOT = con.bottom
 local LFT = con.left
 local RGT = con.right
 local VISIBLE = con.visible
+local log_error = respec.log_error
 
 local layoutCount = 0
 local function unique_layout_id()
@@ -113,7 +114,7 @@ local function do_add(self, element, idGen)
   if not element.info then return end -- invalid element
   if newId and newId ~= "" and self.ids[newId] then
     -- multiple elements with no ID are allowed, but not two with same ID
-    respec.log_error("Elements within the same layout cannot have the same ID: "..newId)
+    log_error("Elements within the same layout cannot have the same ID: "..newId)
     return self
   end
   if newId then self.ids[newId] = true end
