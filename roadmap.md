@@ -3,16 +3,16 @@
 ## Missing Features
 - `wrap_contents` width for certain elements:
   - [x] Labels
-  - [ ] Buttons
+  - [x] Buttons
   - [ ] Vert Label
   - [ ] ButtonUrl
-  - [ ] Checkbox
+  - [x] Checkbox
   - [ ] Use `core.get_player_window_information(player_name)` to scale on 5.7+ clients
 - Nested Layout handling in elements that require it
 
 ## Stretch goals
-- Element Chains: same as constraint layout chains
-  - packed/packed-inside/spread
+- [DONE] Element Chains: same as constraint layout chains
+  - [DONE] packed/packed-inside/spread/weighted
 - Guidelines: same as constraint layout guidelines
   - Why? Because they're not really that hard to implement.
   - Why not? Because Luanti formspecs aren't nearly as dynamic as Layouts on Android
