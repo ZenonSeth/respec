@@ -420,8 +420,24 @@ This spec is common between all physical elements, and each Physical Element has
   center_hor = "other_id",  -- shorthand for setting both start_to_start_of="other_id" and end_to_end_of="other_id"
   center_ver = "other_id",  -- shorthand for specifying both top_to_top_of="other_id" and bottom_to_bottom_of="other_id"
 
+  chain_type_hor = respec.const.chain_packed,
+  chain_type_ver = respec.const.chain_packed,
+  -- Optional
+  -- respec.const.chain_packed or respec.const.chain_spread, or respec.const.chain_spread_inside
+  -- Only the chain_type of the 1st element in the chain is used (and thus other elements don't need to specify it)
+  -- See the section on Chains for details on the different chain types and how to create chains
+  -- If not set, both default to using Packed
+
+  chain_weight_hor = 1, -- Number, greater than 0
+  chain_weight_ver = 1,
+  -- Optional, defaults to 1
+  -- IF chain_type is chain_spread or chain_spread_inside, and this element's width is 0, it will attempt to fill out all
+  -- the remaining space, shared equally between elements. This doesn't work with chain_packed however.
+  -- By setting this weight, each individual element can request more of the space, relative to the other element's weights
+
 -- Biases: all are optional. 
 -- When applicable, they shift how far along the element is positioned between its start and end points.
+-- Biases also affect chains - only the bias of the 1st element in the chain is used. See `Chains` section for info
 --
 -- For example: an element with start_to_parent_start and end_to_parent_end and hor_bias of 0.5 (the default) will be placed in the center:
 -- |    [ELEMENT]      |
@@ -447,10 +463,66 @@ This spec is common between all physical elements, and each Physical Element has
 }
 
 ```
-## Notes on Visibility
+## Visibility
 When an element is `visible` or `invisible` it will take up space for the purposes of other elements aligning to it.
 
 When an element is set to `gone` (aka `visible = false`) then any other element aligning to it will try to inherit the alignment of the `gone` element as best as it can. This means that a series elements where each aligns to the one before it should still work if an element in the series is set to `visible = false`.
+
+## Chains
+Chains are a way of positioning a horizontal or vertical group of elements together. This description will refer to horizontal chains only, but the same logic works for vertical chains.
+
+## Create a chain
+To create a chain, you need 2 or more elements such that:
+- One element, considered the 'first' of the chain, explicitly has its `start` aligned to a fixed position, such as the end of another element that's not in the chain, or parent's start.
+- One element, considered the 'last' of the chain explicitly has its `end` aligned to a fixed position, such as the end of another element that's not in the chain, or parent's end.
+- All other elements in between align their starts/ends to each other or to the 'first' or 'last' element of the chain
+
+For example:
+```lua
+  respec.elements.Button {
+    id = "btn1", toStart = true, before = "btn2", text = "First"
+  },
+  respec.elements.Button {
+    id = "btn2", after = "btn1", before = "btn3", text = "Second"
+  },
+  respec.elements.Button {
+    id = "btn3", after = "btn2", toEnd = true, text = "Third"
+  },
+```
+This can be extended to any number of elements so long as they follow the chaining rules.
+
+## Chain types
+
+The default chain type (used when one isn't specified) is `respec.consts.chain_packed` which results in the default laying out of elements (as the above code would result in):
+```
+|       [First][Second][Third]     |
+```
+Where the elements are packed together in the center and positioned equally from each side.
+
+Using `respec.consts.chain_spread` results in:
+```
+|   [First]   [Second]   [Third]   |
+```
+Where the elements are spread apart by equal distance between themselves and from the sides
+
+Using `respec.consts.chain_spread_inside` results in:
+```
+|[First]      [Second]      [Third]|
+```
+Where the elements are spread apart by equal distance between themselves, but the first and last are aligned to their start/end side respectively.
+
+## Chain bias
+The `hor_bias` and `ver_bias` also affect positioning chained elements relative to the sides. Only the bias from the First element in the chain is used.
+
+Biases of less than 0.5 will result in the chain being positioned closer to its starting side, and greater than 0.5 will result in the chain being positioned closer to its ending side. Note that biases do not affect `chain_spread_inside` at all.
+
+## Weighted Elements
+
+If any element in the chain has set its width to 0 via `w = 0` in its spec, it will then be treated as though its attempting to fill out any remaining space. In such a case, the chain type doesn't matter.
+
+Multiple elements can have their weights set to 0 and will equally attempt to fill out remaining space.
+
+By default each element assumes it has a weight of 1, but this can be overwritten by setting `chain_weight_hor` and `chain_weight_ver` on any element in the chain, and (if that element has a corresponding size of 0), the elements will take proportionally as much weight. The exact space taken up is determined by the formula: `elementSize = freeSpace * elementWeight / weightSum` - where the `weightSum` is the sum of all weighted elements in the chain.
 
 ## Element Style Definition
 Note:<br> Due to the formspec api, only these elements support individual styling:<br>

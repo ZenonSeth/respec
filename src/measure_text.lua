@@ -1,7 +1,6 @@
 
 local byte = string.byte
 local slen = string.len
-local max = math.max
 
 local DEFAULT_FONT_SIZE = 16
 local DEFAULT_MONO_WIDTH = 27/160
@@ -116,7 +115,7 @@ local function measure_text(string, playerName, isMono, fontSize, adjust)
         i = str:find(')', i, true) or str_length
       end
     elseif ch == 0x0a then -- 0x0a = '\n'
-      maxWidth = max(maxWidth, width)
+      if width > maxWidth then maxWidth = width end
       width = 0
       numLines = numLines + 1
     elseif ch == 0xe1 then
@@ -139,8 +138,9 @@ local function measure_text(string, playerName, isMono, fontSize, adjust)
     end
     i = i + 1
   end
+  if width < 0.1 then width = 0.1 end -- for our layout purposes don't let width be 0
   return {
-    width = max(width, 0.1), -- for our layout purposes don't let width be exactly 0
+    width = width,
     height = numLines * (oneHeight + DEFAULT_LINE_SPACING) - DEFAULT_LINE_SPACING,
     numLines = numLines,
   }

@@ -13,6 +13,7 @@ end
     if not state.posy then state.posy = 0.5 end
     return {
     --w = 13, h = 4,
+    w = 14,
     formspec_version = 5,
     paddings = 0.2,
     bgcolor = "#252525CC",
@@ -174,22 +175,25 @@ end
       respec.inv.node("in"),
       respec.inv.player("main"),
     },
-    -- elem.Label {
-    --   id = "label4",
-    --   w = 0.8, h = 0.4,
-    --   text = "--==--",
-    --   below = "label3",
-    --   after = "list_in",
-    --   -- toEnd = true,
-    --   -- hor_bias = 0.75,
-    -- },
+    elem.Label {
+      id = "label4",
+      w = 0.8, h = 0.4,
+      text = "--==--",
+      below = "label3",
+      after = "list_in",
+      -- toEnd = true,
+      -- hor_bias = 0.75,
+    },
     elem.Label {
       id = "label5",
       -- margin_end = 1,
       text = "What is this?",
       below = "list_main",
-      after = "list_in",
+      -- after = "list_in",
+      toStart = true,
       margins = 0.2,
+      chain_type_hor = respec.const.chain_spread_inside,
+      before = "ch1",
       -- toEnd = true,
     },
     elem.Checkbox {
@@ -199,6 +203,7 @@ end
       checked = iState.ch1 == true,
       alignTop = "label5",
       after = "label5",
+      before = "ch2",
       on_click = function(state, fields)
         state.ch1 = fields["ch1"] == "true"
       end
@@ -210,6 +215,7 @@ end
       checked = iState.ch2 == true,
       center_ver = "ch1",
       after = "ch1",
+      before = "ch3",
       on_click = function(state, fields)
         state.ch2 = fields["ch2"] == "true"
       end
@@ -222,10 +228,18 @@ end
       after = "ch2",
       checked = iState.ch3 == true,
       alingtop = "ch1",
+      toEnd = true,
       on_click = function(state, fields, f)
         state.ch3 = fields["ch3"] == "true"
       end
     },
+    elem.Button {
+      id = "PLBTN",
+       w = 2, h = 0.5,
+      text = "PLACEHOLDER",
+      alignStart = "ch2",
+      below = "label5",
+    }
     -- -- test buttons to move form around screen
     -- elem.Button {
     --   id = "moveupbtn",

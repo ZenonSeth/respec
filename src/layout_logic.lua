@@ -7,6 +7,8 @@ local RGT = con.right
 local UNSET = con.unset
 local PARENT = con.parent
 local GONE = con.gone
+local PACKED = con.chain_packed
+local SPREAD = con.chain_spread
 
 local side_to_str = respec.util.side_to_str
 local num_or = respec.util.num_or
@@ -16,7 +18,6 @@ local function clamp(value, min, max)
 end
 
 local function update_container_measurements(side, value, layoutMeasurements)
-  -- d.log("layoutMea = "..dump(layoutMeasurements).. " value = "..dump(value))
   if side == TOP or side == BOT then
     if value > layoutMeasurements.max_y then layoutMeasurements.max_y = value end
   else
@@ -117,7 +118,6 @@ local function update_side_logic(isGone, S1, S2, align, measured, margins, size,
       measured[S1] = measured[S2]
     else
       if measured[S2] ~= UNSET and size > 0 then -- S2 was also already measured
-        -- d.log("setting side 2 based on side 1 for"..elem.id..": "..measured[S1].." + "..size.." + "..min0(margins[S1]).." + "..min0(margins[S2]))
         measured[S1] = measured[S2] - size - margins[S1] - margins[S2]
         set_measured_size(size)
       end
@@ -127,7 +127,6 @@ local function update_side_logic(isGone, S1, S2, align, measured, margins, size,
       measured[S2] = measured[S1]
     else
       if measured[S1] ~= UNSET and size > 0 then -- S1 was also already measured
-        -- d.log("setting side 2 based on side 1 for"..elem.id..": "..measured[S1].." + "..size.." + "..min0(margins[S1]).." + "..min0(margins[S2]))
         measured[S2] = measured[S1] + size + margins[S1] + margins[S2]
         set_measured_size(size)
       end
@@ -153,14 +152,12 @@ local function update_element_sides_based_on_align(elem, side, measured, margins
   local align = elem.align
   local isGone = elem.visibility == GONE
   if side == TOP or side == BOT then
-    -- d.log("update side logic top/bot.. elem = "..dump(elem))
-    update_side_logic(isGone, TOP, BOT, align, measured, margins, elem.height, elem.verBias,
+    update_side_logic(isGone, TOP, BOT, align, measured, margins, elem.height, elem.verBias or 0.5,
       function(v) measured.h = v end,
       function(v) measured.yOffset = v end
     )
   elseif side == LFT or side == RGT then
-    -- d.log("update side logic lft/rgt.. elem = "..dump(elem))
-    update_side_logic(isGone, LFT, RGT, align, measured, margins, elem.width, elem.horBias,
+    update_side_logic(isGone, LFT, RGT, align, measured, margins, elem.width, elem.horBias or 0.5,
       function(v) measured.w = v end,
       function(v) measured.xOffset = v end
     )
@@ -176,8 +173,7 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
   local refSide = ref.side
   local measured = elem.measured
   local margins = elem.margins
-
-  -- d.log("performing layout of: "..elem.id..", side = "..side)
+  local childNodes = node.childNodes
 
   -- first see if we can first easily set the height or width
   set_fixed_size_if_possible(elem)
@@ -200,7 +196,6 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
         respec.log_error("Side ["..side_to_str(side).."] of '"..elem.id.."' references unknown elemnt: '"..ref.ref.."'")
       end
       local value = layout.measured[side]
-      -- d.log("align "..elem.id..":"..side.." to parent, rawval = "..value)
       if value == UNSET then -- parent layout hasn't set its bounds yet, likely due to wrap content
         return false -- we need to wait until after other stuff is measured
       end
@@ -209,7 +204,6 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
       if not elem.ignoreLayoutPaddings then
         value = value + marginSign * layout.paddings[side]
       end
-      -- d.log("align "..elem.id..":"..side_to_str(side).." to parent. LayoutMargins = "..dump(margins).." value = "..value)
 
       measured[side] = value
 
@@ -219,9 +213,9 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
       -- node.resolvedVal = elem.measured[side]
       node.resolved = true
       -- now do the same for each child node
-      for _, child in ipairs(node.childNodes) do
-        local ret = perform_layout_of_node(layout, child, containerMeasurements, node)
-        if not ret then return false end -- in theory this shouldn't happen
+      for chi = 1, #childNodes do
+        local ret = perform_layout_of_node(layout, childNodes[chi], containerMeasurements, node)
+        if not ret then node.resolved = false ; return false end -- in theory this shouldn't happen
       end
       return true
     else --if refSide == UNSET then
@@ -232,9 +226,9 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
         node.resolved = true
 
         -- now do the same for each child node
-        for _, child in ipairs(node.childNodes) do
-          local ret = perform_layout_of_node(layout, child, containerMeasurements, node)
-          if not ret then return false end -- in theroy this shouldn't happen
+        for chi = 1, #childNodes do
+          local ret = perform_layout_of_node(layout, childNodes[chi], containerMeasurements, node)
+          if not ret then node.resolved = false ; return false end -- in theory this shouldn't happen
         end
         return true -- child nodes should resolve fine because they only depend on parent (hmm)
       else return false end -- could happen when side depends on opposite side, but that wasn't resolved yet
@@ -244,18 +238,16 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
     -- local refValue = get_parent_value(node, layout.measured, side)
     local refValue = parentNode.element.measured[refSide]
 
-    -- d.log("Peform layout of child node. ChildSide = "..side..", parentSide = "..refSide..", parent val = "..refValue)
     if refValue == nil or refValue == UNSET then respec.log_error("parent node was not measured?") ; return false end -- should not happen
-    -- d.log("align "..elem.id..":"..side_to_str(side).." to "..parentNode.element.id..":"..side_to_str(refSide)..", refValue = "..refValue.."LayoutMargins = "..dump(margins))
     node.element.measured[side] = refValue
     set_dynamic_size_if_possible(elem, measured, margins)
     update_element_sides_based_on_align(elem, side, measured, margins)
     -- node.resolvedVal = elem.measured[side]
     node.resolved = true
     update_container_measurements(side, refValue, containerMeasurements)
-    for _, child in ipairs(node.childNodes) do
-      local ret = perform_layout_of_node(layout, child, containerMeasurements, node)
-      if not ret then return false end -- in theroy this shouldn't happen
+    for chi = 1, #childNodes do
+      local ret = perform_layout_of_node(layout, childNodes[chi], containerMeasurements, node)
+      if not ret then node.resolved = false ; return false end -- in theory this shouldn't happen
     end
     return true
   end
@@ -309,6 +301,123 @@ local function invalidate_roots_that_align_to_parent(graph, SIDE)
   return invalidated
 end
 
+local function perform_layout_of_all_children_of_chain(chain, layout, containerMeasurements)
+  for ni = 2, #chain - 1 do
+    local node = chain[ni]
+    local childNodes = node.childNodes
+    for chi = 1, #childNodes do
+      if node.parent ~= childNodes[chi] then
+        perform_layout_of_node(layout, childNodes[chi], containerMeasurements, node)
+      end
+    end
+  end
+end
+
+-- performs the layout of the given chain - note that this overrides element measured positions
+local function perform_layout_of_chain(chain, S1, S2, getSize, getBias, getChainType, getChainWeight, setSize)
+  local chainSize = #chain
+  local firstElemStart = chain[1].element.measured[S1]
+  local lastElemEnd = chain[chainSize].element.measured[S2]
+  if firstElemStart == UNSET then
+    respec.log_error("Element "..(chain[1].element.id)..
+          " is the start of a chain, but doesn't have its"..
+          side_to_str(S1).." side aligned! Skipping")
+    return
+  end
+  if lastElemEnd == UNSET then
+    respec.log_error("Element "..(chain[chainSize].element.id)..
+          " is the end of a chain, but doesn't have its"..
+          side_to_str(S2).." side aligned! Skipping")
+    return
+  end
+
+  local availSpace = min0(lastElemEnd - firstElemStart)
+  local chainType = getChainType(chain[1].element) or PACKED
+  -- gather all the sizes
+  local totS = 0
+  local totW = 0 -- total weight sum
+  local elemProps = {} -- contains: { s = sizeWithoutMargins, sm = sizeWithMargins, w = weight, e = elem}
+  local noFillElems = true
+  local fillS = availSpace -- space that is available to "fill" elements
+  for i = 1, chainSize, 2 do -- skipping every other node because they come in s/e pairs
+    local elem = chain[i].element
+    local elemS = getSize(elem)
+    if elemS <= 0 then elemS = 0 ; noFillElems = false end
+    local elemW = getChainWeight(elem) or 1
+    local elemSM = elemS + elem.margins[S1] + elem.margins[S2]
+    elemProps[#elemProps + 1] = { s = elemS, sm = elemSM, w = elemW, e = elem }
+    if elemS == 0 then -- weighted element
+      totW = totW + elemW
+    else -- fixed element
+      totS = totS + elemSM
+    end
+    chain[i].resolved = true
+    chain[i+1].resolved = true
+  end
+  if totW == 0 then totW = 1000000 end -- just a failsafe to prevent divby0
+  local numElems = #elemProps
+  fillS = min0(availSpace - totS)
+
+  -- calc space before
+  local start = firstElemStart
+  local innerSpace = 0
+  if noFillElems then -- fill elements just push everything together because they take up all the space
+    if chainType == PACKED then
+      local bias = getBias(chain[1].element)
+      start = start + bias * min0(availSpace - totS)
+    elseif chainType == SPREAD then
+      local bias = getBias(chain[1].element)
+      innerSpace = min0(availSpace - totS) / (numElems + 1) -- +1 because 3 spread elements have 4 spacings to fill
+      start = start + bias * innerSpace * 2
+    else -- chainType == SPREAD_INSIDE - the space before/after is 0
+      innerSpace = min0(availSpace - totS) / (numElems - 1) -- +1 because 3 elements have 2 spacings inebtween
+    end
+  end
+
+  -- now apply the positions
+  for i = 1, numElems do
+    local elemProp = elemProps[i]
+    local elem = elemProp.e
+    if elemProp.s == 0 then -- weighted element
+      elem.measured[S1] = start
+      local takeUp = fillS * elemProp.w / totW
+      elem.measured[S2] = start + takeUp
+      setSize(elem, min0(takeUp - elem.margins[S1] - elem.margins[S2]))
+      start = start + takeUp + innerSpace
+    else
+      elem.measured[S1] = start
+      elem.measured[S2] = start + elemProp.sm
+      setSize(elem, elemProp.s)
+      start = start + elemProp.sm + innerSpace
+    end
+  end
+end
+
+local function perform_layout_of_chains(layout, graph, containerMeasurements)
+  local horChains = graph.horChainLists
+  local verChains = graph.verChainLists
+  for i = 1, graph.horChainPos do
+    local chain = horChains[i]
+    perform_layout_of_chain(
+      chain, LFT, RGT,
+      function(e) return e.width end, function(e) return e.horBias or 0.5 end,
+      function(e) return e.chainTypeHor end, function(e) return e.chainWeightHor end,
+      function(e,s) e.measured.w = s end
+    )
+    perform_layout_of_all_children_of_chain(chain, layout, containerMeasurements)
+  end
+  for i = 1, graph.verChainPos do
+    local chain = verChains[i]
+    perform_layout_of_chain(
+      chain, TOP, BOT,
+      function(e) return e.height end, function(e) return e.verBias or 0.5 end,
+      function(e) return e.chainTypeVer end, function(e) return e.chainWeightVer end,
+      function(e,s) e.measured.h = s end
+    )
+    perform_layout_of_all_children_of_chain(chain, layout, containerMeasurements)
+  end
+end
+
 --================================================================
 -- public functions
 --================================================================
@@ -329,18 +438,22 @@ function respec.internal.perform_layout(layout, containerMeasurementsOpt)
   -- Common pre-layout functionality
   local persist = { playerName = layout.playerName }
   layout:before_measure(persist)
-  for _, elem in ipairs(layout.elements) do
+  for ei = 1, #layout.elements do
+    local elem = layout.elements[ei]
     elem:before_measure(persist)
     if elem.physical == true then
       elem.margins = merge_margins(elem.margins, layout.defaultMargins)
     end
   end
-  -- d.log("layout graph = "..dump(graph))
-  for _, root in pairs(graph.roots) do
+  for i = 1, graph.rootsPos do
+    local root = graph.roots[i]
     local res = perform_layout_of_node(layout, root, containerMeasurements)
     if not res then table.insert(remaining, root) ; numRemaining = numRemaining + 1 end
   end
   update_container_based_on_measurements(layout, containerMeasurements)
+
+  -- chains here. From testing, might be the right place
+  perform_layout_of_chains(layout, graph, containerMeasurements)
 
   -- BIG TODO: Figure out how to handle chains the way Android does
 
@@ -353,7 +466,23 @@ function respec.internal.perform_layout(layout, containerMeasurementsOpt)
     end
     local newRemainig = #remaining
     if newRemainig == numRemaining then -- this is an issue. At least one should have been resolved
-      respec.log_error("Unable to resolve some layouts in "..dump(layout))
+      respec.log_error(
+        "Unable to resolve some layouts in "..dump(layout.elements)..
+        "\n--graph.roots = \n"..table.concat(respec.util.map(graph.roots,
+          function(n) local e = n.element
+            return "  "..tostring(n)
+          end), "\n")..
+        "\n--graph.horChains =\n"..table.concat(respec.util.map(graph.horChainLists,
+          function(chain) return table.concat(respec.util.map(chain, function(n)
+            return "  "..tostring(n)
+          end), "\n")
+        end), "\n")..
+        "\n--graph.verChains =\n"..table.concat(respec.util.map(graph.verChainLists,
+          function(chain) return table.concat(respec.util.map(chain, function(n)
+            return "  "..tostring(n)
+          end), "\n")
+        end), "\n")
+      )
       return false
     end
     numRemaining = newRemainig
@@ -396,6 +525,5 @@ function respec.internal.perform_layout_of_form_layout(formLayout)
     ms[BOT] = formLayout.height -- - min0(mg[BOT])
     ms.h = formLayout.height -- - min0(mg[TOP]) - min0(mg[BOT])
   end
-  -- d.log("root layout, measured = "..dump(ms):gsub("\n", " ")..", paddings = "..dump(mg):gsub("\n", " "))
   respec.internal.perform_layout(formLayout) -- do the rest of the layout
 end

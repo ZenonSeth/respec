@@ -136,6 +136,7 @@ function respec.Layout:set_elements(elementsList, idGen)
     element.internalId = idGen:id()
     do_add(self, element, idGen)
   end
+  self.elementsGraph:finish_adding()
   -- cleanup
   self.ids = nil
   return self

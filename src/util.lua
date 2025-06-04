@@ -173,6 +173,14 @@ function respec.util.min0(value)
 end
 local min0 = respec.util.min0
 
+function respec.util.map(tbl, funcOnVal)
+  local ret = {}
+  for k, v in pairs(tbl) do
+    ret[k] = funcOnVal(v)
+  end
+  return ret
+end
+
 ----------------------------------------------------------------
 -- debug stuff
 ----------------------------------------------------------------

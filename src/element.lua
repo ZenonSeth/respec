@@ -9,6 +9,9 @@ local VISIBLE = con.visible
 local INVISIBLE = con.invisible
 local GONE = con.gone
 local PARENT = con.parent
+local PACKED = con.chain_packed
+local SPREAD = con.chain_spread
+local SPREAD_INSIDE = con.chain_spread_inside
 
 local NO_INTERACT = 0
 local SEND_FIELDS = 1
@@ -95,7 +98,17 @@ end
 
 local function valid_bias(b)
   if is_num(b) then return clamp(b, 0, 1) end
-  return 0.5
+  return nil
+end
+
+local function valid_chain_type(chainType)
+  if chainType == PACKED or chainType == SPREAD or chainType == SPREAD_INSIDE then return chainType
+  else return nil end
+end
+
+local function valid_weight(chainWeight)
+  if not is_num(chainWeight) then return nil end
+  if chainWeight < 0 then return 0 else return chainWeight end
 end
 
 local function get_visibility(spec)
@@ -260,7 +273,10 @@ function respec.PhysicalElement:init(fselem, spec)
   self.horBias = valid_bias(spec.hor_bias)
   self.verBias = valid_bias(spec.ver_bias)
   self.borderColor = spec.customBorderColor
-  self.chainType = UNSET
+  self.chainTypeHor = valid_chain_type(spec.chain_type_hor)
+  self.chainTypeVer = valid_chain_type(spec.chain_type_ver)
+  self.chainWeightHor = valid_weight(spec.chain_weight_hor)
+  self.chainWeightVer = valid_weight(spec.chain_weight_hor)
   self.measured = { -- represents the location of the outer bounds that include margins
       [TOP] = UNSET, [BOT] = UNSET, [LFT] = UNSET, [RGT] = UNSET,
       w = UNSET, h = UNSET, -- the actual elements (not bounds) w/h
