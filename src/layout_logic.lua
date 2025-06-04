@@ -301,12 +301,13 @@ local function invalidate_roots_that_align_to_parent(graph, SIDE)
   return invalidated
 end
 
-local function perform_layout_of_all_children_of_chain(chain, layout, containerMeasurements)
-  for ni = 2, #chain - 1 do
+local function perform_layout_of_all_children_of_chain(chain, layout, isHorizontal, containerMeasurements)
+  for ni = 1, #chain do
     local node = chain[ni]
     local childNodes = node.childNodes
     for chi = 1, #childNodes do
-      if node.parent ~= childNodes[chi] then
+      if node.parentNode ~= childNodes[chi] then
+        invalidate_tree_and_opposite_if_unset(childNodes[chi], isHorizontal, true)
         perform_layout_of_node(layout, childNodes[chi], containerMeasurements, node)
       end
     end
@@ -404,7 +405,7 @@ local function perform_layout_of_chains(layout, graph, containerMeasurements)
       function(e) return e.chainTypeHor end, function(e) return e.chainWeightHor end,
       function(e,s) e.measured.w = s end
     )
-    perform_layout_of_all_children_of_chain(chain, layout, containerMeasurements)
+    perform_layout_of_all_children_of_chain(chain, layout, true, containerMeasurements)
   end
   for i = 1, graph.verChainPos do
     local chain = verChains[i]
@@ -414,7 +415,7 @@ local function perform_layout_of_chains(layout, graph, containerMeasurements)
       function(e) return e.chainTypeVer end, function(e) return e.chainWeightVer end,
       function(e,s) e.measured.h = s end
     )
-    perform_layout_of_all_children_of_chain(chain, layout, containerMeasurements)
+    perform_layout_of_all_children_of_chain(chain, layout, false, containerMeasurements)
   end
 end
 

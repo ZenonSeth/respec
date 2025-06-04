@@ -192,7 +192,7 @@ end
       -- after = "list_in",
       toStart = true,
       margins = 0.2,
-      chain_type_hor = respec.const.chain_spread_inside,
+      chain_type_hor = respec.const.chain_packed,
       before = "ch1",
       -- toEnd = true,
     },
@@ -237,7 +237,7 @@ end
       id = "PLBTN",
        w = 2, h = 0.5,
       text = "PLACEHOLDER",
-      alignStart = "ch2",
+      alignStart = "label5",
       below = "label5",
     }
     -- -- test buttons to move form around screen
