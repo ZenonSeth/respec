@@ -308,6 +308,16 @@ local form2 = respec.Form({
       },
       -- elem.Button { w = 1, h = 0.5, id = "obtn1", below = "lbl1", toStart = true, toEnd = true},
       -- elem.Button { w = 0, h = 0.5, id = "obtn2", below = "obtn1", alignStart = "obtn1", toEnd = true},
+      elem.Label {
+        id = "vl1",
+        text = "Vertical",
+        toStart = true, below = "obbf",
+        vertical = true,
+      },
+      elem.Label {
+        text = "Some\nmultiline\ntext\ngoes here",
+        toStart = true, below = "vl1",
+      },
       elem.ScrollContainer{
         id = "sc1",
         w = 4, h = 4, below = "lbl1", after = "obbf",

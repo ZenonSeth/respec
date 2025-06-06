@@ -51,7 +51,7 @@ Checked ones are done (or mostly done).
 - [x] `textarea`
 - [x] `label`
 - [ ] `hypertext`
-- [ ] `vertlabel` : hmm maybe a flag on existing label? depends
+- [x] `vertlabel` : Added as flag on existing Label
 - [x] `button`
 - [ ] `button_url`
 - [x] `set_focus` : Implemented as part of Form's specification

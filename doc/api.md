@@ -589,7 +589,7 @@ All Physical Elements take a `spec` table as input.
 This `spec` table may contain any of the common physical elements spec above, alongside element-specific specifications listed below.
 
 ## Label
-Corresponds to formspec `label`
+Corresponds to formspec `label` and `vertlabel`
 ```lua
   respec.elements.Label(spec)
 ```
@@ -601,8 +601,12 @@ spec:
   text = "Label text here",
   -- string to be shown in label
 
+  vertical = true, -- Optional, false by default.
+  -- If set to true, this will be a `vertlabel`, which draws its text one character at a time, each on a new line.
+
   area = true,
   -- if set to `true` then make this an area label, which constraints its text to the size.
+  -- No effect if `vertical` is set to true
   -- For more info see: https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#labelxywhlabel
 }
 ```

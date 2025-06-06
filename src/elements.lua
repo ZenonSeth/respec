@@ -131,17 +131,17 @@ end
 -- common funcs
 
 -- returns a "x,y" position string
-local function pos_only(obj, customY)
+local function pos_only(obj, customY, customX)
   if not customY then customY = 0 end
-  local x = obj.measured[LFT] + obj.margins[LFT] + obj.measured.xOffset
+  local x = obj.measured[LFT] + obj.margins[LFT] + obj.measured.xOffset + num_or(customX, 0)
   local y = obj.measured[TOP] + obj.margins[TOP] + obj.measured.yOffset + num_or(customY, 0)
   return ""..x..","..y
 end
 
 -- returns a "x,y;w,h" position + size string
-local function pos_and_size(obj, customY)
+local function pos_and_size(obj, customY, customX)
   local ms = obj.measured
-  return pos_only(obj, customY)..";"..(ms.w)..","..(ms.h)
+  return pos_only(obj, customY, customX)..";"..(ms.w)..","..(ms.h)
 end
 
 local function get_list_xywh(self)
@@ -164,33 +164,41 @@ local Class = respec.util.Class
 ----------------------------------------------------------------
 
 ----------------------------------------------------------------
--- Label
+-- Label (label and vertlabel)
 ----------------------------------------------------------------
-respec.elements.Label = Class(respec.PhysicalElement) -- PhysElem("label", id, w, h)
+respec.elements.Label = Class(respec.PhysicalElement)
 function respec.elements.Label:init(spec)
   set_to_wrap_if_absent(spec)
-  respec.PhysicalElement.init(self, elemInfo.label, spec)
+  local einf =  elemInfo.label
+  self.vertical = (spec.vertical == true)
+  if self.vertical then einf = elemInfo.vertlabel end
+  respec.PhysicalElement.init(self, einf, spec)
   self.origW = self.width ; self.origH = self.height
   self.txt = str_or(spec.text, "")
   self.areaLabel = spec.area == true
 end
 -- override
 function respec.elements.Label:to_formspec_string(ver, _)
-  if self.areaLabel and ver >= 9 then
+  if (not self.vertical) and self.areaLabel and ver >= 9 then
     return make_elem(self, pos_and_size(self), fesc(self.txt))
   else
-  local yOffset = self.measured.h / 2
-  if num_or(self.numLines, 1) > 1 then
-    yOffset = self.measured.h / (self.numLines * 2)
+  local xOffset, yOffset
+  if self.vertical then
+    xOffset = self.measured.w / 2
+  else
+    yOffset = self.measured.h / 2
+    if num_or(self.numLines, 1) > 1 then
+      yOffset = self.measured.h / (self.numLines * 2)
+    end
   end
-  return make_elem(self, pos_only(self, yOffset), fesc(self.txt))
+  return make_elem(self, pos_only(self, yOffset, xOffset), fesc(self.txt))
   end
 end
 -- override
 function respec.elements.Label:before_measure(persist)
   local style = get_merged_styles(persist, true, "style_label")
   if self.origW == WRAP or self.origH == WRAP then
-    local wh = measure_text(self.txt, persist.playerName, style.font == "mono", style.font_size)
+    local wh = measure_text(self.txt, persist.playerName, style.font == "mono", style.font_size, 1, self.vertical)
     self.numLines = wh.numLines
     if self.origW == WRAP then self.width = wh.width end
     if self.origH == WRAP then self.height = wh.height end

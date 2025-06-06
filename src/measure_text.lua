@@ -5,7 +5,8 @@ local slen = string.len
 local DEFAULT_FONT_SIZE = 16
 local DEFAULT_MONO_WIDTH = 27/160
 local DEFAULT_WIDTH = 12/80 -- trying to guesstimate most other characters
-local DEFAULT_LINE_HEIGHT = 2/5 -- at default font size
+local DEFAULT_LINE_HEIGHT = 15/40 -- at default font size
+local VERT_LABEL_LINE_HEIGHT = 12/40
 local DEFAULT_LINE_SPACING = 1/6 -- seems to be constant
 
 -- for adjustments based on font size
@@ -83,13 +84,44 @@ local function get_modifier(fontSizeStr, adjust, slope)
   return adjFontSize * adjust
 end
 
+local function measure_vertlabel(str, oneWidth, heightMod)
+  local oneHeight = VERT_LABEL_LINE_HEIGHT * heightMod
+  local numLines = 0
+  local i = 1
+  local str_length = slen(str)
+  while i <= str_length do
+    local ch = byte(str, i)
+    if ch == 0x1b then
+       -- Luanti starts escape sequence with 0x1b (ESC char), followed by ( until a )
+      local n = i + 1
+      if str:sub(n, n) == '(' then
+        i = str:find(')', i, true) or str_length
+      end
+    elseif ch == 0x0a then -- 0x0a = '\n'
+      numLines = numLines + 1
+    elseif ch == 0xe1 or ch > 0xe1 and ch < 0xf5 then
+      numLines = numLines + 1
+      i = i + 2
+    elseif ch < 0x80 or ch > 0xbf then
+      numLines = numLines + 1
+    end
+    i = i + 1
+  end
+  return {
+    width = 2 * oneWidth,
+    height = numLines * oneHeight,
+    numLines = numLines,
+  }
+end
+
 -- string is the string to measure
 -- playerName: the player name
 -- isMono: Optional. Bool flag if mono flag is used. Deafults to false
 -- fontSize: Optional. The string modifying the font size, e.g. "+3", "-2", "18" etc.
 -- adjust: Optional. A height/width adjustment factor. Default to 1.0
+-- isVertlabel: If this is meant to be for a vertlabel
 -- returns table of width = w, height = h, numLines = #
-local function measure_text(string, playerName, isMono, fontSize, adjust)
+local function measure_text(string, playerName, isMono, fontSize, adjust, isVertlabel)
   local player_info = get_player_information(playerName)
   local lang = player_info and player_info.lang_code or "en"
   local str = get_translated_string(lang, string)
@@ -103,6 +135,10 @@ local function measure_text(string, playerName, isMono, fontSize, adjust)
   local twoWidths = 2 * oneWidth
   local heightMod = get_modifier(fontSize, adjust, HEIGHT_SLOPE)
   local oneHeight = DEFAULT_LINE_HEIGHT * heightMod
+
+  if isVertlabel then
+    return measure_vertlabel(string, oneWidth, heightMod)
+  end
 
   local i = 1
   local str_length = slen(str)
