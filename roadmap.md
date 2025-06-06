@@ -41,7 +41,7 @@ Checked ones are done (or mostly done).
 - [x] `image`
 - [x] `animated_image`
 - [ ] `model`
-- [ ] `item_image`
+- [x] `item_image`
 - [x] `background` : standalone
 - [x] `background9` : standalone
 - [x] `pwdfield`

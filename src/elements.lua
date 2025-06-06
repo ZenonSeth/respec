@@ -100,6 +100,19 @@ local function get_scrollbar_spec_for_container(cont, spec)
   return rs
 end
 
+local function update_measurements_to_fit_aspect_ratio(m, r)
+  if r and m.h > 0 then
+    local sR = m.w / m.h
+    if sR > r then -- height is limiting, so make width smaller
+      local nw = r * m.h
+      m.xOffset = m.xOffset + (m.w - nw) / 2 ; m.w = nw
+    else -- width is limiting so make height smaller
+      local nh = m.w / r
+      m.yOffset = m.yOffset + (m.h - nh) / 2 ; m.h = nh
+    end
+  end
+end
+
 -- minv/maxv in range 0-255
 local function randclrval(minv, maxv)
   return string.format("%x", math.random(minv, maxv))
@@ -479,23 +492,12 @@ function respec.elements.Image:init(spec)
   if type(spec.middle) == "number" or type(spec.middle) == "string" then
     self.mid = tostring(spec.middle)
   end
-  local r = num_or(spec.aspectRatio or spec.ratio, 0)
+  local r = num_or(spec.ratio, 0)
   if r > 0.01 then self.ratio = r end
 end
 -- override
 function respec.elements.Image:to_formspec_string(ver, _)
-  local r = self.ratio
-  local m = self.measured
-  if r and m.h > 0 then
-    local sR = m.w / m.h
-    if sR > r then -- height is limiting, so make width smaller
-      local nw = r * m.h
-      m.xOffset = m.xOffset + (m.w - nw) / 2 ; m.w = nw
-    else -- width is limiting so make height smaller
-      local nh = m.w / r
-      m.yOffset = m.yOffset + (m.h - nh) / 2 ; m.h = nh
-    end
-  end
+  update_measurements_to_fit_aspect_ratio(self.measured, self.ratio)
   local mid = nil
   if self.mid and ver >= 6 then mid = self.mid end
   if self.frameC then
@@ -503,6 +505,22 @@ function respec.elements.Image:to_formspec_string(ver, _)
   else
     return make_elem(self, pos_and_size(self), self.img, mid)
   end
+end
+
+----------------------------------------------------------------
+-- ItemImage (item_image)
+----------------------------------------------------------------
+respec.elements.ItemImage = Class(respec.PhysicalElement)
+function respec.elements.ItemImage:init(spec)
+  respec.PhysicalElement.init(self, elemInfo.item_image, spec)
+  self.img = str_or(spec.item, "")
+  local r = num_or(spec.ratio, 0)
+  if r > 0.01 then self.ratio = r end
+end
+-- override
+function respec.elements.ItemImage:to_formspec_string(_, _)
+  update_measurements_to_fit_aspect_ratio(self.measured, self.ratio)
+  return make_elem(self, pos_and_size(self), self.img)
 end
 
 ----------------------------------------------------------------

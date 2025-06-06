@@ -928,6 +928,22 @@ Styling:
 - Supported style properties:<br>
   `noclip`
 
+## ItemImage
+Corresponds to formspec `item_image`
+```lua
+  respec.elements.ItemImage(spec)
+```
+spec:
+```lua
+{
+  item = "item name" -- Required. Name of the registered item/node
+
+  ratio = 1, -- Optional. Number, must be greater than 0. You probably want 1
+  -- If set, makes the item image be shown in this w/h aspect ratio.
+  -- If not set, the image stretches to fill out its bounds
+}
+```
+
 # Utility Methods
 
 ## Inventory utils
