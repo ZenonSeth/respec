@@ -872,6 +872,44 @@ spec:
   -- `fields` is the map of value of the fields in the form
 }
 ```
+Styling:
+- See also [ScrollbarOptions](#scrollbaroptions)
+- Supports per-element `style` entry in their spec.
+- Supports type-styling via [StyleType](#styletype)
+- Supported style properties:<br>
+  `noclip`
+
+## Image
+Corresponds to formspec `image`
+```lua
+  respec.elements.Image(spec)
+```
+spec:
+```lua
+{
+  image = "texture_name.png"
+  -- Required: the image to display
+
+  middle = "x" -- or "x,y" or "x1,y1,x2,y2"
+  -- Optional. Formspec Version 6 or higher. Must be integers.
+  -- If present, will draw the image as a 9-slice, turning this element into a background9
+  -- specifies how man pixels off the sides the 'middle' of the 9-slice starts.
+  -- "x" : middle starts x pixels from each side
+  -- "x,y" : middle starts x pixels from left/right and y pixels from top/bottom
+  -- "x1,y1,x2,y2" : middle starts x1 from left, x2 from right, y1 from top, y2 from bottom
+
+  ratio = 1,
+  -- Optional. Must be greater than 0
+  -- If specified, the image will be drawn to the specified aspect ratio of Width/Height
+  -- fitting inside the bounds it gets.
+  -- If not specified, the image will be stretched to fill its bounds.
+}
+```
+Styling:
+- Supports per-element `style` entry in their spec.
+- Supports type-styling via [StyleType](#styletype)
+- Supported style properties:<br>
+  `noclip`
 
 # Utility Methods
 

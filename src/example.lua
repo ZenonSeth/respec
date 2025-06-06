@@ -338,6 +338,12 @@ local form2 = respec.Form({
         id = "btn4", w = 2, h = 0.5, text = "After container",
         after = "sc1", borderColor = "#9ff", below = "lbl1"
       },
+      elem.Image {
+        toTop = true,
+        after = "btn4", toEnd = true, h = 2,
+        image = "test.jpg",
+        ratio = 1.77,
+      }
 
   } end)
 

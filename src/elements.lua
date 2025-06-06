@@ -460,6 +460,40 @@ function respec.elements.Scrollbar:to_formspec_string(ver, persist)
 end
 
 ----------------------------------------------------------------
+-- Image 
+----------------------------------------------------------------
+respec.elements.Image = Class(respec.PhysicalElement)
+function respec.elements.Image:init(spec)
+  respec.PhysicalElement.init(self, elemInfo.image, spec)
+  self.img = str_or(spec.image, "")
+  if type(spec.middle) == "number" or type(spec.middle) == "string" then
+    self.mid = tostring(spec.middle)
+  end
+  local r = num_or(spec.aspectRatio or spec.ratio, 0)
+  if r > 0.01 then self.ratio = r end
+end
+-- override
+function respec.elements.Image:to_formspec_string(ver, _)
+  local r = self.ratio
+  local m = self.measured
+  if r and m.h > 0 then
+    local sR = m.w / m.h
+    if sR > r then -- height is limiting, so make width smaller
+      local nw = r * m.h
+      m.xOffset = m.xOffset + (m.w - nw) / 2 ; m.w = nw
+    else -- width is limiting so make height smaller
+      local nh = m.w / r
+      m.yOffset = m.yOffset + (m.h - nh) / 2 ; m.h = nh
+    end
+  end
+  if self.mid and ver >= 6 then
+    return make_elem(self, pos_and_size(self), self.img, self.mid)
+  else
+    return make_elem(self, pos_and_size(self), self.img)
+  end
+end
+
+----------------------------------------------------------------
 -- Non-Physical Elements
 ----------------------------------------------------------------
 
