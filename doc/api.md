@@ -634,9 +634,13 @@ spec:
   -- This results in more space between the button's edge and the inner text.
 
   text = "Button text",
-  -- string to be shown in Button
+  -- Optional. String to be shown in Button
   
-  on_click = function(state, fields) return true end,
+  exit = true, -- Optional
+  -- If set to true, button will close the form upon click. Default is false.
+  -- the onClick listener will be called even when this is set to true
+
+  onClick = function(state, fields) return true end,
   -- a function to be called when the button is clicked
   -- `state` is the form's state, can be modified here.
   -- `fields` is the map of value of the fields in the form
@@ -663,7 +667,7 @@ spec:
   text = "Checkbox text",
   -- string to be shown (to the right of the checkbox)
 
-  on_click = function(state, fields) return true end
+  onClick = function(state, fields) return true end
   -- a function to be called when the checkbox is clicked
   -- `state` is the form's state, can be modified here
   -- `fields` is the map of value of the fields in the form

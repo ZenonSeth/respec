@@ -202,15 +202,16 @@ end
 ----------------------------------------------------------------
 respec.elements.Button = Class(respec.PhysicalElement)
 function respec.elements.Button:init(spec)
+  local ei = elemInfo.button ; if spec.exit == true then ei = elemInfo.button_exit end
   set_to_wrap_if_absent(spec)
-  respec.PhysicalElement.init(self, elemInfo.button, spec)
+  respec.PhysicalElement.init(self, ei, spec)
   self.origW = self.width ; self.origH = self.height
   self.paddingsHor = num_or(spec.paddingsHor or spec.paddings, 0) * 2
   self.paddingsVer = num_or(spec.paddingsVer or spec.paddings, 0) * 2
   self.styleData = get_style_type_data(spec.style)
   self.txt = str_or(spec.text, "")
-  if type(spec.on_click) == "function" then
-    self.on_interact = spec.on_click
+  if type(spec.onClick) == "function" then
+    self.on_interact = spec.onClick
   end
 end
 -- override
@@ -239,8 +240,8 @@ function respec.elements.Checkbox:init(spec)
   self.txt = str_or(spec.text, "")
   self.checked = spec.checked == true
   self.styleData = get_style_type_data(spec.style)
-  if type(spec.on_click) == "function" then
-    self.on_interact = spec.on_click
+  if type(spec.onClick) == "function" then
+    self.on_interact = spec.onClick
   end
 end
 -- override

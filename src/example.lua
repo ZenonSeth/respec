@@ -83,7 +83,7 @@ end
       margins_hor = 0.25,
       visible = iState.ch1 == true,
       -- borderColor = "#0000FF",
-      on_click = function(state, fields)
+      onClick = function(state, fields)
         state.title = fields["field1"] or ""
       end,
       style = {
@@ -105,7 +105,7 @@ end
       visible = iState.ch2 == true,
       -- margins = 0.25,
       -- borderColor = "#0000FF",
-      on_click = function(state, fields)
+      onClick = function(state, fields)
         state.count = (state.count or 0) + 2
         state.fontSize = state.fontSize + 1
       end,
@@ -119,7 +119,7 @@ end
       visible = iState.ch3 == true,
       margins = 0.25,
       -- borderColor = "#0000FF",
-      on_click = function(state, fields)
+      onClick = function(state, fields)
         state.count = (state.count or 0) + 3
         state.fontSize = state.fontSize - 1
       end,
@@ -204,7 +204,7 @@ end
       alignTop = "label5",
       after = "label5",
       before = "ch2",
-      on_click = function(state, fields)
+      onClick = function(state, fields)
         state.ch1 = fields["ch1"] == "true"
       end
     },
@@ -216,7 +216,7 @@ end
       center_ver = "ch1",
       after = "ch1",
       before = "ch3",
-      on_click = function(state, fields)
+      onClick = function(state, fields)
         state.ch2 = fields["ch2"] == "true"
       end
     },
@@ -229,7 +229,7 @@ end
       checked = iState.ch3 == true,
       alingtop = "ch1",
       toEnd = true,
-      on_click = function(state, fields, f)
+      onClick = function(state, fields, f)
         state.ch3 = fields["ch3"] == "true"
       end
     },
@@ -248,7 +248,7 @@ end
     --   center_hor = true,
     --   text = "^",
     --   margin_top = -0.2, -- negative margins are allowed, though may not work as expected
-    --   on_click = function(state)
+    --   onClick = function(state)
     --     state.posy = math.max(state.posy - mv, 0)
     --   end
     -- },
@@ -258,7 +258,7 @@ end
     --   center_hor = true,
     --   margin_bottom = -0.2, -- negative margins are allowed, though may not work as expected
     --   text = "v",
-    --   on_click = function(state)
+    --   onClick = function(state)
     --     state.posy = math.max(state.posy + mv, 0)
     --   end
     -- },
@@ -268,7 +268,7 @@ end
     --   center_ver = true,
     --   margin_start = -0.2, -- negative margins are allowed, though may not work as expected
     --   text = "<",
-    --   on_click = function(state)
+    --   onClick = function(state)
     --     state.posx = math.max(state.posx - mv, 0)
     --   end
     -- },
@@ -278,7 +278,7 @@ end
     --   center_ver = true,
     --   margin_end = -0.2, -- negative margins are allowed, though may not work as expected
     --   text = ">",
-    --   on_click = function(state)
+    --   onClick = function(state)
     --     state.posx = math.max(state.posx + mv, 0)
     --   end
     -- },
@@ -335,8 +335,12 @@ local form2 = respec.Form({
         -- end,
       },
       elem.Button {
-        id = "btn4", w = 2, h = 0.5, text = "After container",
-        after = "sc1", borderColor = "#9ff", below = "lbl1"
+        id = "btn4", w = 2, h = 0.5, text = "Exit form",
+        after = "sc1", borderColor = "#9ff", below = "lbl1",
+        exit = true,
+        onClick = function(state, fields)
+          d.log("EXIT BTN CLICK")
+        end
       },
       elem.Image {
         toTop = true,
