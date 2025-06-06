@@ -107,19 +107,19 @@ local function get_form_str(form)
   local tbl = {}
   ins(tbl, "formspec_version["..sp.ver.."]")
   ins(tbl, fsc("size", sp.w, sp.h))
-  if sp.pos_x and sp.pos_y then
-    ins(tbl, fsc("position", sp.pos_x, sp.pos_y))
+  if sp.posX and sp.posY then
+    ins(tbl, fsc("position", sp.posX, sp.posY))
   end
-  if sp.anchor_x and sp.anchor_y then
-    ins(tbl, fsc("anchor", sp.anchor_x, sp.anchor_y))
+  if sp.anchorX and sp.anchorY then
+    ins(tbl, fsc("anchor", sp.anchorX, sp.anchorY))
   end
-  if sp.screen_padding_x and sp.screen_padding_y then
-    ins(tbl, fsc("padding", sp.screen_padding_x, sp.screen_padding_y))
+  if sp.screenPaddingX and sp.screenPaddingY then
+    ins(tbl, fsc("padding", sp.screenPaddingX, sp.screenPaddingY))
   end
-  if sp.no_prepend then
+  if sp.noPrepend then
     ins(tbl, "no_prepend[]")
   end
-  if sp.allow_close == false then
+  if sp.allowClose == false then
     ins(tbl, "allow_close[false]")
   end
   local bgC = get_valid_color(sp.bgcolor)
@@ -134,8 +134,8 @@ local function get_form_str(form)
     end
     ins(tbl, bgcf)
   end
-  if is_str(sp.set_focus) then
-    local oID = sp.set_focus
+  if is_str(sp.setFocus) then
+    local oID = sp.setFocus
     local mID = ""
     for kID, elem in pairs(form.layout.fieldElemsById) do
       if elem.id == oID then mID = kID ; break end

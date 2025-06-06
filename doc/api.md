@@ -55,19 +55,19 @@ There are some entires in the `state` table that have special meaning (see [Show
     paddings = { before = 3, after = 3, above = 3, below = 4 }
     -- sets the paddings on each side correspondingly
 
-    pos_x = 0.5, pos_y = 0.5, 
+    posX = 0.5, posY = 0.5, 
     -- Optional: the position on the screen (0-1). Corresponds to `position[]` formspec element
     
-    anchor_x = 0.5, anchor_y = 0.5,
+    anchorX = 0.5, anchorY = 0.5,
     -- Optional: the anchor for the on-screen position. Corresponds to `anchor[]`
 
-    screen_padding_x = 0.05, screen_padding_y = 0.05,
+    screenPaddingX = 0.05, screenPaddingY = 0.05,
     -- Optional: the padding required around the form, in screen proportion. Corresponds to `padding[]`
     
-    no_prepend = false,
+    noPrepend = false,
     -- Optional: disables player:set_formspec_prepend. Corresponds to `no_prepend[]`
     
-    allow_close = true,
+    allowClose = true,
     -- Optional. Default is true. If set to false, disable using closing formspec via esc or similar.
     -- Corresponds to `allow_close[]`
 
@@ -75,7 +75,7 @@ There are some entires in the `state` table that have special meaning (see [Show
 
     bgcolor = "#RRGGBB",
     -- Optional: the background color of the formspec, in a formspec `ColorString` format
-    -- Usually requires `no_prepend = true` in order to have an effect
+    -- Usually requires `noPrepend = true` in order to have an effect
 
     fbgcolor = "#RRGGBB",
     -- Optional: Only if formspec_ve >= 3.
@@ -93,7 +93,7 @@ There are some entires in the `state` table that have special meaning (see [Show
     -- Optional. Specify the color of a 1px border to be drawn around the form
     -- This uses a box[] to draw a form's outline. Experimental, may not work right.
 
-    set_focus = "id",
+    setFocus = "id",
     -- Corresponds to set_focus[id]. Set which element is focused when the form is opened.
     -- Only certain elements can be focused.
     -- See: https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#set_focusnameforce

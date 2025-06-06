@@ -19,11 +19,11 @@ end
     bgcolor = "#252525CC",
     borderColor = "#0FF",
     -- fbgcolor = "#0000FFAA",
-    pos_x = state.posx, pos_y = state.posy,
-    no_prepend = true,
+    posX = state.posx, posY = state.posy,
+    noPrepend = true,
     bgfullscreen = "both",
     --defaultElementMargins = 0.2,
-    set_focus = "field1",
+    setFocus = "field1",
   }
   end
   ,
