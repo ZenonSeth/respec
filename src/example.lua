@@ -378,6 +378,15 @@ local form2 = respec.Form({
       --   imagePressed = "bgtest.png",
       --   border = false,
       -- }
+      -- elem.ItemButton {
+      --   id = "imgbtn",
+      --   h = 0.5, below = "sc1", centerHor = "sc1",
+      --   item = "default:mese",
+      --   label = "item btn",
+      --   onClick = function(state, fields)
+      --     d.log("Got on ITEM M BTN click!")
+      --   end,
+      -- },
       elem.ButtonUrl {
         id = "ub1",
         h = 0.5, below = "sc1", centerHor = "sc1",

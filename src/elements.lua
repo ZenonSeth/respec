@@ -287,6 +287,23 @@ function respec.elements.ImageButton:to_formspec_string(_, _)
 end
 
 ----------------------------------------------------------------
+-- ItemButton (item_image_button)
+----------------------------------------------------------------
+respec.elements.ItemButton = Class(respec.PhysicalElement)
+function respec.elements.ItemButton:init(spec)
+  respec.PhysicalElement.init(self, elemInfo.item_image_button, spec)
+  self.item = str_or(spec.item, "")
+  self.label = str_or(spec.label)
+  if type(spec.onClick) == "function" then
+    self.on_interact = spec.onClick
+  end
+end
+-- override
+function respec.elements.ItemButton:to_formspec_string(_, _)
+  return make_elem(self, pos_and_size(self), self.item, self.internalId, self.label or "")
+end
+
+----------------------------------------------------------------
 -- checkbox
 ----------------------------------------------------------------
 respec.elements.Checkbox = Class(respec.PhysicalElement)

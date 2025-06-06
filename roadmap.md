@@ -56,7 +56,7 @@ Checked ones are done (or mostly done).
 - [x] `button_url`
 - [x] `set_focus` : Implemented as part of Form's specification
 - [x] `image_button` : optional params noclip, drawborder, pressed texture name
-- [ ] `item_image_button`
+- [x] `item_image_button`
 - [x] `button_exit` : incorporate as flag into regular button
 - [x] `button_url_exit` : incorporated as flag into regular button_url
 - [x] `image_button_exit` : incorporated as flag into regular image_button

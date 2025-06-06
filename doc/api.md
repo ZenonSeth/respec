@@ -639,7 +639,7 @@ spec:
   -- the onClick listener will be called even when this is set to true
 
   onClick = function(state, fields) return true end,
-  -- a function to be called when the button is clicked
+  -- Optional. A function to be called when the button is clicked
   -- `state` is the form's state, can be modified here.
   -- `fields` is the map of value of the fields in the form
   -- Note that only fields with specified IDs will be present
@@ -666,14 +666,14 @@ spec:
   -- Required. The texture to display inside the button
 
   label = "Some label",
-  -- Text to show over the image, centered in the button
+  -- Optional. Text to show over the image, centered in the button
 
   exit = true, -- Optional
   -- If set to true, button will close the form upon click. Default is false.
   -- the onClick listener will be called even when this is set to true
 
   onClick = function(state, fields) return true end,
-  -- a function to be called when the button is clicked
+  -- Optional. A function to be called when the button is clicked
   -- `state` is the form's state, can be modified here.
   -- `fields` is the map of value of the fields in the form
 
@@ -687,6 +687,37 @@ spec:
   -- The image to show inside the button when the button is pressed
 }
 ```
+- Supports per-element `style` entry in their spec.
+- Supports type-styling via [StyleType](#styletype)
+- Supported style properties:<br>
+  `alpha`, `bgcolor`, `bgimg`, `bgimg_middle`, `font`, `font_size`, `border`, `content_offset`, `noclip`, `sound`, `textcolor`
+
+## ItemButton
+Corresponds to formspec `item_image_button`
+```lua
+  respec.elements.ItemButton(spec)
+```
+This element does not support wrapping width/height, and those must be specified or aligned.
+
+spec:
+```lua
+{
+  item = "somemod:itemname",
+  -- Required. The registered name of an item/node
+
+  label = "Some label",
+  -- Optional. Text to show over the image, centered in the button
+
+  onClick = function(state, fields) return true end,
+  -- Optional. A function to be called when the button is clicked
+  -- `state` is the form's state, can be modified here.
+  -- `fields` is the map of value of the fields in the form
+}
+```
+- Supports per-element `style` entry in their spec.
+- Supports type-styling via [StyleType](#styletype)
+- Supported style properties:<br>
+  `alpha`, `bgcolor`, `bgimg`, `bgimg_middle`, `font`, `font_size`, `border`, `content_offset`, `noclip`, `sound`, `textcolor`
 
 ## Checkbox
 Corresponds to formspec `checkbox`
