@@ -880,10 +880,12 @@ Styling:
   `noclip`
 
 ## Image
-Corresponds to formspec `image`
+Corresponds to formspec `image` and `animated_image`
 ```lua
   respec.elements.Image(spec)
 ```
+This element can display both a regular image and an animated image. Animated images are defined by having multiple frames all stacked vertically (from first on top, to last on bottom) in a single texture. The number of frames and time between frames is then passed as params in the spec.
+
 spec:
 ```lua
 {
@@ -903,6 +905,21 @@ spec:
   -- If specified, the image will be drawn to the specified aspect ratio of Width/Height
   -- fitting inside the bounds it gets.
   -- If not specified, the image will be stretched to fill its bounds.
+
+  -- Animation params --
+  -- Optional, but frameCount and frameTime are both required to make an animation
+  -- If all are specified, this image will become an animated_image element
+  
+  frameCount = 4, -- number of frames in animation
+  frameTime = 10, -- milliseconds between each frame. 0 means frames don't advance
+  frameStart = 1, -- Optional, index of the frame to start on. Default is 1
+  
+  listener = function(state, frame, fields) end
+  -- Optional event listener that gets called when an animation frame changes
+  -- In order for this to work, you must specify a valid unique `id` in the image spec
+  -- `state` is the form's state, can be modified
+  -- `frame` is the integer value of the frame now displayed
+  -- `fields` is the rest of the formspec fields in a map of id->value  
 }
 ```
 Styling:

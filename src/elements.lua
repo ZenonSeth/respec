@@ -464,7 +464,17 @@ end
 ----------------------------------------------------------------
 respec.elements.Image = Class(respec.PhysicalElement)
 function respec.elements.Image:init(spec)
-  respec.PhysicalElement.init(self, elemInfo.image, spec)
+  local einf = elemInfo.image
+  if num_or(spec.frameCount, 0) > 0 then
+    einf = elemInfo.animated_image
+    self.frameC = spec.frameCount
+    self.frameT = num_or(spec.frameTime, 0)
+    self.frameS = num_or(spec.frameStart)
+    if type(spec.listener) == "function" then
+      self.on_interact = spec.listener
+    end
+  end
+  respec.PhysicalElement.init(self, einf, spec)
   self.img = str_or(spec.image, "")
   if type(spec.middle) == "number" or type(spec.middle) == "string" then
     self.mid = tostring(spec.middle)
@@ -486,10 +496,12 @@ function respec.elements.Image:to_formspec_string(ver, _)
       m.yOffset = m.yOffset + (m.h - nh) / 2 ; m.h = nh
     end
   end
-  if self.mid and ver >= 6 then
-    return make_elem(self, pos_and_size(self), self.img, self.mid)
+  local mid = nil
+  if self.mid and ver >= 6 then mid = self.mid end
+  if self.frameC then
+    return make_elem(self, pos_and_size(self), self.internalId, self.img, self.frameC, self.frameT, self.frameS or 1, mid)
   else
-    return make_elem(self, pos_and_size(self), self.img)
+    return make_elem(self, pos_and_size(self), self.img, mid)
   end
 end
 

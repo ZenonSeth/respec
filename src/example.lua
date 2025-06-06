@@ -341,8 +341,9 @@ local form2 = respec.Form({
       elem.Image {
         toTop = true,
         after = "btn4", toEnd = true, h = 2,
-        image = "test.jpg",
-        ratio = 1.77,
+        image = "test_anim8.png",
+        ratio = 1,
+        frameCount = 8, frameTime = 500,
       }
 
   } end)

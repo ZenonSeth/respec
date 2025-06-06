@@ -39,7 +39,7 @@ Checked ones are done (or mostly done).
 - [x] `listcolors` : probably leave it as standalone element since it can apply to multiple lists
 - [x] `tooltip` : gui_element_name ones should be build into each `PhysicalElement`
 - [x] `image`
-- [ ] `animated_image`
+- [x] `animated_image`
 - [ ] `model`
 - [ ] `item_image`
 - [x] `background` : standalone
