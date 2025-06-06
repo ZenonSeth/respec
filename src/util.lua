@@ -138,13 +138,13 @@ end
 
 -- makes a "name[arg1;arg2;arg3]" string
 function respec.util.fs_make_elem(name, ...)
-  local str = name.."["
+  local ret = {name, "["}
   if ... ~= nil then
     local args = {...}
-    str = str..table.concat(args, ";")
+    ret[#ret + 1] = table.concat(args, ";")
   end
-  str = str.."]"
-  return str
+  ret[#ret + 1] = "]"
+  return table.concat(ret, "")
 end
 
 -- make an outline with given x,y and width,height (ints)
@@ -214,7 +214,7 @@ function respec.internal.fs_elem_box(obj, notDebug, clr)
     if not notDebug then
       elem = "box["..ex..","..ey..";"..ew..","..eh..";"..elemColor.."]"
     end
-    elem = elem..outl(ex, ey, ew, eh)
+    elem = elem..outl(ex, ey, ew, eh, boundColor)
     return bound..elem
   else return "" end
 end

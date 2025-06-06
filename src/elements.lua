@@ -2,7 +2,9 @@
 
 local con = respec.const
 local TOP = con.top
+local BOT = con.bottom
 local LFT = con.left
+local RGT = con.right
 local WRAP = con.wrap_content
 local UNSET = con.unset
 
@@ -61,6 +63,15 @@ local function get_merged_styles(persist, useCommon, typeStyleName, elemStyleDat
     for k,v in pairs(elemStyleData) do baseSt[k] = v end
   end
   return baseSt
+end
+
+local function get_valid_orientation(orientStr)
+  if type(orientStr) ~= "string" or string.len(orientStr) == 0 then return "vertical" end
+  if orientStr:sub(1,1) == "h" then
+    return "horizontal"
+  else
+    return "vertical"
+  end
 end
 
 -- minv/maxv in range 0-255
@@ -334,6 +345,105 @@ function respec.elements.PasswordField:init(spec)
 end
 
 ----------------------------------------------------------------
+-- Scroll Container (scroll_container)
+----------------------------------------------------------------
+respec.elements.ScrollContainer = Class(respec.PhysicalElement)
+function respec.elements.ScrollContainer:init(spec)
+  self.scrollContainerElems = spec.elements
+  spec.elements = nil
+  respec.PhysicalElement.init(self, elemInfo.scroll_container, spec)
+  self.layout = respec.Layout(spec)
+  self.orientation = get_valid_orientation(spec.orientation)
+
+  local exScroll = type(spec.externalScrollbar) == "string"
+  self.scrollFactor = num_or(spec.scrollFactor, 0.1)
+
+  if exScroll then
+    self.externalScrollbar = spec.externalScrollbar
+  else
+    self.barSize = num_or(spec.scrollbarSize, 0.2)
+    if self.barSize <= 0 then self.barSize = 0.2 end
+    if type(spec.scrollbarOptions) == "table" then
+      self.scrollbarOptions = spec.scrollbarOptions
+    end
+    local id = self.id
+    if id == "" then id = self.internalId end
+    self.scrollbar = respec.elements.Scrollbar {
+      id = id.."_scrollbar",
+      listener = spec.scrollbarListener,
+      orientation = self.orientation
+    }
+  end
+end
+-- when added to parent layout
+function respec.elements.ScrollContainer:on_added(idGen, idsTable, fieldEleemsById)
+  self.layout:set_elements(self.scrollContainerElems, idGen, idsTable, fieldEleemsById)
+end
+-- before being measured
+function respec.elements.ScrollContainer:before_measure(persist)
+  self.layout.playerName = persist.playerName
+  if self.orientation:sub(1,1) == "v" then -- vertical
+    if self.margins[RGT] == UNSET then self.margins[RGT] = self.barSize
+    else self.margins[RGT] = self.margins[RGT] + self.barSize end
+  else -- horizontal
+    if self.margins[BOT] == UNSET then self.margins[BOT] = self.barSize
+    else self.margins[BOT] = self.margins[BOT] + self.barSize end
+  end
+end
+-- after measured is complete
+function respec.elements.ScrollContainer:after_measure()
+  local isVert = self.orientation:sub(1,1) == "v"
+  if isVert then
+    self.layout.width = self.width ; self.layout.height = WRAP
+  else
+    self.layout.width = WRAP ; self.layout.height = self.height
+  end
+  self.layout:measure(true)
+  if self.scrollbar then
+    local mm = self.measured
+    local sm = self.scrollbar.measured
+    if isVert  then -- vertical
+      sm.w = self.barSize ; sm.h = mm.h;  sm.xOffset = mm.xOffset ; sm.yOffset = mm.yOffset
+      sm[LFT] = mm[RGT] - self.margins[RGT] + mm.xOffset
+      sm[RGT] = mm[RGT] - self.margins[RGT] + mm.xOffset + self.barSize
+      sm[TOP] = mm[TOP] + self.margins[TOP] + mm.yOffset
+      sm[BOT] = mm[BOT] - self.margins[BOT] + mm.yOffset
+    else -- horizontal
+      sm.w = mm.w ; sm.h = self.barSize; sm.xOffset = mm.xOffset ; sm.yOffset = mm.yOffset
+      sm[LFT] = mm[LFT] - self.margins[LFT] + mm.xOffset
+      sm[RGT] = mm[RGT] - self.margins[RGT] + mm.xOffset
+      sm[TOP] = mm[BOT] - self.margins[BOT] + mm.yOffset
+      sm[BOT] = mm[BOT] - self.margins[BOT] + mm.yOffset + self.barSize
+    end
+  end
+end
+-- override
+function respec.elements.ScrollContainer:to_formspec_string(ver, persist)
+  local str = {}
+  local sbid = self.externalScrollbar or ""
+  if self.scrollbar then sbid = self.scrollbar.id or "" end
+  str[#str + 1] = make_elem(self, pos_and_size(self), sbid, self.orientation, self.scrollFactor, "0")
+  str[#str + 1] = self.layout:to_formspec_string(ver, persist)
+  str[#str + 1] = fsmakeelem("scroll_container_end")
+  str[#str + 1] = self.scrollbar:to_formspec_string(ver, persist)
+  return table.concat(str, "")
+end
+
+----------------------------------------------------------------
+-- Scrollbar 
+----------------------------------------------------------------
+respec.elements.Scrollbar = Class(respec.PhysicalElement)
+function respec.elements.Scrollbar:init(spec)
+  respec.PhysicalElement.init(self, elemInfo.scrollbar, spec)
+  self.orientation = get_valid_orientation(spec.orientation)
+  self.value = str_or(spec.value, "0-1000")
+end
+-- override
+function respec.elements.Scrollbar:to_formspec_string(ver, persist)
+  return make_elem(self, pos_and_size(self),self.orientation, self.id, self.value)
+end
+
+----------------------------------------------------------------
 -- Non-Physical Elements
 ----------------------------------------------------------------
 
@@ -401,4 +511,32 @@ end
 -- override
 function respec.elements.ListColors:to_formspec_string(_, _)
   return make_elem(self, self.slotStr, self.borderStr, self.tooltipStr)
+end
+
+----------------------------------------------------------------
+-- ScrollbarOptions
+----------------------------------------------------------------
+local function valid_arrows(arrowStr)
+  if type(arrowStr) ~= "string" or string.len(arrowStr) == 0 then return "default" end
+  if arrowStr:sub(1,1) == "s" then
+    return "show"
+  else
+    return "hide"
+  end
+end
+respec.elements.ScrollbarOptions = Class(respec.Element)
+function respec.elements.ScrollbarOptions:init(spec)
+  self.min = num_or(spec.min, 0)
+  self.max = num_or(spec.max, 1000)
+  self.sstep = num_or(spec.smallstep, 10)
+  self.lstep = num_or(spec.largestep, 100)
+  self.thumb = num_or(spec.thumbsize, 10)
+  self.arrows = valid_arrows(spec.arrows)
+end
+-- override
+function respec.elements.ScrollbarOptions:to_formspec_string(_, _)
+  return make_elem(self, 
+  "min="..self.min, "max="..self.max, "smallstep="..self.sstep, "largestep="..self.lstep,
+  "thumbsize="..self.thumb, "arrows="..self.arrows
+)
 end

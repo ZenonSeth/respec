@@ -305,6 +305,30 @@ spec:<br>
 }
 ```
 
+## ScrollbarOptions
+Corresponds to the `scrollbaroptions` formspec element
+```lua
+  respec.elements.ScrollbarOptions(spec)
+```
+Note:<br>
+This element must be specified **before** any scrollbar you want to affect.
+It will set the settings for all further scrollbars, unless overwritten by something.
+
+spec:<br>
+```lua
+{
+  min = 0, -- Optional, int. Default 0
+  max = 1000, -- Optional, int, Default 1000
+  smallstep = 2, -- Optional, int. Default 10. Amount scrolled by mousewheel or arrow click
+  largestep = 2, -- Optional, int, Default 100. Amount scrolled by PageUp/PagdeDn
+  thumbsize = 10, -- Optional, int, Defaults to 10. How much vertical space the scrollbar's thumb takes up
+  arrows = "show" -- Or "hide", or "default". Optional, if absent defaults to "default"
+  -- "show" : always show arrows
+  -- "hide" : never show the arrows
+  -- "default" : shows the arrows if there's enough space, but hides them if its too small
+}
+```
+
 # Physical Element
 
 A Physical Element is a type of element that can be displayed, positioned, and resized in some way.
@@ -743,6 +767,98 @@ Styling:
 - Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `border`, `font`, `font_size`, `noclip`, `textcolor`
+
+## ScrollContainer
+Corresponds to formspec `scroll_container`
+```lua
+  respec.elements.ScrollContainer(spec)
+```
+spec:
+```lua
+{
+  id = "id", -- Inherited from physical element: Required if not using externalScrollbar
+
+  orientation = "horizontal", -- or "vertical" or "h" or "v" for shorthand
+  -- Optional. If absent, "vertical" is assumed
+
+  scrollFactor = 0.1,
+  -- Optional. If absent, defaults to 0.1
+
+  elements = {
+    respec.elements.<element>, -- repeated list of elements
+  }
+  -- Required. The list of elements to put inside the scroll containers
+  -- These elements can be be aligned between themselves in the exact same way
+  -- that elements in a form can, using relative positioning.
+  -- These elements cannot align to elements outside the scroll container.
+  -- The IDs of these elements must not repeat any IDs from outside the scroll container,
+  -- Basically all element IDs in a Form must be unique, even if inside scroll containers
+
+  externalScrollbar = "name_of_scrollbar",
+  -- Optional. Only specify if you want to make your own scrollbar.
+  -- If absent, the ScrollContainer will automatically create its own Scrollbar
+  -- If absent, the built-in Scrollbar will be named "[id_of_scroll_container]_scrollbar"
+
+  scrollbarSize = 0.2,
+  -- Optional. If absent, 0.2 is default value
+  -- This specifies how wide or how tall (depending if orientation is vertical or horizontal)
+  -- the built-in scrollbar should be. Has no effect on externalScrollbars 
+
+  scrollbarOptions = scrollbarOptionsSpec, 
+  -- Optional. Only used if externalScrollbar is not set.
+  -- The options to apply to this scrollbar.
+  -- Note that because the way formspecs work, these scrollbar options will also
+  -- be applied to any consequent scrollbars in this form.
+
+  scrollbarListener = scrollbarListenerFunction,
+  -- Optional. Only used if `externalScrollbar` is not specified.
+  -- The listener function for the built-in scrollbar, see `Scrollbar` class for info.
+
+  -- Paddings are all optional.
+  -- Paddings will push all elements inwards from the corresponding edge.
+  paddings = 3,
+    -- sets all four default paddings to 3
+  paddings = { hor = 4, ver = 2 }
+    -- sets before/after paddings to 4 and above/below paddings to 2
+  paddings = { before = 3, after = 3, above = 3, below = 4 }
+  -- sets the paddings on each side correspondingly
+
+  -- Default margins. Optional. All 3 versions do the same thing, but allow shorthands
+  -- If present, the default margins will be used for any element that doesn't specify a corresponding margin
+  defaultElementMargins = 3,
+    -- sets all four default margins to 3
+  defaultElementMargins = { hor = 4, ver = 2 }
+    -- sets before/after margins to 4 and above/below ,margins to 2
+  defaultElementMargins = { before = 3, after = 3, above = 3, below = 4 }
+    -- sets the default margins to given values
+}
+```
+The `ScrollContainer` class will create its own scrollbar, unless you specify an external scrollbar name via `externalScrollbar`. 
+
+This built-in scrollbar will be positioned below (if orientation is horizontal) or to the right (if orientation is vertical) of the scroll container, and a margin will be set (or added) to make room for it. The scrollbar's name will be `[id_of_scroll_container]_scrollbar` - which can be used to be read via the `fields` variable 
+
+## Scrollbar
+Corresponds to formspec `scrollbar`
+```lua
+  respec.elements.Scrollbar(spec)
+```
+spec:
+```lua
+{
+  id = "id", -- inherited from common formspec, used as the scrollbar's name
+  orientation = "horizontal", -- or "vertical", or "h"/"v" for shorthand
+  value = "0-1000", -- Optional, defaults to "0-1000" if absent
+  
+  listener = function(state, explodedEvent, fields),
+  -- Optional, the function to call when a scrollbar event happens.
+  -- `state` is the form's state, can be modified here.
+  -- `explodedEvent` is the event in table format, as returned by `core.explode_scrollbar_event`.
+  --                The format { type="CHG", value=500 }
+  --                where "type" can be "INV" = failed. "CHG" = value changed, "VAL" = no change
+  -- `fields` is the map of value of the fields in the form
+}
+```
+Note that you **do not need** to create your own `Scrollbar` for each `ScrollContainer` - the `ScrollContainer` can make and position its own `Scrollbar` internally, unless specified otherwise.
 
 # Utility Methods
 

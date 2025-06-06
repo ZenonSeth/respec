@@ -20,6 +20,8 @@ local function clamp(value, min, max)
   if value < min then return min elseif value > max then return max else return value end
 end
 
+local funcs = {}
+
 local function update_container_measurements(side, value, layoutMeasurements)
   if side == TOP or side == BOT then
     if value > layoutMeasurements.max_y then layoutMeasurements.max_y = value end
@@ -35,9 +37,9 @@ local function invalidate_tree_and_opposite_if_unset(root, isWidth, checkOpposit
   ms[root.side] = UNSET
   if checkOpposite then
     if isWidth then
-      ms.w = UNSET ; ms.xOffset = UNSET
+      ms.w = UNSET ; ms.xOffset = 0
     else
-      ms.h = UNSET ; ms.yOffset = UNSET
+      ms.h = UNSET ; ms.yOffset = 0
     end
   end
   for _, child in ipairs(root.childNodes) do
@@ -93,6 +95,17 @@ local function merge_margins(elemM, defaultMargins)
     mar[SIDE] = num_or(ems, defaultMargins[SIDE])
   end
   return mar
+end
+
+local function notify_elem_if_measured(elem)
+  if type(elem.after_measure) == "function" then
+    local measured = elem.measured
+    if measured[LFT] ~= UNSET and measured[RGT] ~= UNSET
+        and measured[TOP] ~= UNSET and measured[BOT] ~= UNSET
+        and measured.width ~= UNSET and measured.height ~= UNSET then
+    elem:after_measure()
+    end
+  end
 end
 
 --[[
@@ -151,20 +164,23 @@ local function update_side_logic(isGone, S1, S2, align, measured, margins, size,
   end
 end
 
+-- returns if the oopposite side to this side should be invalidated due to offset changes
 local function update_element_sides_based_on_align(elem, side, measured, margins)
   local align = elem.align
   local isGone = elem.visibility == GONE
+  local invalidateOtherSide = false
   if side == TOP or side == BOT then
     update_side_logic(isGone, TOP, BOT, align, measured, margins, elem.height, elem.verBias or 0.5,
       function(v) measured.h = v end,
-      function(v) measured.yOffset = v end
+      function(v) measured.yOffset = v ; invalidateOtherSide = true end
     )
   elseif side == LFT or side == RGT then
     update_side_logic(isGone, LFT, RGT, align, measured, margins, elem.width, elem.horBias or 0.5,
       function(v) measured.w = v end,
-      function(v) measured.xOffset = v end
+      function(v) measured.xOffset = v ; invalidateOtherSide = true end
     )
   end
+  return invalidateOtherSide
 end
 
 -- returns true if measuring was successful, false if the root can't be measured
@@ -177,17 +193,13 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
   local measured = elem.measured
   local margins = elem.margins
   local childNodes = node.childNodes
+  local isWidth = (side == LFT or side == RGT)
 
   -- first see if we can first easily set the height or width
   set_fixed_size_if_possible(elem)
 
   if node.resolved then
     return true
-  end
-
-  if elem.elements ~= nil then -- this is a sub-layout
-    -- perform the layout of this sub-layout before proceeding - this may also set its size
-    respec.internal.perform_layout(elem)
   end
 
   if not parentNode then
@@ -211,28 +223,29 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
       measured[side] = value
 
       set_dynamic_size_if_possible(elem, measured, margins)
-      update_element_sides_based_on_align(elem, side, measured, margins)
+      local invalOpp = update_element_sides_based_on_align(elem, side, measured, margins)
       update_container_measurements(side, value, containerMeasurements)
       -- node.resolvedVal = elem.measured[side]
       node.resolved = true
-      -- now do the same for each child node
-      for chi = 1, #childNodes do
-        local ret = perform_layout_of_node(layout, childNodes[chi], containerMeasurements, node)
-        if not ret then node.resolved = false ; return false end -- in theory this shouldn't happen
+      if not funcs.hadle_post_setting_child_nodes(
+        layout, childNodes, containerMeasurements, node, isWidth, invalOpp
+      ) then
+        return false
       end
+      notify_elem_if_measured(elem)
       return true
     else --if refSide == UNSET then
       -- check if other side is set
-      update_element_sides_based_on_align(elem, side, measured, margins)
+      local invalOpp = update_element_sides_based_on_align(elem, side, measured, margins)
       update_container_measurements(side, measured[side], containerMeasurements)
       if measured[side] ~= UNSET then -- we set it
         node.resolved = true
-
-        -- now do the same for each child node
-        for chi = 1, #childNodes do
-          local ret = perform_layout_of_node(layout, childNodes[chi], containerMeasurements, node)
-          if not ret then node.resolved = false ; return false end -- in theory this shouldn't happen
+        if not funcs.hadle_post_setting_child_nodes(
+          layout, childNodes, containerMeasurements, node, isWidth, invalOpp
+        ) then
+          return false
         end
+        notify_elem_if_measured(elem)
         return true -- child nodes should resolve fine because they only depend on parent (hmm)
       else return false end -- could happen when side depends on opposite side, but that wasn't resolved yet
     end
@@ -242,19 +255,48 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
     local refValue = parentNode.element.measured[refSide]
 
     if refValue == nil or refValue == UNSET then log_error("parent node was not measured?") ; return false end -- should not happen
-    node.element.measured[side] = refValue
+    local offset
+    if isWidth then offset = parentNode.element.measured.xOffset else offset = parentNode.element.measured.yOffset end
+    measured[side] = refValue + offset
     set_dynamic_size_if_possible(elem, measured, margins)
-    update_element_sides_based_on_align(elem, side, measured, margins)
+    -- d.log("alinging "..elem.id..":"..side_to_str(side).." -> "..parentNode.element.id..":"..side_to_str(refSide)..
+    --   "\nvalue = "..refValue.." MY measured = "..dump(measured))
+    local invalOpp = update_element_sides_based_on_align(elem, side, measured, margins)
     -- node.resolvedVal = elem.measured[side]
     node.resolved = true
     update_container_measurements(side, refValue, containerMeasurements)
-    for chi = 1, #childNodes do
-      local ret = perform_layout_of_node(layout, childNodes[chi], containerMeasurements, node)
-      if not ret then node.resolved = false ; return false end -- in theory this shouldn't happen
+    if not funcs.hadle_post_setting_child_nodes(
+      layout, childNodes, containerMeasurements, node, isWidth, invalOpp
+    ) then
+      return false
     end
+    notify_elem_if_measured(elem)
     return true
   end
   -- not reachable here
+end
+
+funcs.peform_layout_of_children = function(layout, childNodes, containerMeasurements, node, isWidth, invalidate)
+  local inval = invalidate_tree_and_opposite_if_unset
+  if not invalidate then inval = function(_,_,_) end end
+    for chi = 1, #childNodes do
+      inval(childNodes[chi], isWidth, true)
+      local ret = perform_layout_of_node(layout, childNodes[chi], containerMeasurements, node)
+      if not ret then node.resolved = false ; return false end -- in theory this shouldn't happen
+    end
+  return true
+end
+
+funcs.hadle_post_setting_child_nodes = function(layout, childNodes, containerMeasurements, node, isWidth, invalOpp)
+  if not funcs.peform_layout_of_children(
+    layout, childNodes, containerMeasurements, node, isWidth, false
+  ) then return false end -- one of child layout failed
+  if invalOpp then
+    funcs.peform_layout_of_children(
+      layout, node.oppositeNode.childNodes, containerMeasurements, node.oppositeNode, isWidth, true
+    )
+  end
+  return true
 end
 
 local function update_container_based_on_measurements(layout, containerMeasurements)
@@ -394,6 +436,7 @@ local function perform_layout_of_chain(chain, S1, S2, getSize, getBias, getChain
       setSize(elem, elemProp.s)
       start = start + elemProp.sm + innerSpace
     end
+    notify_elem_if_measured(elem)
   end
 end
 

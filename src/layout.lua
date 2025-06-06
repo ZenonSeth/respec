@@ -109,7 +109,10 @@ local function do_add(self, element, idGen)
   if self.serialized then
     -- TODO: check if anything related to layouting has changed, if not return last serialization
   end
-  -- TODO: handle sublayouts with idGen assining unique internal IDs
+  if type(element.on_added) == "function" then
+    -- it's a sub-layout element
+    element:on_added(idGen, self.ids, self.fieldElemsById)
+  end
   local newId = element.id
   if not element.info then return end -- invalid element
   if newId and newId ~= "" and self.ids[newId] then
@@ -130,9 +133,10 @@ end
 -- Sets the content of this layout. If any previous content was set, it will be overwritten
 -- Use one of the `respec.elements.` functions to create elements.
 -- idGen should be an object that has a :id() function to provide a unique ID
-function respec.Layout:set_elements(elementsList, idGen)
+function respec.Layout:set_elements(elementsList, idGen, optIdTable, optFieldElemById)
   self.elements = {}
-  self.fieldElemsById = {}
+  self.ids = optIdTable or {}
+  self.fieldElemsById = optFieldElemById or {}
   for _, element in ipairs(elementsList) do
     element.internalId = idGen:id()
     do_add(self, element, idGen)

@@ -31,7 +31,9 @@ Checked ones are done (or mostly done).
 - [x] `allow_close`
 - [x] `bgcolor`: To be added to Form specification
 
-- [ ] `scroll_container`: to contain its own layout
+- [x] `scroll_container`: contains its own layout
+- [x] `scrollbar`
+- [x] `scrollbaroptions` : nonphysical
 - [x] `listring`: Maybe worth rethinking this one
 - [x] `list` : Needs special attention since w/h are specified in num slots, not size
 - [x] `listcolors` : probably leave it as standalone element since it can apply to multiple lists
@@ -64,8 +66,6 @@ Checked ones are done (or mostly done).
 - [ ] `box`
 - [ ] `dropdown` : may require w+h
 - [x] `checkbox` : Still needs wrap_content, if necessary
-- [ ] `scrollbar`
-- [ ] `scrollbaroptions` : nonphysical
 - [ ] `table`
 - [ ] `tableoptions` : maybe as param to table
 - [ ] `tablecolumns` : maybe as special class only available in table

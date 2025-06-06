@@ -289,21 +289,51 @@ local form2 = respec.Form({
     formspec_version = 9,
     paddings = 0.2,
   },
-function (state)
+  function (state)
 
-local tbl = {}
-for C = 0,150,1 do
-  table.insert(tbl, string.format("%x", 22 + C).."|"..string.char(22 + C).."|")
-end
+    local tbl = {"Hi there.. test of scroll container!"}
+    -- for C = 0,150,1 do
+    --   table.insert(tbl, string.format("%x", 22 + C).."|"..string.char(22 + C).."|")
+    -- end
 
-return {
-  elem.Label {
-    w = 10, h = 25,
-    borderColor = "#343",
-    text = table.concat(tbl, " "),
-    area = true,
-  }
-} end)
+    return {
+      elem.Label {
+        id = "lbl1",
+        w = 10, h = 0.5,
+        text = table.concat(tbl, " "),
+        -- area = true,
+      },
+      elem.Button {
+        id = "obbf", text = "before sc", paddingsHor = 0.3, paddingsVer = 0.2, below = "lbl1",
+      },
+      -- elem.Button { w = 1, h = 0.5, id = "obtn1", below = "lbl1", toStart = true, toEnd = true},
+      -- elem.Button { w = 0, h = 0.5, id = "obtn2", below = "obtn1", alignStart = "obtn1", toEnd = true},
+      elem.ScrollContainer{
+        id = "sc1",
+        w = 4, h = 4, below = "lbl1", after = "obbf",
+        orientation = "horizontal",
+        customBorderColor = "#FFF",
+        elements = {
+          elem.Button {
+            id = "btn1", text = "Hey 1T", toStart = true, paddingsHor = 0.5, paddingsVer = 0.1,
+          },
+          elem.Button {
+            id = "btn2", w = 0, h = 1.5, toStart = true, text = "Hey 2", below = "btn1", before = "btn3",
+          },
+          elem.Button {
+            id = "btn3", w = 3, h = 3.5, after = "btn1", text = "Hey 3", below = "btn1"
+          },
+          elem.Label {
+            text = "Just some random text\nthat goes down below", w = 0, center_hor = true, below = "btn3",
+          }
+        },
+      },
+      elem.Button {
+        id = "btn4", w = 2, h = 0.5, text = "After container",
+        after = "sc1", borderColor = "#9ff", below = "lbl1"
+      },
+
+  } end)
 
 respec.util.engine.register_node("respec:gui_builder", {
   description = "GUI Builder",
@@ -316,5 +346,5 @@ respec.util.engine.register_node("respec:gui_builder", {
     i:set_size("in", 16)
     i:set_size("out", 16)
   end,
-  on_rightclick = form1:show_from_node_rightclick(nil, true)
+  on_rightclick = form2:show_from_node_rightclick(nil, true)
 })
