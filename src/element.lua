@@ -245,10 +245,10 @@ function respec.Element:init(fselem)
 end
 
 -- To be overriden by child classes
--- formspecVersion: an int, the current formspec version
+-- ver: an int, the current formspec version
 -- persist: A data object that persists throughout the layout process.
 --   persist.state is the From's `state` object
-function respec.Element:to_formspec_string(formspecVersion, persist, layout)
+function respec.Element:to_formspec_string(ver, persist, layout)
   log_warn("called base to_formspec_string") ; return ""
 end
 

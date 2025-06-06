@@ -68,8 +68,9 @@ local function verify_specification(spec)
   if (type(spec.w) ~= "number" and type(spec.width) ~= "number") or (type(spec.h) ~= "number" and type(spec) ~= "number") then
     error("Specification missing required width/height!")
   end
-  if not spec.formspec_version or type(spec.formspec_version) ~= "number" or spec.formspec_version < 2 then
-    error("Specification.formspec_version is invalid! Must be a number, and greater than 2")
+  if not spec.ver then spec.ver = spec.formspecVersion ; spec.formspecVersion = nil end
+  if type(spec.ver) ~= "number" or spec.ver < 2 then
+    error("Specification Formspec Version is invalid! Must be a number, and greater than 2")
   end
   -- TODO: verify optional params' types, though maybe without fatal errors
   return spec
@@ -104,7 +105,7 @@ local ins = table.insert
 local function get_form_str(form)
   local sp = form.spec
   local tbl = {}
-  ins(tbl, "formspec_version["..sp.formspec_version.."]")
+  ins(tbl, "formspec_version["..sp.ver.."]")
   ins(tbl, fsc("size", sp.w, sp.h))
   if sp.pos_x and sp.pos_y then
     ins(tbl, fsc("position", sp.pos_x, sp.pos_y))
@@ -126,7 +127,7 @@ local function get_form_str(form)
   local bgF = get_valid_fullscreen(sp.bgfullscreen)
   if bgC ~= "" then
     local bgcf = ""
-    if sp.formspec_version >= 3 then
+    if sp.ver >= 3 then
       bgcf = respec.util.fs_make_elem("bgcolor", bgC, bgF, fbgC)
     else
       bgcf = respec.util.fs_make_elem("bgcolor", bgC, bgF)
@@ -161,7 +162,7 @@ local function get_formspec_string(form, state, playerName)
     debugGrid = respec.util.grid(spec.w, spec.h, 5)
   end
   local persist = { state = state }
-  local layoutFs = form.layout:to_formspec_string(spec.formspec_version, persist)
+  local layoutFs = form.layout:to_formspec_string(spec.ver, persist)
   -- d.log((formDef..layoutFs):gsub("]", "]\n"))
   return formDef..debugGrid..layoutFs
 end

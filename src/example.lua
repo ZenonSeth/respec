@@ -14,7 +14,7 @@ end
     return {
     --w = 13, h = 4,
     w = 14,
-    formspec_version = 5,
+    ver = 5,
     paddings = 0.2,
     bgcolor = "#252525CC",
     borderColor = "#0FF",
@@ -55,7 +55,7 @@ end
     --   id = "label1",
     --   w = 1, h = 0.5,
     --   text = ""..(iState.count or "0"),
-    --   area = true, -- no effect unless formspec_version >= 9
+    --   area = true, -- no effect unless ver >= 9
     --   below = "title",
     --   -- margins_hor = 0.25,
     --   -- margins_ver = 0.25,
@@ -132,7 +132,7 @@ end
       below = "label3",
       alignStart = "btn1",
       after = "list_in",
-      -- area = true, -- no effect unless formspec_version >= 9
+      -- area = true, -- no effect unless ver >= 9
       -- alignEnd = "btn1",
     },
     elem.Label {
@@ -286,7 +286,7 @@ end
 
 local form2 = respec.Form({
     --w = 13, h = 4,
-    formspec_version = 9,
+    ver = 9,
     paddings = 0.2,
   },
   function (init)

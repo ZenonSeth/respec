@@ -43,7 +43,7 @@ There are some entires in the `state` table that have special meaning (see [Show
     -- Special values: respec.const.wrap_content to simply make the form big enough for all the elements it contains
     -- if either w/h is unset, wrap_content is assumed for the missing value.
 
-    formspec_version = 4, 
+    ver = 4, -- or: formspecVersion = 4, 
     -- Required: cannot be lower than 2 (due to real_coordinates)  Corresponds to `formspec_version[]`
     
     -- Paddings are all optional.
@@ -197,7 +197,7 @@ Showing From from on_rightclick example:
 Creating and immediately showing a formspec to `singleplayer`:
  ```lua
   respec.Form({
-      formspec_version = 5,
+      ver = 5,
       margins = 0.25,
     },
     {
