@@ -366,7 +366,14 @@ local form2 = respec.Form({
         below = "img1",
         after = "sc1",
         text = "Hey there, this is a read-only text area! To make it editable, set an ID to this element"
-      }
+      },
+      -- elem.Hypertext {
+      --   w = 4, h = 0.5, below = "sc1", alignStart = "sc1",
+      --   text = "If <big>you</big> <mono>want</mono> you <style color=#F3F>can</style> <action name=clickm>click me!</action>",
+      --   listener = function(state, value, fields)
+      --     d.log("clicked hypertext, value = "..dump(value))
+      --   end,
+      -- },
 
   } end)
 

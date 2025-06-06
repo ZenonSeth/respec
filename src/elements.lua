@@ -118,7 +118,6 @@ local function randclrval(minv, maxv)
   return string.format("%x", math.random(minv, maxv))
 end
 
-local fesc = respec.util.engine.formspec_escape
 local elemInfo = respec.internal.supported_elements
 
 --- debug box stuff
@@ -180,7 +179,7 @@ end
 -- override
 function respec.elements.Label:to_formspec_string(ver, _)
   if (not self.vertical) and self.areaLabel and ver >= 9 then
-    return make_elem(self, pos_and_size(self), fesc(self.txt))
+    return make_elem(self, pos_and_size(self), self.txt)
   else
   local xOffset, yOffset
   if self.vertical then
@@ -191,7 +190,7 @@ function respec.elements.Label:to_formspec_string(ver, _)
       yOffset = self.measured.h / (self.numLines * 2)
     end
   end
-  return make_elem(self, pos_only(self, yOffset, xOffset), fesc(self.txt))
+  return make_elem(self, pos_only(self, yOffset, xOffset), self.txt)
   end
 end
 -- override
@@ -234,7 +233,7 @@ function respec.elements.Button:before_measure(persist)
 end
 -- override
 function respec.elements.Button:to_formspec_string(_, _)
-  return make_elem(self, pos_and_size(self), self.internalId, fesc(self.txt))
+  return make_elem(self, pos_and_size(self), self.internalId, self.txt)
 end
 
 ----------------------------------------------------------------
@@ -266,7 +265,7 @@ end
 function respec.elements.Checkbox:to_formspec_string(ver, _)
   local yOffset = 0
   if ver >= 3 then yOffset = self.measured.h / 2 end
-  return make_elem(self, pos_only(self, yOffset), self.internalId, fesc(self.txt), tostring(self.checked))
+  return make_elem(self, pos_only(self, yOffset), self.internalId, self.txt, tostring(self.checked))
 end
 
 ----------------------------------------------------------------
@@ -378,7 +377,7 @@ function respec.elements.Field:to_formspec_string(_, _)
   if self.enterAfterEdit == true then
     table.insert(elems, fsmakeelem("field_enter_after_edit", self.internalId, "true"))
   end
-  local deftxt = fesc(self.txt) ; if self.isPassword then deftxt = nil end
+  local deftxt = self.txt ; if self.isPassword then deftxt = nil end
   table.insert(elems, make_elem(self, pos_and_size(self), self.internalId, self.label, deftxt))
   return table.concat(elems, "")
 end
@@ -556,6 +555,22 @@ function respec.elements.TextArea:to_formspec_string(_, _)
   update_measurements_to_fit_aspect_ratio(self.measured, self.ratio)
   local id = self.internalId ; if self.id == "" then id = "" end
   return make_elem(self, pos_and_size(self), id, self.label, self.txt)
+end
+
+----------------------------------------------------------------
+-- TextArea
+----------------------------------------------------------------
+respec.elements.Hypertext = Class(respec.PhysicalElement)
+function respec.elements.Hypertext:init(spec)
+  respec.PhysicalElement.init(self, elemInfo.hypertext, spec)
+  self.txt = str_or(spec.text, "")
+  if type(spec.listener) == "function" then
+    self.on_interact = spec.listener
+  end
+end
+-- override
+function respec.elements.Hypertext:to_formspec_string(_, _)
+  return make_elem(self, pos_and_size(self), self.internalId, self.txt)
 end
 
 ----------------------------------------------------------------

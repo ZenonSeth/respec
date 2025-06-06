@@ -50,7 +50,7 @@ Checked ones are done (or mostly done).
 - [x] `field_close_on_enter` : incorporated as flag in regular field
 - [x] `textarea`
 - [x] `label`
-- [ ] `hypertext`
+- [x] `hypertext`
 - [x] `vertlabel` : Added as flag on existing Label
 - [x] `button`
 - [ ] `button_url`

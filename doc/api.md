@@ -978,6 +978,31 @@ Styling:
 - Supported style properties:<br>
   `border`, `font`, `font_size`, `noclip`, `textcolor`
 
+## Hypertext
+Corresponds to formspec `hypertext`
+**Note from luanti's API**: This element is currently unstable and subject to change.
+```lua
+  respec.elements.Hypertext(spec)
+```
+This element does not support wrapping width/height, and those must be specified or aligned.
+
+For details on the *Markup Language* see Luanti's API: https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#markup-language
+
+spec:
+```lua
+{
+  id = "unique_id", -- inherited from Physical Element. Required
+
+  text = "Markup Text", -- Text to show, formatted by the Markup Language linked above
+
+  listener = function(state, value, fields) end,
+  -- Optional - receives the actions as defined by the Markup Language.
+  -- `state` is the form's state, can be modified here.
+  -- `value` is the value of the action, usually encoded as "action:name"
+  -- `fields` is the map of value of the fields in the form
+}
+```
+
 # Utility Methods
 
 ## Inventory utils
