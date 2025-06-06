@@ -397,7 +397,7 @@ function respec.elements.ScrollContainer:init(spec)
       else self.margins[BOT] = self.margins[BOT] + self.barSize end
     end
     if type(spec.scrollbarOptions) == "table" then
-      self.scrollbarOptions = spec.scrollbarOptions
+      self.scrollbarOptions = respec.elements.ScrollbarOptions(spec.scrollbarOptions)
     end
     local scrollbarSpec = get_scrollbar_spec_for_container(self, spec)
     self.scrollbar = respec.elements.Scrollbar(scrollbarSpec)
@@ -427,9 +427,12 @@ function respec.elements.ScrollContainer:to_formspec_string(ver, persist)
   local str = {}
   local sbid = self.externalScrollbar or ""
   if self.scrollbar then sbid = self.scrollbar.internalId or "" end
-  str[#str + 1] = make_elem(self, pos_and_size(self), sbid, self.orientation, self.scrollFactor, "0")
-  str[#str + 1] = self.layout:to_formspec_string(ver, persist)
-  str[#str + 1] = fsmakeelem("scroll_container_end")
+  if self.scrollbarOptions then
+    str[#str+1] = self.scrollbarOptions:to_formspec_string()
+  end
+  str[#str+1] = make_elem(self, pos_and_size(self), sbid, self.orientation, self.scrollFactor, "0")
+  str[#str+1] = self.layout:to_formspec_string(ver, persist)
+  str[#str+1] = fsmakeelem("scroll_container_end")
   return table.concat(str, "")
 end
 
@@ -539,6 +542,7 @@ local function valid_arrows(arrowStr)
 end
 respec.elements.ScrollbarOptions = Class(respec.Element)
 function respec.elements.ScrollbarOptions:init(spec)
+  respec.Element.init(self, elemInfo.scrollbaroptions)
   self.min = num_or(spec.min, 0)
   self.max = num_or(spec.max, 1000)
   self.sstep = num_or(spec.smallstep, 10)
@@ -549,7 +553,7 @@ end
 -- override
 function respec.elements.ScrollbarOptions:to_formspec_string(_, _)
   return make_elem(self, 
-  "min="..self.min, "max="..self.max, "smallstep="..self.sstep, "largestep="..self.lstep,
-  "thumbsize="..self.thumb, "arrows="..self.arrows
-)
+    "min="..self.min, "max="..self.max, "smallstep="..self.sstep, "largestep="..self.lstep,
+    "thumbsize="..self.thumb, "arrows="..self.arrows
+  )
 end

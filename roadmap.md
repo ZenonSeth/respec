@@ -37,8 +37,7 @@ Checked ones are done (or mostly done).
 - [x] `listring`: Maybe worth rethinking this one
 - [x] `list` : Needs special attention since w/h are specified in num slots, not size
 - [x] `listcolors` : probably leave it as standalone element since it can apply to multiple lists
-- [ ] `tooltip` : gui_element_name ones should be build into each `PhysicalElement`
-- [ ] `tooltip` : area tooltip as standalone element
+- [x] `tooltip` : gui_element_name ones should be build into each `PhysicalElement`
 - [ ] `image`
 - [ ] `animated_image`
 - [ ] `model`

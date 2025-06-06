@@ -21,6 +21,7 @@ respec.elements = {} -- init this table here
 local Class = respec.util.Class
 local log_warn = respec.log_warn
 local log_error = respec.log_error
+local str_or = respec.util.str_or
 
 local elementsWithName = {
   animated_image = true, model = true, pwdfield = true, field = true,
@@ -247,7 +248,7 @@ end
 -- formspecVersion: an int, the current formspec version
 -- persist: A data object that persists throughout the layout process.
 --   persist.state is the From's `state` object
-function respec.Element:to_formspec_string(formspecVersion, persist)
+function respec.Element:to_formspec_string(formspecVersion, persist, layout)
   log_warn("called base to_formspec_string") ; return ""
 end
 
@@ -284,6 +285,7 @@ function respec.PhysicalElement:init(fselem, spec)
       w = UNSET, h = UNSET, -- the actual elements (not bounds) w/h
       xOffset = 0, yOffset = 0 -- customX/Y add an offset
   }
+  self.tooltip = str_or(spec.tooltip)
   self.style = get_valid_style(self.fsName, spec.style)
   -- self.on_interact = function(...) end -- to be overwritten by interactive elements
 

@@ -311,11 +311,13 @@ local form2 = respec.Form({
       elem.ScrollContainer{
         id = "sc1",
         w = 4, h = 4, below = "lbl1", after = "obbf",
-        orientation = "horizontal",
+        -- orientation = "horizontal",
         customBorderColor = "#FFF",
+        -- scrollbarOptions = { arrows = "hide" },
         elements = {
           elem.Button {
             id = "btn1", text = init.btn1text, toStart = true, paddingsHor = 0.5, paddingsVer = 0.1,
+            tooltip = "This is just one button!",
           },
           elem.Button {
             id = "btn2", w = 0, h = 1.5, toStart = true, text = "Hey 2", below = "btn1", before = "btn3",
@@ -325,6 +327,7 @@ local form2 = respec.Form({
           },
           elem.Label {
             text = "Just some random text\nthat goes down below", w = 0, center_hor = true, below = "btn3",
+            tooltip = "This is a tooltip on a label!",
           }
         },
         -- scrollbarListener = function(st, ex, f)

@@ -8,6 +8,7 @@ local LFT = con.left
 local RGT = con.right
 local VISIBLE = con.visible
 local log_error = respec.log_error
+local str_or = respec.util.str_or
 
 local layoutCount = 0
 local function unique_layout_id()
@@ -43,14 +44,24 @@ local function get_style_string_for_element(elem)
 end
 
 local fs_elem_box = respec.internal.fs_elem_box
-local function add_common_physical_formspec_string(elem, str)
-  local ret = str
-  ret = get_style_string_for_element(elem)..str -- the style must be defined before the element
-  ret = fs_elem_box(elem)..ret -- adds the debug backgrounds, checks if debug is on
+local fs_elem = respec.util.fs_make_elem
+local function add_common_physical_formspec_string(elem, str, layout)
+  local ret = { fs_elem_box(elem), get_style_string_for_element(elem), str} -- the style must be defined before the element
   if not elem.disableCustom and type(elem.borderColor) == "string" then
-    ret = ret..fs_elem_box(elem, true, elem.borderColor)
+    ret[#ret+1] = fs_elem_box(elem, true, elem.borderColor)
   end
-  return ret
+  if elem.tooltip then
+    if elem.info.inFields > 0 then
+      ret[#ret+1] = fs_elem("tooltip", elem.internalId, elem.tooltip, layout.tooltipBg, layout.tooltipFont)
+    else
+      local x = tostring(elem.measured[LFT] + elem.margins[LFT] + elem.measured.xOffset)
+      local y = tostring(elem.measured[TOP] + elem.margins[TOP] + elem.measured.yOffset)
+      local w = tostring(elem.measured.w)
+      local h = tostring(elem.measured.h)
+      ret[#ret+1] = fs_elem("tooltip", x..","..y, w..","..h, elem.tooltip, layout.tooltipBg, layout.tooltipFont)
+    end
+  end
+  return table.concat(ret, "")
 end
 
 local num_or = respec.util.num_or
@@ -104,6 +115,8 @@ function respec.Layout:init(spec)
   self.paddings = get_paddings(spec)
   self.defaultMargins = get_default_element_margins(spec)
   self.serialized = nil
+  self.tooltipBg = str_or(spec.tooltipBgColor)
+  self.tooltipFont = str_or(spec.tooltipFontColor)
 end
 local function do_add(self, element, idGen)
   element.internalId = idGen:id()
@@ -172,9 +185,9 @@ function respec.Layout:to_formspec_string(formspecVersion, persist)
     for _, el in ipairs(self.elements) do
       if el.fsName ~= nil then
         if el.physical == false then
-          table.insert(tbl, el:to_formspec_string(formspecVersion, persist))
+          tbl[#tbl+1] = el:to_formspec_string(formspecVersion, persist)
         elseif el.visibility == VISIBLE then
-          table.insert(tbl, add_common_physical_formspec_string(el, el:to_formspec_string(formspecVersion, persist)))
+          tbl[#tbl+1] = add_common_physical_formspec_string(el, el:to_formspec_string(formspecVersion, persist, self), self)
         end
       end
     end

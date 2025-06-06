@@ -114,6 +114,11 @@ There are some entires in the `state` table that have special meaning (see [Show
      -- sets before/after margins to 4 and above/below ,margins to 2
     defaultElementMargins = { before = 3, after = 3, above = 3, below = 4 }
      -- sets the default margins to given values
+    
+    tooltipBgColor = "#RRGGBB",
+    -- Optional, sets the background color for any tooltips in this form
+    tooltipFontColor = "#RRGGBB",
+    -- Optional, sets the font color for any tooltips in this form
  }
 ```
 ## `builderFunction`
@@ -345,13 +350,19 @@ This spec is common between all physical elements, and each Physical Element has
   
   w = 3, -- or width = 3, 
   -- Usually required. Some elements support wrap_content.
-  -- For these elements, not specifying a width assumes wrap_content: Label, Checkbox, Button
+  -- For these elements not specifying a width assumes wrap_content: Label, Checkbox, Button
+  -- Otherwise a value of 0 is assumed.
   -- Set to 0 and use start+end constraints to let constraints determine width
   
   h = 3, -- or height = 3,
   -- Usually required. Some elements support wrap_content.
-  -- For these elements, not specifying a height assumes wrap_content: Label, Checkbox, Button
+  -- For these elements not specifying a height assumes wrap_content: Label, Checkbox, Button
+  -- Otherwise a value of 0 is assumed.
   -- Set to 0 and use top+bottom constraints to let constraints determine height
+
+  tooltip = "Tooltip text to show",
+  -- Optional.
+  -- Sets the tooltip to show when user hovers mouse over this element.
 
   visibility = respec.const.visible,
   -- Optional. Default value is `visible`
@@ -844,6 +855,8 @@ Corresponds to formspec `scrollbar`
 ```lua
   respec.elements.Scrollbar(spec)
 ```
+Note that you **do not need** to create a `Scrollbar` for each `ScrollContainer` - the `ScrollContainer` will make and position its own `Scrollbar`, unless specified otherwise.
+
 spec:
 ```lua
 {
@@ -859,7 +872,6 @@ spec:
   -- `fields` is the map of value of the fields in the form
 }
 ```
-Note that you **do not need** to create your own `Scrollbar` for each `ScrollContainer` - the `ScrollContainer` can make and position its own `Scrollbar` internally, unless specified otherwise.
 
 # Utility Methods
 
