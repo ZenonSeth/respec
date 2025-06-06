@@ -4,11 +4,9 @@
 - `wrap_contents` width for certain elements:
   - [x] Labels
   - [x] Buttons
-  - [ ] Vert Label
-  - [ ] ButtonUrl
+  - [x] Vert Label
   - [x] Checkbox
   - [ ] Use `core.get_player_window_information(player_name)` to scale on 5.7+ clients
-- Nested Layout handling in elements that require it
 
 ## Stretch goals
 - [DONE] Element Chains: same as constraint layout chains
