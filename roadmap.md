@@ -53,12 +53,12 @@ Checked ones are done (or mostly done).
 - [x] `hypertext`
 - [x] `vertlabel` : Added as flag on existing Label
 - [x] `button`
-- [ ] `button_url`
+- [x] `button_url`
 - [x] `set_focus` : Implemented as part of Form's specification
 - [ ] `image_button` : optional params noclip, drawborder, pressed texture name
 - [ ] `item_image_button`
 - [x] `button_exit` : incorporate as flag into regular button
-- [ ] `button_url_exit` : incorporate as flag into regular button_url
+- [x] `button_url_exit` : incorporated as flag into regular button_url
 - [ ] `image_button_exit` : incorporate as flag into regular image_button
 - [ ] `textlist` : optional params selected idx, transparent
 - [ ] `tabheader` : may support requiring height - maybe

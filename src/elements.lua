@@ -237,6 +237,24 @@ function respec.elements.Button:to_formspec_string(_, _)
 end
 
 ----------------------------------------------------------------
+-- ButtonUrl (button_url)
+----------------------------------------------------------------
+respec.elements.ButtonUrl = Class(respec.PhysicalElement)
+function respec.elements.ButtonUrl:init(spec)
+  local ei = elemInfo.button_url ; if spec.exit == true then ei = elemInfo.button_url_exit end
+  respec.PhysicalElement.init(self, ei, spec)
+  self.url = str_or(spec.url, "")
+  self.txt = str_or(spec.text, self.url)
+  if type(spec.onClick) == "function" then
+    self.on_interact = spec.onClick
+  end
+end
+-- override
+function respec.elements.ButtonUrl:to_formspec_string(_, _)
+  return make_elem(self, pos_and_size(self), self.internalId, self.txt, self.url)
+end
+
+----------------------------------------------------------------
 -- checkbox
 ----------------------------------------------------------------
 respec.elements.Checkbox = Class(respec.PhysicalElement)

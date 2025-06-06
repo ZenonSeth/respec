@@ -625,15 +625,15 @@ spec:
 {
   w, h, -- Optional. Support respec.const.wrap_content. If absent, defaults to wrap_content
 
+  text = "Button text",
+  -- Optional. String to be shown in Button
+  
   paddings = 3, -- set all 4 paddings to 3
   paddingsHor = 2, paddingsVer = 5, -- sets horizontal paddings to  2, and vertical paddings to 5
   -- All 3 are Optional. Only used when w/h are wrap_content.
   -- Unlike margins (common to all elements), this padding adds space inside the Button itself,
   -- This results in more space between the button's edge and the inner text.
 
-  text = "Button text",
-  -- Optional. String to be shown in Button
-  
   exit = true, -- Optional
   -- If set to true, button will close the form upon click. Default is false.
   -- the onClick listener will be called even when this is set to true
@@ -1000,6 +1000,35 @@ spec:
   -- `state` is the form's state, can be modified here.
   -- `value` is the value of the action, usually encoded as "action:name"
   -- `fields` is the map of value of the fields in the form
+}
+```
+
+## ButtonUrl
+Corresponds to formspec `button_url` and `button_url_exit`
+```lua
+  respec.elements.ButtonUrl(spec)
+```
+This element does not support wrapping width/height, and those must be specified or aligned.
+
+spec:
+```lua
+{
+  text = "Text to show on the button",
+  -- Optional. If not present, defaults to `url` instead
+
+  url = "http://luanti.org",
+  -- Required. Must be a valid URL starting with `http://` or `https://`
+
+  exit = true, -- Optional
+  -- If set to true, button will close the form upon click. Default is false.
+  -- the onClick listener will be called even when this is set to true
+
+  onClick = function(state, fields) return true end,
+  -- a function to be called when the button is clicked
+  -- `state` is the form's state, can be modified here.
+  -- `fields` is the map of value of the fields in the form
+  -- Note that only fields with specified IDs will be present
+  -- if reshowOnInteract is false, then return `true` from this function to re-show the formspec
 }
 ```
 
