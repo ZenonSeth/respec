@@ -48,7 +48,7 @@ Checked ones are done (or mostly done).
 - [x] `field`
 - [x] `field_enter_after_edit` : incorporated as flag in regular field
 - [x] `field_close_on_enter` : incorporated as flag in regular field
-- [ ] `textarea`
+- [x] `textarea`
 - [x] `label`
 - [ ] `hypertext`
 - [ ] `vertlabel` : hmm maybe a flag on existing label? depends

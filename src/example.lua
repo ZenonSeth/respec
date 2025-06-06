@@ -343,11 +343,19 @@ local form2 = respec.Form({
         end
       },
       elem.Image {
+        id = "img1",
         toTop = true,
         after = "btn4", toEnd = true, h = 2,
         image = "test_anim8.png",
         ratio = 1,
         frameCount = 8, frameTime = 500,
+      },
+      elem.TextArea {
+        label = "TextArea:",
+        h = 2, toEnd = true,
+        below = "img1",
+        after = "sc1",
+        text = "Hey there, this is a read-only text area! To make it editable, set an ID to this element"
       }
 
   } end)

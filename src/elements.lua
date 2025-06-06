@@ -525,6 +525,32 @@ function respec.elements.ItemImage:to_formspec_string(_, _)
 end
 
 ----------------------------------------------------------------
+-- TextArea
+----------------------------------------------------------------
+respec.elements.TextArea = Class(respec.PhysicalElement)
+function respec.elements.TextArea:init(spec)
+  respec.PhysicalElement.init(self, elemInfo.textarea, spec)
+  self.label = str_or(spec.label, "")
+  self.txt = str_or(spec.text, "")
+end
+-- override
+function respec.elements.TextArea:before_measure(persist)
+  if self.label ~= "" then
+    if self.margins[TOP] == UNSET then
+      local ms = measure_text(self.label, persist.playerName)
+      self.margins[TOP] = ms.height
+    end
+  end
+end
+
+-- override
+function respec.elements.TextArea:to_formspec_string(_, _)
+  update_measurements_to_fit_aspect_ratio(self.measured, self.ratio)
+  local id = self.internalId ; if self.id == "" then id = "" end
+  return make_elem(self, pos_and_size(self), id, self.label, self.txt)
+end
+
+----------------------------------------------------------------
 -- Non-Physical Elements
 ----------------------------------------------------------------
 
@@ -549,7 +575,7 @@ function respec.elements.ListRing:to_formspec_string(_, persist)
 end
 
 ----------------------------------------------------------------
--- style_type
+-- StyleType (style_type)
 ----------------------------------------------------------------
 respec.elements.StyleType = Class(respec.Element)
 function respec.elements.StyleType:init(spec)

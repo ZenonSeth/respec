@@ -941,6 +941,38 @@ spec:
   -- If not set, the image stretches to fill out its bounds
 }
 ```
+Styling:
+- Supports type-styling via [StyleType](#styletype) only
+- Supported style properties:<br>
+  `noclip`
+
+## TextArea
+Corresponds to formspec `textarea`
+```lua
+  respec.elements.TextArea(spec)
+```
+spec:
+```lua
+{
+  id = "unique_id" -- inherited from physical element.
+  -- This is optional - but if its not specified, the area becomes Read-Only, its
+  -- normal background won't be drawn, and its value won't be send via `fields`
+
+  label = "Text to show above text area"
+  -- Optional. Shows a small label above the text area.
+  -- Note: Setting this label will automatically add a marginTop the TextArea,
+  -- to allow for room for the Label to be drawn above the field.
+  -- If you then set marginTop in any other way, it will override the automatic margin
+
+  text = "default text to show"
+  -- The text to show in the TextArea
+}
+```
+Styling:
+- Supports per-element `style` entry in their spec, ONLY if `id` is set
+- Supports type-styling via [StyleType](#styletype)
+- Supported style properties:<br>
+  `border`, `font`, `font_size`, `noclip`, `textcolor`
 
 # Utility Methods
 
