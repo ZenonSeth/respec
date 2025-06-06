@@ -367,6 +367,17 @@ local form2 = respec.Form({
         after = "sc1",
         text = "Hey there, this is a read-only text area! To make it editable, set an ID to this element"
       },
+      -- elem.ImageButton {
+      --   id = "imgbtn",
+      --   h = 0.5, below = "sc1", centerHor = "sc1",
+      --   label = "img btn",
+      --   image = "test.png",
+      --   onClick = function(state, fields)
+      --     d.log("Got on IMG BTN click!")
+      --   end,
+      --   imagePressed = "bgtest.png",
+      --   border = false,
+      -- }
       elem.ButtonUrl {
         id = "ub1",
         h = 0.5, below = "sc1", centerHor = "sc1",

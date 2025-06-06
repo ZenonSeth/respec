@@ -251,7 +251,7 @@ local function on_receive_fields(player, formname, fields)
   local reshow = form.reshowOnInteract
   local functionCalled = false
   for elemId, elem in pairs(interactiveElems) do
-    if fields[elemId] and type(elem.on_interact) == "function" then
+    if fields[elemId] ~= nil and type(elem.on_interact) == "function" then
       local requestedReshow
       if elem.info.inFields == 1 then
         requestedReshow = elem.on_interact(formData.state, translatedFields)

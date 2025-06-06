@@ -255,6 +255,38 @@ function respec.elements.ButtonUrl:to_formspec_string(_, _)
 end
 
 ----------------------------------------------------------------
+-- ImageButton (image_button)
+----------------------------------------------------------------
+respec.elements.ImageButton = Class(respec.PhysicalElement)
+function respec.elements.ImageButton:init(spec)
+  local ei = elemInfo.image_button ; if spec.exit == true then ei = elemInfo.image_button_exit end
+  respec.PhysicalElement.init(self, ei, spec)
+
+  self.img = str_or(spec.image, "")
+  self.label = str_or(spec.label)
+  self.exit = spec.exit == true
+  self.noclip = bool_or(spec.noclip)
+  self.border = bool_or(spec.border)
+  self.imgPressed = str_or(spec.imagePressed)
+  if type(spec.onClick) == "function" then
+    self.on_interact = spec.onClick
+  end
+end
+-- override
+function respec.elements.ImageButton:to_formspec_string(_, _)
+  if self.noclip ~= nil or self.border ~= nil or self.imgPressed then
+    return make_elem(self, pos_and_size(self),
+      self.img, self.internalId, self.label or "",
+      tostring(bool_or(self.noclip, false)),
+      tostring(bool_or(self.border, true)),
+      self.imgPressed or ""
+    )
+  else
+    return make_elem(self, pos_and_size(self), self.img, self.internalId, self.label or "")
+  end
+end
+
+----------------------------------------------------------------
 -- checkbox
 ----------------------------------------------------------------
 respec.elements.Checkbox = Class(respec.PhysicalElement)

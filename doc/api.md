@@ -652,6 +652,42 @@ Styling:
 - Supported style properties:<br>
   `alpha`, `bgcolor`, `bgimg`, `bgimg_middle`, `font`, `font_size`, `border`, `content_offset`, `noclip`, `sound`, `textcolor`
 
+## ImageButton
+Corresponds to formspec `image_button` and `image_button_exit`
+```lua
+  respec.elements.ImageButton(spec)
+```
+This element does not support wrapping width/height, and those must be specified or aligned.
+
+spec:
+```lua
+{
+  image = "texture_name.png",
+  -- Required. The texture to display inside the button
+
+  label = "Some label",
+  -- Text to show over the image, centered in the button
+
+  exit = true, -- Optional
+  -- If set to true, button will close the form upon click. Default is false.
+  -- the onClick listener will be called even when this is set to true
+
+  onClick = function(state, fields) return true end,
+  -- a function to be called when the button is clicked
+  -- `state` is the form's state, can be modified here.
+  -- `fields` is the map of value of the fields in the form
+
+  noclip = true, -- Optional, defaults to false
+  -- means the image button doesn't need to be within specified formsize
+
+  border = false, -- Optional, defaults to true
+  -- Whether to draw the button border or not
+
+  pressedImage = "pressed_texture_name.png" -- Optional
+  -- The image to show inside the button when the button is pressed
+}
+```
+
 ## Checkbox
 Corresponds to formspec `checkbox`
 ```lua
