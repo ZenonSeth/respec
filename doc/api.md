@@ -17,6 +17,8 @@ respec.Form(specFunction, builderFunction)
 ## State
 Forms have a concept of `state` - a lua table that persists from the `show(..)` function, until the form is closed.
 
+While you can put any data you want in the state, there's one field you shouldn't set - that is `state.rintern` - which is used for internally stored data to make some elements function much easier.
+
 The initial table can be given to a form's `show()` function, and the `state` is passed when creating the form, as well as to any event-handler functions in each element (e.g. button click listeners) where the `state` can be modified to change what is displayed on the form.
 
 There are some entires in the `state` table that have special meaning (see [Showing Form From Rightclick](#showing-a-form-for-a-nodes-on_rightclick)):
@@ -847,7 +849,6 @@ spec:
 {
   id = "id", -- inherited from common formspec, used as the scrollbar's name
   orientation = "horizontal", -- or "vertical", or "h"/"v" for shorthand
-  value = "0-1000", -- Optional, defaults to "0-1000" if absent
   
   listener = function(state, explodedEvent, fields),
   -- Optional, the function to call when a scrollbar event happens.

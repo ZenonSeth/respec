@@ -70,7 +70,7 @@ local function set_dynamic_size_if_possible(element, measured, margins)
   if measured.w == UNSET then
     if element.width == 0 then -- width set from aligns
       if measured[LFT] ~= UNSET and measured[RGT] ~= UNSET then
-        measured.w = min0(measured[RGT] - measured[LFT]) - min0(margins[RGT]) - min0(margins[LFT])
+        measured.w = min0(measured[RGT] - measured[LFT]) - margins[RGT] - margins[LFT]
       end
     -- elseif element.width == con.wrap_content -- TODO - currently only supported for Layout which is handled elsewhere
     end
@@ -79,7 +79,7 @@ local function set_dynamic_size_if_possible(element, measured, margins)
   if measured.h == UNSET then
     if element.height == 0 then -- height set from measured y/ey
       if measured[TOP] ~= UNSET and measured[BOT] ~= UNSET then
-        measured.h = min0(measured[BOT] - measured[TOP]) - min0(margins[TOP]) - min0(margins[BOT])
+        measured.h = min0(measured[BOT] - measured[TOP]) - margins[TOP] - margins[BOT]
       end
     -- elseif element.height == con.wrap_content -- TODO - currently only supported for Layout which is handled elsewhere
     end
@@ -428,7 +428,7 @@ local function perform_layout_of_chain(chain, S1, S2, getSize, getBias, getChain
       elem.measured[S1] = start
       local takeUp = fillS * elemProp.w / totW
       elem.measured[S2] = start + takeUp
-      setSize(elem, min0(takeUp - elem.margins[S1] - elem.margins[S2]))
+      setSize(elem, min0(takeUp) - elem.margins[S1] - elem.margins[S2])
       start = start + takeUp + innerSpace
     else
       elem.measured[S1] = start

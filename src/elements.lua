@@ -15,6 +15,7 @@ local str_or =  respec.util.str_or
 local bool_or =  respec.util.bool_or
 local min0 = respec.util.min0
 local log_error = respec.log_error
+local engine = respec.util.engine
 
 local get_valid_style = respec.elements.get_valid_style
 respec.elements.get_valid_style = nil
@@ -74,6 +75,31 @@ local function get_valid_orientation(orientStr)
   end
 end
 
+local function get_scrollbar_spec_for_container(cont, spec)
+  local id = cont.id ; if id == "" then id = cont.internalId end
+  local rs = {
+    w = 0, h = 0,
+    id = id.."_scrollbar",
+    listener = spec.scrollbarListener,
+    orientation = cont.orientation,
+  }
+  local isVert = cont.orientation:sub(1,1) == "v"
+  if isVert then
+    rs.w = cont.barSize
+    rs.h = cont.height
+    rs.center_ver = cont.id
+    rs.after = cont.id
+    rs.margin_start = -cont.margins[RGT]
+  else
+    rs.w = cont.width
+    rs.h = cont.barSize
+    rs.center_hor = cont.id
+    rs.below = cont.id
+    rs.margin_top = -cont.margins[BOT]
+  end
+  return rs
+end
+
 -- minv/maxv in range 0-255
 local function randclrval(minv, maxv)
   return string.format("%x", math.random(minv, maxv))
@@ -94,8 +120,8 @@ end
 -- returns a "x,y" position string
 local function pos_only(obj, customY)
   if not customY then customY = 0 end
-  local x = obj.measured[LFT] + min0(obj.margins[LFT]) + min0(obj.measured.xOffset)
-  local y = obj.measured[TOP] + min0(obj.margins[TOP]) + min0(obj.measured.yOffset) + num_or(customY, 0)
+  local x = obj.measured[LFT] + obj.margins[LFT] + obj.measured.xOffset
+  local y = obj.measured[TOP] + obj.margins[TOP] + obj.measured.yOffset + num_or(customY, 0)
   return ""..x..","..y
 end
 
@@ -349,7 +375,7 @@ end
 ----------------------------------------------------------------
 respec.elements.ScrollContainer = Class(respec.PhysicalElement)
 function respec.elements.ScrollContainer:init(spec)
-  self.scrollContainerElems = spec.elements
+  self.scrollElems = spec.elements
   spec.elements = nil
   respec.PhysicalElement.init(self, elemInfo.scroll_container, spec)
   self.layout = respec.Layout(spec)
@@ -363,32 +389,28 @@ function respec.elements.ScrollContainer:init(spec)
   else
     self.barSize = num_or(spec.scrollbarSize, 0.2)
     if self.barSize <= 0 then self.barSize = 0.2 end
+    if self.orientation:sub(1,1) == "v" then -- vertical
+      if self.margins[RGT] == UNSET then self.margins[RGT] = self.barSize
+      else self.margins[RGT] = self.margins[RGT] + self.barSize end
+    else -- horizontal
+      if self.margins[BOT] == UNSET then self.margins[BOT] = self.barSize
+      else self.margins[BOT] = self.margins[BOT] + self.barSize end
+    end
     if type(spec.scrollbarOptions) == "table" then
       self.scrollbarOptions = spec.scrollbarOptions
     end
-    local id = self.id
-    if id == "" then id = self.internalId end
-    self.scrollbar = respec.elements.Scrollbar {
-      id = id.."_scrollbar",
-      listener = spec.scrollbarListener,
-      orientation = self.orientation
-    }
+    local scrollbarSpec = get_scrollbar_spec_for_container(self, spec)
+    self.scrollbar = respec.elements.Scrollbar(scrollbarSpec)
   end
 end
 -- when added to parent layout
-function respec.elements.ScrollContainer:on_added(idGen, idsTable, fieldEleemsById)
-  self.layout:set_elements(self.scrollContainerElems, idGen, idsTable, fieldEleemsById)
+function respec.elements.ScrollContainer:on_added(idGen, layout)
+  self.layout:set_elements(self.scrollElems, idGen, layout.ids, layout.fieldElemsById)
+  return { self.scrollbar }
 end
 -- before being measured
 function respec.elements.ScrollContainer:before_measure(persist)
   self.layout.playerName = persist.playerName
-  if self.orientation:sub(1,1) == "v" then -- vertical
-    if self.margins[RGT] == UNSET then self.margins[RGT] = self.barSize
-    else self.margins[RGT] = self.margins[RGT] + self.barSize end
-  else -- horizontal
-    if self.margins[BOT] == UNSET then self.margins[BOT] = self.barSize
-    else self.margins[BOT] = self.margins[BOT] + self.barSize end
-  end
 end
 -- after measured is complete
 function respec.elements.ScrollContainer:after_measure()
@@ -399,33 +421,15 @@ function respec.elements.ScrollContainer:after_measure()
     self.layout.width = WRAP ; self.layout.height = self.height
   end
   self.layout:measure(true)
-  if self.scrollbar then
-    local mm = self.measured
-    local sm = self.scrollbar.measured
-    if isVert  then -- vertical
-      sm.w = self.barSize ; sm.h = mm.h;  sm.xOffset = mm.xOffset ; sm.yOffset = mm.yOffset
-      sm[LFT] = mm[RGT] - self.margins[RGT] + mm.xOffset
-      sm[RGT] = mm[RGT] - self.margins[RGT] + mm.xOffset + self.barSize
-      sm[TOP] = mm[TOP] + self.margins[TOP] + mm.yOffset
-      sm[BOT] = mm[BOT] - self.margins[BOT] + mm.yOffset
-    else -- horizontal
-      sm.w = mm.w ; sm.h = self.barSize; sm.xOffset = mm.xOffset ; sm.yOffset = mm.yOffset
-      sm[LFT] = mm[LFT] - self.margins[LFT] + mm.xOffset
-      sm[RGT] = mm[RGT] - self.margins[RGT] + mm.xOffset
-      sm[TOP] = mm[BOT] - self.margins[BOT] + mm.yOffset
-      sm[BOT] = mm[BOT] - self.margins[BOT] + mm.yOffset + self.barSize
-    end
-  end
 end
 -- override
 function respec.elements.ScrollContainer:to_formspec_string(ver, persist)
   local str = {}
   local sbid = self.externalScrollbar or ""
-  if self.scrollbar then sbid = self.scrollbar.id or "" end
+  if self.scrollbar then sbid = self.scrollbar.internalId or "" end
   str[#str + 1] = make_elem(self, pos_and_size(self), sbid, self.orientation, self.scrollFactor, "0")
   str[#str + 1] = self.layout:to_formspec_string(ver, persist)
   str[#str + 1] = fsmakeelem("scroll_container_end")
-  str[#str + 1] = self.scrollbar:to_formspec_string(ver, persist)
   return table.concat(str, "")
 end
 
@@ -437,10 +441,19 @@ function respec.elements.Scrollbar:init(spec)
   respec.PhysicalElement.init(self, elemInfo.scrollbar, spec)
   self.orientation = get_valid_orientation(spec.orientation)
   self.value = str_or(spec.value, "0-1000")
+  if type(spec.listener) == "function" then
+    self.on_scroll = spec.listener
+    self.on_interact = function(state, value, fields)
+      local ex = engine.explode_scrollbar_event(value)
+      state.rintern[self.internalId] = ex.value
+      self.on_scroll(state, ex, fields)
+    end
+  end
 end
 -- override
 function respec.elements.Scrollbar:to_formspec_string(ver, persist)
-  return make_elem(self, pos_and_size(self),self.orientation, self.id, self.value)
+  local value = persist.state.rintern[self.internalId] or 0
+  return make_elem(self, pos_and_size(self), self.orientation, self.internalId, value)
 end
 
 ----------------------------------------------------------------

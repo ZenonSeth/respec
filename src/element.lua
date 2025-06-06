@@ -285,7 +285,7 @@ function respec.PhysicalElement:init(fselem, spec)
       xOffset = 0, yOffset = 0 -- customX/Y add an offset
   }
   self.style = get_valid_style(self.fsName, spec.style)
-  self.on_interact = function(...) end -- to be overwritten by interactive elements
+  -- self.on_interact = function(...) end -- to be overwritten by interactive elements
 
   self.physical = true
 end

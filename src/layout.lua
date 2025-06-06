@@ -106,12 +106,13 @@ function respec.Layout:init(spec)
   self.serialized = nil
 end
 local function do_add(self, element, idGen)
+  element.internalId = idGen:id()
   if self.serialized then
     -- TODO: check if anything related to layouting has changed, if not return last serialization
   end
-  if type(element.on_added) == "function" then
-    -- it's a sub-layout element
-    element:on_added(idGen, self.ids, self.fieldElemsById)
+  local other = {}
+  if type(element.on_added) == "function" then -- it's a sub-layout element
+    other = element:on_added(idGen, self) -- this returns other elements to add
   end
   local newId = element.id
   if not element.info then return end -- invalid element
@@ -127,6 +128,11 @@ local function do_add(self, element, idGen)
     self.fieldElemsById[element.internalId] = element
   end
   self.elementsGraph:add_element(element)
+  if type(other) == "table" then
+    for i = 1, #other do
+      do_add(self, other[i], idGen)
+    end
+  end
   return self
 end
 
@@ -138,12 +144,13 @@ function respec.Layout:set_elements(elementsList, idGen, optIdTable, optFieldEle
   self.ids = optIdTable or {}
   self.fieldElemsById = optFieldElemById or {}
   for _, element in ipairs(elementsList) do
-    element.internalId = idGen:id()
     do_add(self, element, idGen)
   end
   self.elementsGraph:finish_adding()
   -- cleanup
-  self.ids = nil
+  if not optIdTable then
+    self.ids = nil
+  end
   return self
 end
 
@@ -178,6 +185,5 @@ function respec.Layout:to_formspec_string(formspecVersion, persist)
 end
 
 function respec.Layout:get_interactive_elements()
-  -- TODO handle sub-layouts
   return self.fieldElemsById
 end

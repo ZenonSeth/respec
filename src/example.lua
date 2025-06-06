@@ -289,7 +289,7 @@ local form2 = respec.Form({
     formspec_version = 9,
     paddings = 0.2,
   },
-  function (state)
+  function (init)
 
     local tbl = {"Hi there.. test of scroll container!"}
     -- for C = 0,150,1 do
@@ -315,7 +315,7 @@ local form2 = respec.Form({
         customBorderColor = "#FFF",
         elements = {
           elem.Button {
-            id = "btn1", text = "Hey 1T", toStart = true, paddingsHor = 0.5, paddingsVer = 0.1,
+            id = "btn1", text = init.btn1text, toStart = true, paddingsHor = 0.5, paddingsVer = 0.1,
           },
           elem.Button {
             id = "btn2", w = 0, h = 1.5, toStart = true, text = "Hey 2", below = "btn1", before = "btn3",
@@ -327,6 +327,9 @@ local form2 = respec.Form({
             text = "Just some random text\nthat goes down below", w = 0, center_hor = true, below = "btn3",
           }
         },
+        -- scrollbarListener = function(st, ex, f)
+        --   st.btn1text = tostring(ex.value)
+        -- end,
       },
       elem.Button {
         id = "btn4", w = 2, h = 0.5, text = "After container",

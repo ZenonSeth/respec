@@ -248,8 +248,9 @@ local function on_receive_fields(player, formname, fields)
   local interactiveElems = form.layout:get_interactive_elements()
   local translatedFields = get_translated_fields(fields, interactiveElems)
   local reshow = form.reshowOnInteract
+  local functionCalled = false
   for elemId, elem in pairs(interactiveElems) do
-    if fields[elemId] then
+    if fields[elemId] and type(elem.on_interact) == "function" then
       local requestedReshow
       if elem.info.inFields == 1 then
         requestedReshow = elem.on_interact(formData.state, translatedFields)
@@ -257,6 +258,7 @@ local function on_receive_fields(player, formname, fields)
         requestedReshow = elem.on_interact(formData.state, fields[elemId], translatedFields)
       end
       reshow = requestedReshow or reshow
+      functionCalled = true
     end
   end
 
@@ -266,7 +268,7 @@ local function on_receive_fields(player, formname, fields)
     -- TODO call form on quit func
   end
 
-  if reshow then
+  if functionCalled and reshow then
     form:reshow(playerName)
   end
 
@@ -303,6 +305,7 @@ end
 --]]
 function respec.Form:show(playerName, state)
   state = state or {}
+  state.rintern = {}
   if not setup_form_for_showing(self, state) then return false end
 
   local id = self.id
