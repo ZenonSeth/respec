@@ -46,7 +46,7 @@ end
       text = (iState.title),
       w = respec.const.wrap_content, h = respec.const.wrap_content,
       -- below = "moveupbtn",
-      center_hor = true, -- equivalent of the two commented out lines below
+      centerHor = true, -- equivalent of the two commented out lines below
       -- start_to_parent_start = true,
       -- end_to_parent_end = true,
     },
@@ -57,8 +57,8 @@ end
     --   text = ""..(iState.count or "0"),
     --   area = true, -- no effect unless ver >= 9
     --   below = "title",
-    --   -- margins_hor = 0.25,
-    --   -- margins_ver = 0.25,
+    --   -- marginsHor = 0.25,
+    --   -- marginsVer = 0.25,
     -- },
     elem.Field {
       id = "field1",
@@ -79,8 +79,8 @@ end
       text = "Set Title",
       below = "field1",
       alignStart = "field1",
-      margins_ver = 0.25,
-      margins_hor = 0.25,
+      marginsVer = 0.25,
+      marginsHor = 0.25,
       visible = iState.ch1 == true,
       -- borderColor = "#0000FF",
       onClick = function(state, fields)
@@ -141,7 +141,7 @@ end
       text = "You right-clicked on a node at: "..dump(iState.rightclick.pos):gsub("\n"," "),
       below = "btn1",
       margins = 0.1,
-      -- center_hor = true,
+      -- centerHor = true,
       toStart = true,
       -- end_to_parent_end = true,
     },
@@ -182,17 +182,17 @@ end
       below = "label3",
       after = "list_in",
       -- toEnd = true,
-      -- hor_bias = 0.75,
+      -- biasHor = 0.75,
     },
     elem.Label {
       id = "label5",
-      -- margin_end = 1,
+      -- marginEnd = 1,
       text = "What is this?",
       below = "list_main",
       -- after = "list_in",
       toStart = true,
       margins = 0.2,
-      chain_type_hor = respec.const.chain_packed,
+      chainTypeHor = respec.const.chain_packed,
       before = "ch1",
       -- toEnd = true,
     },
@@ -213,7 +213,7 @@ end
       margins = 0.2,
       text = "Btn2 Toggle",
       checked = iState.ch2 == true,
-      center_ver = "ch1",
+      centerVer = "ch1",
       after = "ch1",
       before = "ch3",
       onClick = function(state, fields)
@@ -224,7 +224,7 @@ end
       id = "ch3",
       margins = 0.2,
       text = "Btn3 Toggle",
-      center_ver = "ch1",
+      centerVer = "ch1",
       after = "ch2",
       checked = iState.ch3 == true,
       alingtop = "ch1",
@@ -245,9 +245,9 @@ end
     --   id = "moveupbtn",
     --   w = 1, h = 0.3, margins = 0,
     --   toTop = true,
-    --   center_hor = true,
+    --   centerHor = true,
     --   text = "^",
-    --   margin_top = -0.2, -- negative margins are allowed, though may not work as expected
+    --   marginTop = -0.2, -- negative margins are allowed, though may not work as expected
     --   onClick = function(state)
     --     state.posy = math.max(state.posy - mv, 0)
     --   end
@@ -255,8 +255,8 @@ end
     -- elem.Button {
     --   w = 1, h = 0.3, margins = 0,
     --   toBottom = true,
-    --   center_hor = true,
-    --   margin_bottom = -0.2, -- negative margins are allowed, though may not work as expected
+    --   centerHor = true,
+    --   marginBottom = -0.2, -- negative margins are allowed, though may not work as expected
     --   text = "v",
     --   onClick = function(state)
     --     state.posy = math.max(state.posy + mv, 0)
@@ -265,8 +265,8 @@ end
     -- elem.Button {
     --   w = 0.3, h = 1, margins = 0,
     --   toStart = true,
-    --   center_ver = true,
-    --   margin_start = -0.2, -- negative margins are allowed, though may not work as expected
+    --   centerVer = true,
+    --   marginStart = -0.2, -- negative margins are allowed, though may not work as expected
     --   text = "<",
     --   onClick = function(state)
     --     state.posx = math.max(state.posx - mv, 0)
@@ -275,8 +275,8 @@ end
     -- elem.Button {
     --   w = 0.3, h = 1, margins = 0,
     --   toEnd = true,
-    --   center_ver = true,
-    --   margin_end = -0.2, -- negative margins are allowed, though may not work as expected
+    --   centerVer = true,
+    --   marginEnd = -0.2, -- negative margins are allowed, though may not work as expected
     --   text = ">",
     --   onClick = function(state)
     --     state.posx = math.max(state.posx + mv, 0)
@@ -326,7 +326,7 @@ local form2 = respec.Form({
             id = "btn3", w = 3, h = 3.5, after = "btn1", text = "Hey 3", below = "btn1"
           },
           elem.Label {
-            text = "Just some random text\nthat goes down below", w = 0, center_hor = true, below = "btn3",
+            text = "Just some random text\nthat goes down below", w = 0, centerHor = true, below = "btn3",
             tooltip = "This is a tooltip on a label!",
           }
         },

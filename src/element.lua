@@ -131,18 +131,18 @@ local function get_margins(spec)
     local mg = spec.margins
     margins[TOP] = mg ; margins[BOT] = mg ; margins[LFT] = mg ; margins[RGT] = mg
   end
-  if is_num(spec.margins_hor) then
-    local mg = spec.margins_hor
+  if is_num(spec.marginsHor) then
+    local mg = spec.marginsHor
     margins[LFT] = mg ; margins[RGT] = mg
   end
-  if is_num(spec.margins_ver) then
-    local mg = spec.margins_ver
+  if is_num(spec.marginsVer) then
+    local mg = spec.marginsVer
     margins[TOP] = mg ; margins[BOT] = mg
   end
-  if is_num(spec.margin_top) then margins[TOP] = spec.margin_top end
-  if is_num(spec.margin_bottom) then margins[BOT] = spec.margin_bottom end
-  if is_num(spec.margin_start) then margins[LFT] = spec.margin_start end
-  if is_num(spec.margin_end) then margins[RGT] = spec.margin_end end
+  if is_num(spec.marginTop) then margins[TOP] = spec.marginTop end
+  if is_num(spec.marginBottom) then margins[BOT] = spec.marginBottom end
+  if is_num(spec.marginStart) then margins[LFT] = spec.marginStart end
+  if is_num(spec.marginEnd) then margins[RGT] = spec.marginEnd end
 
   return margins
 end
@@ -154,8 +154,8 @@ local function get_align(spec)
   local al = {ref = "", side = UNSET}
   local ar = {ref = "", side = UNSET}
 
-  local chor = spec.center_hor
-  local cver = spec.center_ver
+  local chor = spec.centerHor
+  local cver = spec.centerVer
   if chor == true then al.side = PARENT ; ar.side = PARENT
   elseif is_str(chor) then
     al.ref = chor ; al.side = LFT
@@ -273,13 +273,13 @@ function respec.PhysicalElement:init(fselem, spec)
   self.visibility = get_visibility(spec)
   self.margins = get_margins(spec) -- the margins
   self.align = get_align(spec)
-  self.horBias = valid_bias(spec.hor_bias)
-  self.verBias = valid_bias(spec.ver_bias)
+  self.horBias = valid_bias(spec.biasHor)
+  self.verBias = valid_bias(spec.biasVer)
   self.borderColor = spec.customBorderColor
-  self.chainTypeHor = valid_chain_type(spec.chain_type_hor)
-  self.chainTypeVer = valid_chain_type(spec.chain_type_ver)
-  self.chainWeightHor = valid_weight(spec.chain_weight_hor)
-  self.chainWeightVer = valid_weight(spec.chain_weight_hor)
+  self.chainTypeHor = valid_chain_type(spec.chainTypeHor)
+  self.chainTypeVer = valid_chain_type(spec.chainTypeVer)
+  self.chainWeightHor = valid_weight(spec.chainWeightHor)
+  self.chainWeightVer = valid_weight(spec.chainWeightVer)
   self.measured = { -- represents the location of the outer bounds that include margins
       [TOP] = UNSET, [BOT] = UNSET, [LFT] = UNSET, [RGT] = UNSET,
       w = UNSET, h = UNSET, -- the actual elements (not bounds) w/h

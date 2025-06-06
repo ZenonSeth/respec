@@ -87,15 +87,15 @@ local function get_scrollbar_spec_for_container(cont, spec)
   if isVert then
     rs.w = cont.barSize
     rs.h = cont.height
-    rs.center_ver = cont.id
+    rs.centerVer = cont.id
     rs.after = cont.id
-    rs.margin_start = -cont.margins[RGT]
+    rs.marginStart = -cont.margins[RGT]
   else
     rs.w = cont.width
     rs.h = cont.barSize
-    rs.center_hor = cont.id
+    rs.centerHor = cont.id
     rs.below = cont.id
-    rs.margin_top = -cont.margins[BOT]
+    rs.marginTop = -cont.margins[BOT]
   end
   return rs
 end

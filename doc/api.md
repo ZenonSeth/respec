@@ -381,12 +381,12 @@ This spec is common between all physical elements, and each Physical Element has
 -- If multiple are present, then more specific margins override the more general ones
 
   margins = 4, -- sets all margins to 4
-  margins_hor = 5, -- sets both start and end margins to 5
-  margins_ver = 3, -- sets both top and bottom margins to 3
-  margin_start = 1, -- sets start margin to 1
-  margin_end = 1, -- sets the end margin to 1
-  margin_top = 1, -- sets the top margin to 1
-  margin_bottom = 1, -- sets the bottom margin to 1
+  marginsHor = 5, -- sets both start and end margins to 5
+  marginsVer = 3, -- sets both top and bottom margins to 3
+  marginStart = 1, -- sets start margin to 1
+  marginEnd = 1, -- sets the end margin to 1
+  marginTop = 1, -- sets the top margin to 1
+  marginBottom = 1, -- sets the bottom margin to 1
 
 -- Alignment: All alignments are optional.
 -- If no vertical alignment specified, top_to_parent_top is assumed.
@@ -398,75 +398,69 @@ This spec is common between all physical elements, and each Physical Element has
 -- Aligning to elements which have visibility = gone is allowed, and the alignment
 -- will instead inherit the gone element's alignment
 
-  top_to_top_of = "other_id",
-  -- aligns the top of this element to the top of another element with the provided "other_id"
-
-  top_to_bottom_of = "other_id",
-  -- aligns the top of this element to the bottom of another element with the provided "other_id"
-
-  top_to_parent_top = true,
+  alignTop = "other_id",
+  -- aligns the top of this element to the top of the element with id "other_id"
+  alignBottom = "other_id",
+  -- aligns the bottom of this element to the bottom of the element with id "other_id"
+  alignStart = "other_id",
+  -- aligns the start of this element to the start of the element with id "other_id"
+  alignEnd = "other_id",
+  -- aligns the end of this element to the end of the element with id "other_id"
+  
+  below = "other_id",
+  -- aligns the top of this element to the bottom of the element with id "other_id"
+  above = "other_id",
+  -- aligns the bottom of this element to the top of the element with id "other_id"
+  before = "other_id",
+  -- aligns the end of this element to the start of the element with id "other_id"
+  after = "other_id"
+  -- aligns the start of this element to the end of the element with id "other_id"
+  
+  toTop = true,
   -- when set to `true`, aligns the top of the element to the parent Layout's top
-
-  bottom_to_top_of = "other_id",
-  -- aligns the bottom of this element to the top of another element with the provided "other_id"
-
-  bottom_to_bottom_of = "other_id",
-  -- aligns the bottom of this element to the bottom of another element with the provided "other_id"
-
-  bottom_to_parent_bottom = true,
-  -- whenever set to `true`, aligns the bottom of the element to the parent Layout's bottom
-
-  start_to_start_of = "other_id",
-  -- aligns the start of this element to the start of another element with the provided "other_id"
-
-  start_to_end_of = "other_id",
-  -- aligns the start of this element to the end of another element with the provided "other_id"
-
-  start_to_parent_start = true,
+  toBottom = true,
+   -- whenever set to `true`, aligns the bottom of the element to the parent Layout's bottom
+  toStart = true,
   -- when set to `true, aligns the start of the element to the parent Layout's start
-
-  end_to_start_of = "other_id",
-  -- aligns the end of this element to the start of another element with the provided "other_id"
-
-  end_to_end_of = "other_id",
-  -- aligns the end of this element to the end of another element with the provided "other_id"
-
-  end_to_parent_end = true,
+  toEnd = true,
   -- when set to `true, aligns the end of the element to the parent Layout's end
+  
+  centerHor = true,
+  -- shorthand for setting both `toStart` and `toEnd` to true
+  centerVer = true,
+  -- shorthand for setting both `toTop` and `toBottom` to true
+  centerHor = "other_id",
+  -- shorthand for setting both `alignStart="other_id"` and `alignEnd="other_id"`
+  centerVer = "other_id",
+  -- shorthand for specifying both `alignTop="other_id"` and `alignBottom="other_id"`
 
-  -- Shorthand align flags
-  -- The above flags are more technically correct, but they are verbose.
-  -- The following flags do the same as the above, but are easier to write:
-  alignTop = "other_id",    -- shorthand for top_to_top_of
-  alignBottom = "other_id", -- shorthand for bottom_to_bottom_of
-  alignStart = "other_id",  -- shorthand for start_to_start_of
-  alignEnd = "other_id",    -- shorthand for end_to_end_of
+  -- Verbose alignment flags - do the same as the above flags, but in a more descriptive way.
+  -- Can be used instead of shorter versions above
+  top_to_top_of = "other_id", -- same as `alignTop`
+  top_to_bottom_of = "other_id", -- same as `below`
+  top_to_parent_top = true, -- same as `toTop`
+  bottom_to_top_of = "other_id", -- same as `above`
+  bottom_to_bottom_of = "other_id", -- same as `alignBottom`
+  bottom_to_parent_bottom = true, -- same as `toBottom`
+  start_to_start_of = "other_id", -- same as `alignStart`
+  start_to_end_of = "other_id", -- same as `after`
+  start_to_parent_start = true, -- same as `toStart`
+  end_to_start_of = "other_id", -- same as `before`
+  end_to_end_of = "other_id", -- same as `alignEnd`
+  end_to_parent_end = true, -- same as `toEnd`
   
-  below = "other_id",       -- shorthand for top_to_bottom_of
-  above = "other_id",       -- shorthand for bottom_to_top_of
-  before = "other_id",      -- shorthand for end_to_start_of
-  after = "other_id"        -- shorthand for start_to_end_of
-  
-  toTop = true,             -- shorthand for top_to_parent_top
-  toBottom = true,          -- shorthand for bottom_to_parent_bottom
-  toStart = true,           -- shorthand for start_to_parent_start
-  toEnd = true,             -- shorthand for end_to_parent_end
-  
-  center_hor = true,        -- shorthand for setting both start_to_parent_start and end_to_parent_end
-  center_ver = true,        -- shorthand for setting both top_to_parent_top and bottom_to_parent_bottom
-  center_hor = "other_id",  -- shorthand for setting both start_to_start_of="other_id" and end_to_end_of="other_id"
-  center_ver = "other_id",  -- shorthand for specifying both top_to_top_of="other_id" and bottom_to_bottom_of="other_id"
+  -- Chain defs --
 
-  chain_type_hor = respec.const.chain_packed,
-  chain_type_ver = respec.const.chain_packed,
+  chainTypeHor = respec.const.chain_packed,
+  chainTypeVer = respec.const.chain_packed,
   -- Optional
   -- respec.const.chain_packed or respec.const.chain_spread, or respec.const.chain_spread_inside
   -- Only the chain_type of the 1st element in the chain is used (and thus other elements don't need to specify it)
   -- See the section on Chains for details on the different chain types and how to create chains
   -- If not set, both default to using Packed
 
-  chain_weight_hor = 1, -- Number, greater than 0
-  chain_weight_ver = 1,
+  chainWeightHor = 1, -- Number, greater than 0
+  chainWeightVer = 1, -- Number, greater than 0
   -- Optional, defaults to 1
   -- IF chain_type is chain_spread or chain_spread_inside, and this element's width is 0, it will attempt to fill out all
   -- the remaining space, shared equally between elements. This doesn't work with chain_packed however.
@@ -476,17 +470,17 @@ This spec is common between all physical elements, and each Physical Element has
 -- When applicable, they shift how far along the element is positioned between its start and end points.
 -- Biases also affect chains - only the bias of the 1st element in the chain is used. See `Chains` section for info
 --
--- For example: an element with start_to_parent_start and end_to_parent_end and hor_bias of 0.5 (the default) will be placed in the center:
+-- For example: an element with start_to_parent_start and end_to_parent_end and biasHor of 0.5 (the default) will be placed in the center:
 -- |    [ELEMENT]      |
--- Setting hor_bias to 0 will place the element to its alignment's start:
+-- Setting biasHor to 0 will place the element to its alignment's start:
 -- |[ELEMENT]          |
--- Setting hor_bias to 1 will place the element to its alignment's end:
+-- Setting biasHor to 1 will place the element to its alignment's end:
 -- |          [ELEMENT]|
 --
 -- Biases apply only when both corresponding side constraints are specified and the corresponding size is fixed (not 0)
-  hor_bias = 0.5,
+  biasHor = 0.5,
   -- the horizontal bias, defaults to 0.5 if not specified. Requires a start and end constraint to be set
-  ver_bias = 0.5,
+  biasVer = 0.5,
   -- the vertical bias, default to 0.5 if not specified. Requires a top and bottom constraint to be set.
 
   style = styleDef, -- see the [Element Style Definition] section below.
@@ -549,7 +543,7 @@ Using `respec.const.chain_spread_inside` results in:
 Where the elements are spread apart by equal distance between themselves, but the first and last are aligned to their start/end side respectively.
 
 ## Chain bias
-The `hor_bias` and `ver_bias` also affect positioning chained elements relative to the sides. Only the bias from the First element in the chain is used.
+The `biasHor` and `biasVer` also affect positioning chained elements relative to the sides. Only the bias from the First element in the chain is used.
 
 Biases of less than 0.5 will result in the chain being positioned closer to its starting side, and greater than 0.5 will result in the chain being positioned closer to its ending side. Note that biases do not affect `chain_spread_inside` at all.
 
@@ -559,7 +553,7 @@ If any element in the chain has set its width to 0 via `w = 0` in its spec, it w
 
 Multiple elements can have their weights set to 0 and will equally attempt to fill out remaining space.
 
-By default each element assumes it has a weight of 1, but this can be overwritten by setting `chain_weight_hor` and `chain_weight_ver` on any element in the chain, and (if that element has a corresponding size of 0), the elements will take proportionally as much weight. The exact space taken up is determined by the formula: `elementSize = freeSpace * elementWeight / weightSum` - where the `weightSum` is the sum of all weighted elements in the chain.
+By default each element assumes it has a weight of 1, but this can be overwritten by setting `chainWeightHor` and `chainWeightVer` on any element in the chain, and (if that element has a corresponding size of 0), the elements will take proportionally as much weight. The exact space taken up is determined by the formula: `elementSize = freeSpace * elementWeight / weightSum` - where the `weightSum` is the sum of all weighted elements in the chain.
 
 ## Element Style Definition
 Note:<br> Due to the formspec api, only these elements support individual styling:<br>
@@ -757,9 +751,9 @@ Both elements share the same spec:
     
     label = "Label of field",
     -- Optional. Shows a small label above the field, describing it.
-    -- Note: Setting this label will automatically add a margin_top the Field,
+    -- Note: Setting this label will automatically add a marginTop the Field,
     -- to allow for room for the Label to be drawn above the field.
-    -- If you then set margin_top in any other way, it will override this
+    -- If you then set marginTop in any other way, it will override this
 
     closeOnEnter = false,
     -- Optional. Default is true.
