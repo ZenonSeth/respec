@@ -2,20 +2,15 @@ Note: This is still work in progress - docs are missing and existing api may cha
 
 # General Info
 
-Respec's API aims to support all features from the [Luanti Formspec API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#formspec), with 2 minor exceptions (those being: size-less `field[]` and `real_coordinates[]`).
+The Respec API is based on the [Luanti Formspec API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#formspec). Knowledge of that API may be useful in understanding what certain elements do.
 
-Respec provides:
-- Easy and versatile method of positioning and sizing of elements
-- Auto-sizing for some text elements
-- Easy callbacks for interactive elements
-- Quality-of-life features to decrease how much code has to be written
-
-Each `respec.elements.` class corresponds to a Luanti `formspec` element, and while some (like `Button`s or `Label`s) are fairly self explanatory, others - like `Listring`s require some knowledge of the formspec API.
+This document is the full API specification, useful if you're already writing a form.<br>
+If you just want to quickly gets started, or see an overview of features, see the [Getting Started page on the Github Wiki](https://github.com/ZenonSeth/respec/wiki)
 
 # Form
-To create a form use:
+Defines a form with all its configuration and elements it contains.
 ```lua
-respec.Form(specFunction, builderFunction)
+respec.Form(configFunc, builderFunction)
 ```
 
 ## State
@@ -34,12 +29,12 @@ There are some entires in the `state` table that have special meaning (see [Show
 }
 ```
 
-## `specFunction`
-`specFunction` must be a either:
-- A simple `spec` table with the format shown below
-- A function that accepts the `state` object, `function(state)`. The function must return the `spec` table.
+## `configFunc`
+`configFunc` must be a either:
+- A simple `config` table with the format shown below
+- A function that accepts the `state` object, `function(state)`. The function must return the `config` table.
 
-`spec` table format:
+`config` table format:
  ```lua
  {
     w = 8, h = 9, 
