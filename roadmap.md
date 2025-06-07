@@ -68,6 +68,7 @@ Checked ones are done (or mostly done).
 - [ ] `tablecolumns` : maybe as special class only available in table
 - [x] `style` : nonphysical. Incorporated into physical elements' spec.
 - [x] `style_type` : nonphysical
+- [ ] `container` : As a simple sub-layout holder
 
 
 ## Specifically not supported Formspec Elements
@@ -75,10 +76,6 @@ Checked ones are done (or mostly done).
   Reason: This is the default past formspec v2, and the layout algorithm is build
   with this being always on in mind. Therefore, we always assume this is true, and
   don't support turning it off or lower formspec versions.
-
-- `container[<X>,<Y>]`/`container_end[]`<br>
-  Reason: Because this library already performs laying out of elements.
-  Similar effect can be achieved by using alignment and margins
 
 - Size-less `field[]`<br>
   Reason: Edge-case usage, and most of its usage is for trivial forms that
