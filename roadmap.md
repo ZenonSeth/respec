@@ -58,7 +58,7 @@ Checked ones are done (or mostly done).
 - [x] `button_exit` : incorporate as flag into regular button
 - [x] `button_url_exit` : incorporated as flag into regular button_url
 - [x] `image_button_exit` : incorporated as flag into regular image_button
-- [ ] `textlist` : optional params selected idx, transparent
+- [x] `textlist` : optional params selected idx, transparent
 - [ ] `tabheader` : may support requiring height - maybe
 - [ ] `box`
 - [ ] `dropdown` : may require w+h

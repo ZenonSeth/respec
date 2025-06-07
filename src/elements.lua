@@ -116,12 +116,22 @@ end
 local function apply_wrap_and_paddings_to_clickable(clk, persist, localStyleName, optExtraWidth, unaffectedByGlobal)
   if clk.origW == WRAP or clk.origH == WRAP then
     local style = get_merged_styles(persist, (not unaffectedByGlobal), localStyleName, clk.styleData)
-    d.log("style for "..clk.id.." = "..dump(style))
     local wh = measure_text(clk.txt, persist.playerName, style.font == "mono", style.font_size)
     wh.width = wh.width + (optExtraWidth or 0)
     if clk.origW == WRAP then clk.width = wh.width + (clk.paddingsHor or 0) end
     if clk.origH == WRAP then clk.height = wh.height + (clk.paddingsVer or 0) end
   end
+end
+
+local function get_valid_textlist_items(items)
+  if type(items) ~= "table" then return {} end
+  local ret = {}
+  local ri = 1
+  for i = 1, #items do
+    ret[ri] = tostring(items[i])
+    ri = ri + 1
+  end
+  return table.concat(ret, ",")
 end
 
 -- minv/maxv in range 0-255
@@ -467,6 +477,33 @@ respec.elements.PasswordField = Class(respec.elements.Field)
 function respec.elements.PasswordField:init(spec)
   spec.isPassword = true
   respec.elements.Field.init(self, spec)
+end
+
+----------------------------------------------------------------
+-- TextList
+----------------------------------------------------------------
+respec.elements.TextList = Class(respec.PhysicalElement)
+function respec.elements.TextList:init(spec)
+  respec.PhysicalElement.init(self, elemInfo.textlist, spec)
+  self.itemsStr = get_valid_textlist_items(spec.items)
+  self.index = num_or(spec.index)
+  self.trans = bool_or(spec.transparent)
+  if type(spec.listener) == "function" then
+    self.on_select = spec.listener
+    self.on_interact = function(state, value, fields)
+      local ex = engine.explode_textlist_event(value)
+      self.on_select(state, ex, fields)
+    end
+  end
+end
+-- override
+function respec.elements.TextList:to_formspec_string(ver, persist)
+  if self.trans or self.index then
+    local tr = "false" ; if self.trans ~= nil then tr = tostring(self.trans) end
+    return make_elem(self, pos_and_size(self), self.internalId, self.itemsStr, self.index or "", tr)
+  else
+    return make_elem(self, pos_and_size(self), self.internalId, self.itemsStr)
+  end
 end
 
 ----------------------------------------------------------------

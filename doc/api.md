@@ -2,11 +2,15 @@ Note: This is still work in progress - docs are missing and existing api may cha
 
 # General Info
 
-Respec's API aims to implement all features from the [Luanti Formspec API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#formspec), with 3 very minor exceptions.
+Respec's API aims to support all features from the [Luanti Formspec API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#formspec), with 2 minor exceptions (those being: size-less `field[]` and `real_coordinates[]`).
 
-Respec provides utilities for easier positioning and sizing of elements, callbacks to elements, as well as some other conveniences.
+Respec provides:
+- Easy and versatile method of positioning and sizing of elements
+- Auto-sizing for some text elements
+- Easy callbacks for interactive elements
+- Quality-of-life features to decrease how much code has to be written
 
-Each `respec.elements` class corresponds to a Luanti `formspec` element, and while some (like `Button`s or `Label`s) are self explanatory, others - like `Listring`s require some knowledge of the formspec API.
+Each `respec.elements.` class corresponds to a Luanti `formspec` element, and while some (like `Button`s or `Label`s) are fairly self explanatory, others - like `Listring`s require some knowledge of the formspec API.
 
 # Form
 To create a form use:
@@ -134,14 +138,13 @@ Forms can be shown by calling their `:show(playerName, state)` function, where:
 - `state` is optional, and should be a lua table which will then get passed to the applicable functions, as listed above.<br>
   If omitted, the form functions will still get an empty table as their state
 
-## Reshowing a Form
 If for some reason you have a reference to a form (say `myForm`), and need to manually reshow it, you can do so by calling:
 ```lua
   myForm:reshow(playerName) -- playerName must be a string
 ```
 This function won't do anything if the form isn't already shown to this player.
 
-## Showing a Form for a Node's `on_rightclick`
+## Showing a Form from a Node's `on_rightclick`
 If you need to show a form from a node's `on_rightclick` callback, the Form class provides a utility method to do so easily:
 
 ```lua
@@ -151,7 +154,7 @@ Parameters:
 - `extraState`: optional. The data to be sent in the `state.extra` field - see table below
 - `checkProtection`: optional. If true, the form will check `core.is_protected(pos)`, and only show the form to players who have access to the position
 
-When you use this method, the `Form`'s initial `state` table will have a table entry called `rightclick`:
+When you use this method, the `Form`'s `state` table will have a table entry called `rightclick`:
 ```lua
   {
     rightclick = {
@@ -347,6 +350,8 @@ This spec is common between all physical elements, and each Physical Element has
 {
   id = "string", 
   -- Optional. Can be used by other elements to align to this one. IDs within the same Layout must be unique.
+  -- This field is also used as the formspec name param for all interactive elements,
+  -- Which means its required for them - otherwise events won't be sent to their listeners
   
   w = 3, -- or width = 3, 
   -- Usually required. Some elements support wrap_content.
@@ -862,25 +867,25 @@ Corresponds to formspec `field` and `pwdfield`
 Both elements share the same spec:
 ```lua
 {
-    text = "Text to be shown in field",
-    -- Optional. Sets the text inside the field. Not used for PasswordField.
-    
-    label = "Label of field",
-    -- Optional. Shows a small label above the field, describing it.
-    -- Note: Setting this label will automatically add a marginTop the Field,
-    -- to allow for room for the Label to be drawn above the field.
-    -- If you then set marginTop in any other way, it will override this
+  text = "Text to be shown in field",
+  -- Optional. Sets the text inside the field. Not used for PasswordField.
 
-    closeOnEnter = false,
-    -- Optional. Default is true.
-    -- If set to false, the form won't close when user presses enter while typing in the field.
+  label = "Label of field",
+  -- Optional. Shows a small label above the field, describing it.
+  -- Note: Setting this label will automatically add a marginTop the Field,
+  -- to allow for room for the Label to be drawn above the field.
+  -- If you then set marginTop in any other way, it will override this
 
-    enterAfterEdit = true,
-    -- Optional. Experimental - only affects Android clients. Default is false.
-    -- If set to true, pressing "Done" on Android software text input will
-    -- simulate an Enter key press, and submit the field
+  closeOnEnter = false,
+  -- Optional. Default is true.
+  -- If set to false, the form won't close when user presses enter while typing in the field.
 
-    onSubmit = function(state, value, fields) end
+  enterAfterEdit = true,
+  -- Optional. Experimental - only affects Android clients. Default is false.
+  -- If set to true, pressing "Done" on Android software text input will
+  -- simulate an Enter key press, and submit the field
+
+  onSubmit = function(state, value, fields) end
   -- a function to be called when the user types and presses Enter in the field
   -- `state` is the form's state, can be modified here.
   -- `value` is the value of the Field or PasswordField
@@ -894,6 +899,42 @@ Styling:
 - Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `border`, `font`, `font_size`, `noclip`, `textcolor`
+
+## TextList
+Corresponds to formspec `textlist`
+```lua
+  respec.elements.TextList(spec)
+```
+Note that this element does not support auto-sizing, so its width and height must be specified or aligned.
+
+spec:
+```lua
+{
+  items = {
+    "list", "of", "items", "to", "show"
+  }
+  -- Required, list of items to display in the list.
+  -- Items can start with "#RRGGBB" (only, not alpha) colorstring to colorize it
+
+  index = 1, -- Optional.
+  -- The selected index in the list. Don't specify to let it handle its own selection on clicking.
+
+  transparent = true, -- Optional, boolean. Default `false`
+  -- Set to `true` to hide the background that's drawn automatically for this element
+
+  listener = function(state, value, fields) end, -- Optional
+  -- Function that gets called when an item is selected.
+  -- Value is the table created by core.explode_textlist_event, the format being:
+  -- { type = "CHG", index = 1 }
+  -- where `type` can be "INV": No row selected. "CHG": item selected. "DCL" : item double-clicked.
+  -- index is valid only if "CHG" or "DCL"
+}
+```
+Styling:
+- Supports per-element `style` entry in their spec.
+- Supports type-styling via [StyleType](#styletype)
+- Supported style properties:<br>
+  `font`, `font_size`, `noclip`
 
 ## ScrollContainer
 Corresponds to formspec `scroll_container`
@@ -974,7 +1015,6 @@ Note that you **do not need** to create a `Scrollbar` for each `ScrollContainer`
 spec:
 ```lua
 {
-  id = "id", -- inherited from common formspec, used as the scrollbar's name
   orientation = "horizontal", -- or "vertical", or "h"/"v" for shorthand
   
   listener = function(state, explodedEvent, fields),
@@ -1102,8 +1142,6 @@ For details on the *Markup Language* see Luanti's API: https://github.com/luanti
 spec:
 ```lua
 {
-  id = "unique_id", -- inherited from Physical Element. Required
-
   text = "Markup Text", -- Text to show, formatted by the Markup Language linked above
 
   listener = function(state, value, fields) end,
