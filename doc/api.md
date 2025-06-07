@@ -49,7 +49,7 @@ There are some entires in the `state` table that have special meaning (see [Show
     -- Paddings are all optional.
     -- Form (aka Layout) Paddings will push all elements inwards from the corresponding edge.
     paddings = 3,
-     -- sets all four default paddings to 3
+     -- sets paddings on all four sides to 3
     paddings = { hor = 4, ver = 2 }
      -- sets before/after paddings to 4 and above/below paddings to 2
     paddings = { before = 3, after = 3, above = 3, below = 4 }
@@ -350,15 +350,15 @@ This spec is common between all physical elements, and each Physical Element has
   
   w = 3, -- or width = 3, 
   -- Usually required. Some elements support wrap_content.
-  -- For these elements not specifying a width assumes wrap_content: Label, Checkbox, Button
-  -- Otherwise a value of 0 is assumed.
   -- Set to 0 and use start+end constraints to let constraints determine width
   
   h = 3, -- or height = 3,
   -- Usually required. Some elements support wrap_content.
-  -- For these elements not specifying a height assumes wrap_content: Label, Checkbox, Button
-  -- Otherwise a value of 0 is assumed.
   -- Set to 0 and use top+bottom constraints to let constraints determine height
+
+  -- w/h: the following elements support wrap_content, and assume that if w/h is not present:
+  --   Label, Checkbox, Button, ButtonUrl
+  -- For all other elements, a value of 0 is used as as default if w/h is not specified.
 
   tooltip = "Tooltip text to show",
   -- Optional.
@@ -628,8 +628,8 @@ spec:
   text = "Button text",
   -- Optional. String to be shown in Button
   
-  paddings = 3, -- set all 4 paddings to 3
-  paddingsHor = 2, paddingsVer = 5, -- sets horizontal paddings to  2, and vertical paddings to 5
+  paddings = 3, -- set paddings on all four sides to 3
+  paddingsHor = 2, paddingsVer = 5, -- sets horizontal paddings to 2, and vertical paddings to 5
   -- All 3 are Optional. Only used when w/h are wrap_content.
   -- Unlike margins (common to all elements), this padding adds space inside the Button itself,
   -- This results in more space between the button's edge and the inner text.
@@ -726,6 +726,43 @@ spec:
 - Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `alpha`, `bgcolor`, `bgimg`, `bgimg_middle`, `font`, `font_size`, `border`, `content_offset`, `noclip`, `sound`, `textcolor`
+
+## ButtonUrl
+Corresponds to formspec `button_url` and `button_url_exit`
+```lua
+  respec.elements.ButtonUrl(spec)
+```
+This element does not support wrapping width/height, and those must be specified or aligned.
+
+spec:
+```lua
+{
+  w, h, -- Optional. Support respec.const.wrap_content. If absent, defaults to wrap_content
+
+  text = "Text to show on the button",
+  -- Optional. If not present, defaults to `url` instead
+
+  url = "http://luanti.org",
+  -- Required. Must be a valid URL starting with `http://` or `https://`
+
+  paddings = 3, -- set all paddings on all four sides to 3
+  paddingsHor = 2, paddingsVer = 5, -- sets horizontal paddings to 2, and vertical paddings to 5
+  -- All 3 are Optional. Only used when w/h are wrap_content.
+  -- Unlike margins (common to all elements), this padding adds space inside the Button itself,
+  -- This results in more space between the button's edge and the inner text.
+
+  exit = true, -- Optional
+  -- If set to true, button will close the form upon click. Default is false.
+  -- the onClick listener will be called even when this is set to true
+
+  onClick = function(state, fields) return true end,
+  -- a function to be called when the button is clicked
+  -- `state` is the form's state, can be modified here.
+  -- `fields` is the map of value of the fields in the form
+  -- Note that only fields with specified IDs will be present
+  -- if reshowOnInteract is false, then return `true` from this function to re-show the formspec
+}
+```
 
 ## Checkbox
 Corresponds to formspec `checkbox`
@@ -907,7 +944,7 @@ spec:
   -- Paddings are all optional.
   -- Paddings will push all elements inwards from the corresponding edge.
   paddings = 3,
-    -- sets all four default paddings to 3
+    -- sets paddings on all four sides to 3
   paddings = { hor = 4, ver = 2 }
     -- sets before/after paddings to 4 and above/below paddings to 2
   paddings = { before = 3, after = 3, above = 3, below = 4 }
@@ -1074,35 +1111,6 @@ spec:
   -- `state` is the form's state, can be modified here.
   -- `value` is the value of the action, usually encoded as "action:name"
   -- `fields` is the map of value of the fields in the form
-}
-```
-
-## ButtonUrl
-Corresponds to formspec `button_url` and `button_url_exit`
-```lua
-  respec.elements.ButtonUrl(spec)
-```
-This element does not support wrapping width/height, and those must be specified or aligned.
-
-spec:
-```lua
-{
-  text = "Text to show on the button",
-  -- Optional. If not present, defaults to `url` instead
-
-  url = "http://luanti.org",
-  -- Required. Must be a valid URL starting with `http://` or `https://`
-
-  exit = true, -- Optional
-  -- If set to true, button will close the form upon click. Default is false.
-  -- the onClick listener will be called even when this is set to true
-
-  onClick = function(state, fields) return true end,
-  -- a function to be called when the button is clicked
-  -- `state` is the form's state, can be modified here.
-  -- `fields` is the map of value of the fields in the form
-  -- Note that only fields with specified IDs will be present
-  -- if reshowOnInteract is false, then return `true` from this function to re-show the formspec
 }
 ```
 

@@ -68,8 +68,8 @@ end
       text = iState.field1 or "",
       closeOnEnter = false,
       onSubmit = function(state, value, fields)
-        state.field1 = value
-        state.title = value
+        state.field1 = minetest.formspec_escape(value)
+        state.title = state.field1
       end
     },
     elem.Button {
@@ -84,7 +84,7 @@ end
       visible = iState.ch1 == true,
       -- borderColor = "#0000FF",
       onClick = function(state, fields)
-        state.title = fields["field1"] or ""
+        state.title = minetest.formspec_escape(fields["field1"] or "")
       end,
       style = {
         font = "mono",
@@ -123,6 +123,14 @@ end
         state.count = (state.count or 0) + 3
         state.fontSize = state.fontSize - 1
       end,
+    },
+    elem.ButtonUrl {
+      text = "URL btn",
+      url = "https://luanti.org",
+      margins = 0.25,
+      below = "btn2",
+      paddingsHor = 0.5, paddingsVer = 0.2,
+      alignStart = "btn2",
     },
     elem.Label {
       id = "label2",
@@ -414,5 +422,5 @@ respec.util.engine.register_node("respec:gui_builder", {
     i:set_size("in", 16)
     i:set_size("out", 16)
   end,
-  on_rightclick = form2:show_from_node_rightclick(nil, true)
+  on_rightclick = form1:show_from_node_rightclick(nil, true)
 })

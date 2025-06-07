@@ -113,6 +113,17 @@ local function update_measurements_to_fit_aspect_ratio(m, r)
   end
 end
 
+local function apply_wrap_and_paddings_to_clickable(clk, persist, localStyleName, optExtraWidth, unaffectedByGlobal)
+  if clk.origW == WRAP or clk.origH == WRAP then
+    local style = get_merged_styles(persist, (not unaffectedByGlobal), localStyleName, clk.styleData)
+    d.log("style for "..clk.id.." = "..dump(style))
+    local wh = measure_text(clk.txt, persist.playerName, style.font == "mono", style.font_size)
+    wh.width = wh.width + (optExtraWidth or 0)
+    if clk.origW == WRAP then clk.width = wh.width + (clk.paddingsHor or 0) end
+    if clk.origH == WRAP then clk.height = wh.height + (clk.paddingsVer or 0) end
+  end
+end
+
 -- minv/maxv in range 0-255
 local function randclrval(minv, maxv)
   return string.format("%x", math.random(minv, maxv))
@@ -223,13 +234,7 @@ function respec.elements.Button:init(spec)
 end
 -- override
 function respec.elements.Button:before_measure(persist)
-  if self.origW == WRAP or self.origH == WRAP then
-    local style = get_merged_styles(persist, true, "style_button", self.styleData)
-    local wh = measure_text(self.txt, persist.playerName, style.font == "mono", style.font_size)
-    wh.width = wh.width + 2/5 -- approx width of checkbox
-    if self.origW == WRAP then self.width = wh.width + self.paddingsHor end
-    if self.origH == WRAP then self.height = wh.height + self.paddingsVer end
-  end
+  apply_wrap_and_paddings_to_clickable(self, persist, "style_button")
 end
 -- override
 function respec.elements.Button:to_formspec_string(_, _)
@@ -242,12 +247,20 @@ end
 respec.elements.ButtonUrl = Class(respec.PhysicalElement)
 function respec.elements.ButtonUrl:init(spec)
   local ei = elemInfo.button_url ; if spec.exit == true then ei = elemInfo.button_url_exit end
+  set_to_wrap_if_absent(spec)
   respec.PhysicalElement.init(self, ei, spec)
   self.url = str_or(spec.url, "")
   self.txt = str_or(spec.text, self.url)
+  self.origW = self.width ; self.origH = self.height
+  self.paddingsHor = num_or(spec.paddingsHor or spec.paddings, 0) * 2
+  self.paddingsVer = num_or(spec.paddingsVer or spec.paddings, 0) * 2
   if type(spec.onClick) == "function" then
     self.on_interact = spec.onClick
   end
+end
+-- override
+function respec.elements.ButtonUrl:before_measure(persist)
+  apply_wrap_and_paddings_to_clickable(self, persist, "style_button")
 end
 -- override
 function respec.elements.ButtonUrl:to_formspec_string(_, _)
@@ -324,13 +337,7 @@ function respec.elements.Checkbox:init(spec)
 end
 -- override
 function respec.elements.Checkbox:before_measure(persist)
-  if self.origW == WRAP or self.origH == WRAP then
-    local style = get_merged_styles(persist, false, "style_checkbox", self.style)
-    local wh = measure_text(self.txt, persist.playerName, style.font == "mono", style.font_size)
-    wh.width = wh.width + 2/5 -- approx width of checkbox
-    if self.origW == WRAP then self.width = wh.width end
-    if self.origH == WRAP then self.height = wh.height end
-  end
+  apply_wrap_and_paddings_to_clickable(self, persist, "style_checkbox", 2/5, true)
 end
 -- override
 function respec.elements.Checkbox:to_formspec_string(ver, _)
