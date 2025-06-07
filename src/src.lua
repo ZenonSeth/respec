@@ -14,6 +14,3 @@ dofile(PATH.."layout_logic.lua")
 dofile(PATH.."layout.lua")
 dofile(PATH.."form.lua")
 dofile(PATH.."utility_api.lua")
-
--- temporary
-dofile(PATH.."example.lua")
