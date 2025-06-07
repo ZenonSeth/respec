@@ -101,7 +101,7 @@ local function get_scrollbar_spec_for_container(cont, spec)
 end
 
 local function update_measurements_to_fit_aspect_ratio(m, r)
-  if r and m.h > 0 then
+  if r and r > 0 and m.h > 0 then
     local sR = m.w / m.h
     if sR > r then -- height is limiting, so make width smaller
       local nw = r * m.h
@@ -205,7 +205,7 @@ function respec.elements.Label:before_measure(persist)
 end
 
 ----------------------------------------------------------------
--- button
+-- Button
 ----------------------------------------------------------------
 respec.elements.Button = Class(respec.PhysicalElement)
 function respec.elements.Button:init(spec)
@@ -268,12 +268,14 @@ function respec.elements.ImageButton:init(spec)
   self.noclip = bool_or(spec.noclip)
   self.border = bool_or(spec.border)
   self.imgPressed = str_or(spec.imagePressed)
+  self.ratio = num_or(spec.ratio)
   if type(spec.onClick) == "function" then
     self.on_interact = spec.onClick
   end
 end
 -- override
 function respec.elements.ImageButton:to_formspec_string(_, _)
+  update_measurements_to_fit_aspect_ratio(self.measured, self.ratio)
   if self.noclip ~= nil or self.border ~= nil or self.imgPressed then
     return make_elem(self, pos_and_size(self),
       self.img, self.internalId, self.label or "",
@@ -294,12 +296,14 @@ function respec.elements.ItemButton:init(spec)
   respec.PhysicalElement.init(self, elemInfo.item_image_button, spec)
   self.item = str_or(spec.item, "")
   self.label = str_or(spec.label)
+  self.ratio = num_or(spec.ratio)
   if type(spec.onClick) == "function" then
     self.on_interact = spec.onClick
   end
 end
 -- override
 function respec.elements.ItemButton:to_formspec_string(_, _)
+  update_measurements_to_fit_aspect_ratio(self.measured, self.ratio)
   return make_elem(self, pos_and_size(self), self.item, self.internalId, self.label or "")
 end
 
@@ -567,8 +571,7 @@ function respec.elements.Image:init(spec)
   if type(spec.middle) == "number" or type(spec.middle) == "string" then
     self.mid = tostring(spec.middle)
   end
-  local r = num_or(spec.ratio, 0)
-  if r > 0.01 then self.ratio = r end
+  self.ratio = num_or(spec.ratio)
 end
 -- override
 function respec.elements.Image:to_formspec_string(ver, _)

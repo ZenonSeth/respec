@@ -672,6 +672,10 @@ spec:
   -- If set to true, button will close the form upon click. Default is false.
   -- the onClick listener will be called even when this is set to true
 
+  ratio = 1.0, -- Optional. Number greater than 0
+  -- If set, makes the ImageButton be constrained to this w/h aspect ratio.
+  -- If not set, the ImageButton stretches to fill out its bounds as normal
+
   onClick = function(state, fields) return true end,
   -- Optional. A function to be called when the button is clicked
   -- `state` is the form's state, can be modified here.
@@ -707,6 +711,10 @@ spec:
 
   label = "Some label",
   -- Optional. Text to show over the image, centered in the button
+
+  ratio = 1.0, -- Optional. Number greater than 0
+  -- If set, makes the ItemButton be constrained to this w/h aspect ratio.
+  -- If not set, the ItemButton stretches to fill out its bounds as normal
 
   onClick = function(state, fields) return true end,
   -- Optional. A function to be called when the button is clicked
@@ -969,8 +977,7 @@ spec:
   -- "x,y" : middle starts x pixels from left/right and y pixels from top/bottom
   -- "x1,y1,x2,y2" : middle starts x1 from left, x2 from right, y1 from top, y2 from bottom
 
-  ratio = 1,
-  -- Optional. Must be greater than 0
+  ratio = 1.0, -- Optional. Must be greater than 0
   -- If specified, the image will be drawn to the specified aspect ratio of Width/Height
   -- fitting inside the bounds it gets.
   -- If not specified, the image will be stretched to fill its bounds.
@@ -1007,7 +1014,7 @@ spec:
 {
   item = "item name" -- Required. Name of the registered item/node
 
-  ratio = 1, -- Optional. Number, must be greater than 0. You probably want 1
+  ratio = 1.0, -- Optional. Number, must be greater than 0. You probably want 1
   -- If set, makes the item image be shown in this w/h aspect ratio.
   -- If not set, the image stretches to fill out its bounds
 }
