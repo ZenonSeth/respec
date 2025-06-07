@@ -69,7 +69,7 @@ local function parseFontSizeStr(fontSizeStr)
     if firstChar == "+" or firstChar == "-" then
       return DEFAULT_FONT_SIZE + (tonumber(fontSizeStr) or 0)
     else
-      return tonumber(firstChar) or DEFAULT_FONT_SIZE
+      return tonumber(fontSizeStr) or DEFAULT_FONT_SIZE
     end
   else
     return DEFAULT_FONT_SIZE
