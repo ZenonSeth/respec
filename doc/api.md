@@ -1,16 +1,18 @@
-Note: This is still work in progress - docs are missing and existing api may change in the near future.
+Alpha state: API may change slightly in near future.
 
 # General Info
 
 The Respec API is based on the [Luanti Formspec API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#formspec). Knowledge of that API may be useful in understanding what certain elements do.
 
-This document is the full API specification, useful if you're already writing a form.<br>
+This document is the full API specification in detail.<br>
 If you just want to quickly gets started, or see an overview of features, see the [Getting Started page on the Github Wiki](https://github.com/ZenonSeth/respec/wiki)
+
+All names of values specified in the tables below are case sensitive, so `w = 4` will work to set the width, but `W = 4` won't.
 
 # Form
 Defines a form with all its configuration and elements it contains.
 ```lua
-respec.Form(configFunc, builderFunction)
+respec.Form(configFunction, elemsFunction)
 ```
 
 ## State
@@ -29,8 +31,9 @@ There are some entires in the `state` table that have special meaning (see [Show
 }
 ```
 
-## `configFunc`
-`configFunc` must be a either:
+## `configFunction`
+`configFunction` provides the configuration of the form.<br>
+It must be a either:
 - A simple `config` table with the format shown below
 - A function that accepts the `state` object, `function(state)`. The function must return the `config` table.
 
@@ -72,15 +75,15 @@ There are some entires in the `state` table that have special meaning (see [Show
 
     -- Background Color config: these 3 elements correspond to a `bgcolor[]` formspec element
 
-    bgcolor = "#RRGGBB",
+    bgColor = "#RRGGBB",
     -- Optional: the background color of the formspec, in a formspec `ColorString` format
     -- Usually requires `noPrepend = true` in order to have an effect
 
-    fbgcolor = "#RRGGBB",
+    fbgColor = "#RRGGBB",
     -- Optional: Only if formspec_ve >= 3.
     -- The full-screen background color when showing the formspec, in a formspec `ColorString` format
 
-    bgfullscreen = "false",
+    bgFullscreen = "false",
     -- Optional, if formspec_ver >= 3, otherwise must be present if `bgcolor` is present.
     -- string, can have one of these values:
     -- "false": Only the non-fullscreen background color is drawn. (default)
@@ -120,8 +123,9 @@ There are some entires in the `state` table that have special meaning (see [Show
     -- Optional, sets the font color for any tooltips in this form
  }
 ```
-## `builderFunction`
-The `builderFunction` param can be either:
+## `elemsFunction`
+The `elemsFunction` provides the list elements to be shown in the form.<br>
+It must be either:
 - A simple table
 - A function `function(state)` which gets passed the Form's `state`, and must return a table
  
@@ -139,17 +143,19 @@ If for some reason you have a reference to a form (say `myForm`), and need to ma
 ```
 This function won't do anything if the form isn't already shown to this player.
 
+You do not need to call `reshow(playerName)` to reshow the form from element interaction/click callbacks - those will automatically reshow the function after executing, unless configured otherwise in the form's config.
+
 ## Showing a Form from a Node's `on_rightclick`
 If you need to show a form from a node's `on_rightclick` callback, the Form class provides a utility method to do so easily:
 
 ```lua
-function Form:show_from_node_rightclick(extraState, checkProtection)
+function Form:show_from_node_rightclick(state, checkProtection)
 ```
 Parameters:
-- `extraState`: optional. The data to be sent in the `state.extra` field - see table below
-- `checkProtection`: optional. If true, the form will check `core.is_protected(pos)`, and only show the form to players who have access to the position
+- `state`: optional. The state data to be sent to the form's config/elem functions.
+- `checkProtection`: optional. If true, the form will check `core.is_protected(pos)`, and only show the form to players who have access to the position.
 
-When you use this method, the `Form`'s `state` table will have a table entry called `rightclick`:
+When you use this method, the `Form`'s `state` table will have a table entry called `rightclick` (which will override any entires by that name provided in the `state` param):
 ```lua
   {
     rightclick = {
@@ -173,9 +179,6 @@ When you use this method, the `Form`'s `state` table will have a table entry cal
 
       pointed_thing = pointed_thing,
       -- the pointed thing data passed by callback
-
-      extra = extraState
-      -- the optional `extraState` variable passed in `show_from_node_rightclick` - can be `nil`
     }
   }
 ```
@@ -487,7 +490,7 @@ This spec is common between all physical elements, and each Physical Element has
   -- Optional. 
   -- Defines the style of this specific element. Each entry corresponds to a style prop.
 
-  customBorderColor = "#RRGGBB",
+  pixelBorder = "#RRGGBB",
   -- Optional. Separate from style above. If not specified, no border is drawn.
   -- Specify the color of a 1px border to be drawn around the element (not including margins)
   -- This doesn't use the formspec style[] element, it is manually done on top of whatever style[] you set. This is here primarily because not all elements support a border in style[]
@@ -549,15 +552,15 @@ Biases of less than 0.5 will result in the chain being positioned closer to its 
 
 ## Weighted Elements
 
-If any element in the chain has set its width to 0 via `w = 0` in its spec, it will then be treated as though its attempting to fill out any remaining space. In such a case, the chain type doesn't matter.
+If any element in the chain has set its size set to 0, say its width: `w = 0`, then it will be treated as though it's attempting to fill out any remaining space. In such a case, the chain type doesn't matter.
 
-Multiple elements can have their weights set to 0 and will equally attempt to fill out remaining space.
+Multiple elements within the same chain can have their widths set to 0 and will equally attempt to fill out remaining space.
 
-By default each element assumes it has a weight of 1, but this can be overwritten by setting `chainWeightHor` and `chainWeightVer` on any element in the chain, and (if that element has a corresponding size of 0), the elements will take proportionally as much weight. The exact space taken up is determined by the formula: `elementSize = freeSpace * elementWeight / weightSum` - where the `weightSum` is the sum of all weighted elements in the chain.
+By default each element assumes it has a weight of 1, but this can be overwritten by setting `chainWeightHor` and `chainWeightVer` on any element in the chain, and (if that element has a corresponding size of 0), the elements will take proportionally as much space. The exact space taken up is determined by the formula: `elementSize = freeSpace * elementWeight / weightSum` - where the `weightSum` is the sum of all weighted elements in the chain.
 
 ## Element Style Definition
-Note:<br> Due to the formspec api, only these elements support individual styling:<br>
-`AnimatedImage`, `Model`, `Field`, `TextArea`, `Hypertext`, [Button](#button), `ButtonUrl`, `ImageButton`, `ItemImageButton`, `TextList`, `TabHeader`, `Dropdown`, [Checkbox](#checkbox), `Scrollbar`, `Table`
+Due to the formspec api, only these elements support individual styling:<br>
+`AnimatedImage`, `Model`, `Field`, `TextArea`, `Hypertext`, `Button`, `ButtonUrl`, `ImageButton`, `ItemImageButton`, `TextList`, `TabHeader`, `Dropdown`, `Checkbox`, `Scrollbar`, `Table`
 
 All other elements may instead be styled collectively by their type using [StyleType](#styletype).
 
@@ -586,7 +589,7 @@ For details on styleName and values functionality see :<br> https://github.com/l
 # List of Physical Elements
 
 All Physical Elements take a `spec` table as input.
-This `spec` table may contain any of the common physical elements spec above, alongside element-specific specifications listed below.
+This `spec` table may contain any of the common physical elements spec entries above, alongside element-specific specifications listed below.
 
 ## Label
 Corresponds to formspec `label` and `vertlabel`
@@ -1033,7 +1036,9 @@ Corresponds to formspec `image` and `animated_image`
 ```lua
   respec.elements.Image(spec)
 ```
-This element can display both a regular image and an animated image. Animated images are defined by having multiple frames all stacked vertically (from first on top, to last on bottom) in a single texture. The number of frames and time between frames is then passed as params in the spec.
+This element can display both a regular image and an animated image.
+
+Animated images are defined by having multiple frames all stacked vertically (from first on top, to last on bottom) in a single texture. The number of frames and time between frames is then passed as params in the spec.
 
 spec:
 ```lua
@@ -1071,7 +1076,7 @@ spec:
 }
 ```
 Styling:
-- Supports per-element `style` entry in their spec.
+- Animated images support per-element `style` entry in their spec.
 - Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `noclip`

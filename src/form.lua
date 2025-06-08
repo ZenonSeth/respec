@@ -8,10 +8,10 @@ local shownForms = {}
 
 local function is_str(v) return type(v) == "string" end
 
-local function make_form_outline(w, h, borderColor)
+local function make_form_outline(w, h, pixelBorder)
   return
-    "style_type[box;colors=#0000;borderwidths=-1;bordercolors="..borderColor.."]"..
-    "box[0,0;"..w..","..(h-0.02)..";]"
+    "style_type[box;colors=#0000;borderwidths=-1;bordercolors="..pixelBorder.."]"..
+    "box[0,0;"..w..","..(h)..";]"
 end
 
 local function set_shown_form_data(playerName, formId, data)
@@ -122,9 +122,9 @@ local function get_form_str(form)
   if sp.allowClose == false then
     ins(tbl, "allow_close[false]")
   end
-  local bgC = get_valid_color(sp.bgcolor)
-  local fbgC = get_valid_color(sp.fbgcolor)
-  local bgF = get_valid_fullscreen(sp.bgfullscreen)
+  local bgC = get_valid_color(sp.bgColor)
+  local fbgC = get_valid_color(sp.fbgColor)
+  local bgF = get_valid_fullscreen(sp.bgFullscreen)
   if bgC ~= "" then
     local bgcf = ""
     if sp.ver >= 3 then
@@ -142,8 +142,8 @@ local function get_form_str(form)
     end
     ins(tbl, "set_focus["..mID.."]")
   end
-  if is_str(sp.borderColor) then
-    ins(tbl, make_form_outline(sp.w, sp.h, sp.borderColor))
+  if is_str(sp.pixelBorder) then
+    ins(tbl, make_form_outline(sp.w, sp.h, sp.pixelBorder))
   end
   return table.concat(tbl, "")
 end
@@ -187,9 +187,9 @@ local function handle_spec(self, state)
   self.spec = verify_specification(spec)
   self.layout = respec.Layout(spec)
   self.state = spec.state or {}
-  self.bgcolor = spec.bgcolor
-  self.fbgcolor = spec.fbgcolor
-  self.bgfullscreen = spec.bgfullscreen
+  self.bgcolor = spec.bgColor
+  self.fbgcolor = spec.fbgColor
+  self.bgfullscreen = spec.bgFullscreen
   self.reshowOnInteract = true
   if spec.reshowOnInteract == false then self.reshowOnInteract = false end
   return true
@@ -348,14 +348,15 @@ end
 ]]
 local get_meta = respec.util.engine.get_meta
 local is_protected = respec.util.engine.is_protected
-function respec.Form:show_from_node_rightclick(extraState, checkProtection)
+function respec.Form:show_from_node_rightclick(state, checkProtection)
   return function(pos, node, user, itemstack, pointed_thing)
     if not user or not user:is_player() then return end
     local playerName = user:get_player_name() ; if type(playerName) ~= "string" then return end
     if checkProtection then
       if is_protected(pos, playerName) then return end
     end
-    self:show(playerName, { rightclick = {
+    local st = state or {}
+    st.rightclick = {
       pos = pos,
       node = node,
       nodeMeta = get_meta(pos),
@@ -363,8 +364,8 @@ function respec.Form:show_from_node_rightclick(extraState, checkProtection)
       playerName = playerName,
       itemstack = itemstack,
       pointed_thing = pointed_thing,
-      extra = extraState
-    }})
+    }
+    self:show(playerName, st)
   end
 end
 

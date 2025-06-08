@@ -47,8 +47,8 @@ local fs_elem_box = respec.internal.fs_elem_box
 local fs_elem = respec.util.fs_make_elem
 local function add_common_physical_formspec_string(elem, str, layout)
   local ret = { fs_elem_box(elem), get_style_string_for_element(elem), str} -- the style must be defined before the element
-  if not elem.disableCustom and type(elem.borderColor) == "string" then
-    ret[#ret+1] = fs_elem_box(elem, true, elem.borderColor)
+  if not elem.disableCustom and type(elem.pixelBorder) == "string" then
+    ret[#ret+1] = fs_elem_box(elem, true, elem.pixelBorder)
   end
   if elem.tooltip then
     if elem.info.inFields > 0 then

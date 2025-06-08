@@ -275,7 +275,7 @@ function respec.PhysicalElement:init(fselem, spec)
   self.align = get_align(spec)
   self.horBias = valid_bias(spec.biasHor)
   self.verBias = valid_bias(spec.biasVer)
-  self.borderColor = spec.customBorderColor
+  self.pixelBorder = spec.pixelBorder
   self.chainTypeHor = valid_chain_type(spec.chainTypeHor)
   self.chainTypeVer = valid_chain_type(spec.chainTypeVer)
   self.chainWeightHor = valid_weight(spec.chainWeightHor)
