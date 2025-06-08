@@ -16,9 +16,10 @@ local bool_or =  respec.util.bool_or
 local min0 = respec.util.min0
 local log_error = respec.log_error
 local engine = respec.util.engine
+local elems = respec.elements
 
-local get_valid_style = respec.elements.get_valid_style
-respec.elements.get_valid_style = nil
+local get_valid_style = elems.get_valid_style
+elems.get_valid_style = nil
 local measure_text = respec.internal.measure_text
 respec.internal.measure_text = nil
 
@@ -186,8 +187,8 @@ local Class = respec.util.Class
 ----------------------------------------------------------------
 -- Label (label and vertlabel)
 ----------------------------------------------------------------
-respec.elements.Label = Class(respec.PhysicalElement)
-function respec.elements.Label:init(spec)
+elems.Label = Class(respec.PhysicalElement)
+function elems.Label:init(spec)
   set_to_wrap_if_absent(spec)
   local einf =  elemInfo.label
   self.vertical = (spec.vertical == true)
@@ -198,7 +199,7 @@ function respec.elements.Label:init(spec)
   self.areaLabel = spec.area == true
 end
 -- override
-function respec.elements.Label:to_formspec_string(ver, _)
+function elems.Label:to_formspec_string(ver, _)
   if (not self.vertical) and self.areaLabel and ver >= 9 then
     return make_elem(self, pos_and_size(self), self.txt)
   else
@@ -215,7 +216,7 @@ function respec.elements.Label:to_formspec_string(ver, _)
   end
 end
 -- override
-function respec.elements.Label:before_measure(persist)
+function elems.Label:before_measure(persist)
   local style = get_merged_styles(persist, true, "style_label")
   if self.origW == WRAP or self.origH == WRAP then
     local wh = measure_text(self.txt, persist.playerName, style.font == "mono", style.font_size, 1, self.vertical)
@@ -228,8 +229,8 @@ end
 ----------------------------------------------------------------
 -- Button
 ----------------------------------------------------------------
-respec.elements.Button = Class(respec.PhysicalElement)
-function respec.elements.Button:init(spec)
+elems.Button = Class(respec.PhysicalElement)
+function elems.Button:init(spec)
   local ei = elemInfo.button ; if spec.exit == true then ei = elemInfo.button_exit end
   set_to_wrap_if_absent(spec)
   respec.PhysicalElement.init(self, ei, spec)
@@ -243,19 +244,19 @@ function respec.elements.Button:init(spec)
   end
 end
 -- override
-function respec.elements.Button:before_measure(persist)
+function elems.Button:before_measure(persist)
   apply_wrap_and_paddings_to_clickable(self, persist, "style_button")
 end
 -- override
-function respec.elements.Button:to_formspec_string(_, _)
+function elems.Button:to_formspec_string(_, _)
   return make_elem(self, pos_and_size(self), self.internalId, self.txt)
 end
 
 ----------------------------------------------------------------
 -- ButtonUrl (button_url)
 ----------------------------------------------------------------
-respec.elements.ButtonUrl = Class(respec.PhysicalElement)
-function respec.elements.ButtonUrl:init(spec)
+elems.ButtonUrl = Class(respec.PhysicalElement)
+function elems.ButtonUrl:init(spec)
   local ei = elemInfo.button_url ; if spec.exit == true then ei = elemInfo.button_url_exit end
   set_to_wrap_if_absent(spec)
   respec.PhysicalElement.init(self, ei, spec)
@@ -269,19 +270,19 @@ function respec.elements.ButtonUrl:init(spec)
   end
 end
 -- override
-function respec.elements.ButtonUrl:before_measure(persist)
+function elems.ButtonUrl:before_measure(persist)
   apply_wrap_and_paddings_to_clickable(self, persist, "style_button")
 end
 -- override
-function respec.elements.ButtonUrl:to_formspec_string(_, _)
+function elems.ButtonUrl:to_formspec_string(_, _)
   return make_elem(self, pos_and_size(self), self.internalId, self.txt, self.url)
 end
 
 ----------------------------------------------------------------
 -- ImageButton (image_button)
 ----------------------------------------------------------------
-respec.elements.ImageButton = Class(respec.PhysicalElement)
-function respec.elements.ImageButton:init(spec)
+elems.ImageButton = Class(respec.PhysicalElement)
+function elems.ImageButton:init(spec)
   local ei = elemInfo.image_button ; if spec.exit == true then ei = elemInfo.image_button_exit end
   respec.PhysicalElement.init(self, ei, spec)
 
@@ -297,7 +298,7 @@ function respec.elements.ImageButton:init(spec)
   end
 end
 -- override
-function respec.elements.ImageButton:to_formspec_string(_, _)
+function elems.ImageButton:to_formspec_string(_, _)
   update_measurements_to_fit_aspect_ratio(self.measured, self.ratio)
   if self.noclip ~= nil or self.border ~= nil or self.imgPressed then
     return make_elem(self, pos_and_size(self),
@@ -314,8 +315,8 @@ end
 ----------------------------------------------------------------
 -- ItemButton (item_image_button)
 ----------------------------------------------------------------
-respec.elements.ItemButton = Class(respec.PhysicalElement)
-function respec.elements.ItemButton:init(spec)
+elems.ItemButton = Class(respec.PhysicalElement)
+function elems.ItemButton:init(spec)
   respec.PhysicalElement.init(self, elemInfo.item_image_button, spec)
   self.item = str_or(spec.item, "")
   self.label = str_or(spec.label)
@@ -325,7 +326,7 @@ function respec.elements.ItemButton:init(spec)
   end
 end
 -- override
-function respec.elements.ItemButton:to_formspec_string(_, _)
+function elems.ItemButton:to_formspec_string(_, _)
   update_measurements_to_fit_aspect_ratio(self.measured, self.ratio)
   return make_elem(self, pos_and_size(self), self.item, self.internalId, self.label or "")
 end
@@ -333,8 +334,8 @@ end
 ----------------------------------------------------------------
 -- checkbox
 ----------------------------------------------------------------
-respec.elements.Checkbox = Class(respec.PhysicalElement)
-function respec.elements.Checkbox:init(spec)
+elems.Checkbox = Class(respec.PhysicalElement)
+function elems.Checkbox:init(spec)
   set_to_wrap_if_absent(spec)
   respec.PhysicalElement.init(self, elemInfo.checkbox, spec)
   self.origW = self.width ; self.origH = self.height
@@ -346,11 +347,11 @@ function respec.elements.Checkbox:init(spec)
   end
 end
 -- override
-function respec.elements.Checkbox:before_measure(persist)
+function elems.Checkbox:before_measure(persist)
   apply_wrap_and_paddings_to_clickable(self, persist, "style_checkbox", 2/5, true)
 end
 -- override
-function respec.elements.Checkbox:to_formspec_string(ver, _)
+function elems.Checkbox:to_formspec_string(ver, _)
   local yOffset = 0
   if ver >= 3 then yOffset = self.measured.h / 2 end
   return make_elem(self, pos_only(self, yOffset), self.internalId, self.txt, tostring(self.checked))
@@ -359,8 +360,8 @@ end
 ----------------------------------------------------------------
 -- list
 ----------------------------------------------------------------
-respec.elements.List = Class(respec.PhysicalElement)
-function respec.elements.List:init(spec)
+elems.List = Class(respec.PhysicalElement)
+function elems.List:init(spec)
   respec.PhysicalElement.init(self, elemInfo.list, spec)
   if type(spec.inv) ~= "table" then
     log_error("List spec incorrect, `inv` param must be a table!")
@@ -372,12 +373,12 @@ function respec.elements.List:init(spec)
   self.startIndex = min0(num_or(spec.startIndex, 0))
 end
 -- override
-function respec.elements.List:to_formspec_string(_, persist)
+function elems.List:to_formspec_string(_, persist)
   local invLoc, listName = get_inv_loc_and_name_from_data(self.inv, persist)
   return make_elem(self, invLoc, listName, get_list_xywh(self), self.startIndex)
 end
 -- override
-function respec.elements.List:before_measure(persist)
+function elems.List:before_measure(persist)
   local sizeX = 1 ; local sizeY = 1
   local padX = 0.25 ; local padY = 0.25
   local style = persist["style_list"]
@@ -396,8 +397,8 @@ end
 ----------------------------------------------------------------
 -- Background (background[] and background9[])
 ----------------------------------------------------------------
-respec.elements.Background = Class(respec.PhysicalElement)
-function respec.elements.Background:init(spec)
+elems.Background = Class(respec.PhysicalElement)
+function elems.Background:init(spec)
   spec.width = num_or(spec.width or spec.w, 1)
   spec.height = num_or(spec.height or spec.h, 1)
   self.ignoreLayoutPaddings = true -- special flag used in layout_logic
@@ -417,7 +418,7 @@ function respec.elements.Background:init(spec)
   end
 end
 -- override
-function respec.elements.Background:to_formspec_string(_, _)
+function elems.Background:to_formspec_string(_, _)
   if self.middle then
     local autoclip = self.fill
     if autoclip == nil then autoclip = true end
@@ -432,8 +433,8 @@ end
 ----------------------------------------------------------------
 -- Field
 ----------------------------------------------------------------
-respec.elements.Field = Class(respec.PhysicalElement)
-function respec.elements.Field:init(spec)
+elems.Field = Class(respec.PhysicalElement)
+function elems.Field:init(spec)
   local einf = elemInfo.field
   local isPassword = (spec.isPassword == true)
   if isPassword then einf = elemInfo.pwdfield end
@@ -448,7 +449,7 @@ function respec.elements.Field:init(spec)
   end
 end
 -- override
-function respec.elements.Field:before_measure(persist)
+function elems.Field:before_measure(persist)
   if self.label ~= "" then
     if self.margins[TOP] == UNSET then
       local ms = measure_text(self.label, persist.playerName)
@@ -457,7 +458,7 @@ function respec.elements.Field:before_measure(persist)
   end
 end
 -- override
-function respec.elements.Field:to_formspec_string(_, _)
+function elems.Field:to_formspec_string(_, _)
   local elems = {}
   if self.closeOnEnter == false then
     table.insert(elems, fsmakeelem("field_close_on_enter", self.internalId, "false"))
@@ -473,17 +474,17 @@ end
 ----------------------------------------------------------------
 -- PasswordField (pwdfield[])
 ----------------------------------------------------------------
-respec.elements.PasswordField = Class(respec.elements.Field)
-function respec.elements.PasswordField:init(spec)
+elems.PasswordField = Class(elems.Field)
+function elems.PasswordField:init(spec)
   spec.isPassword = true
-  respec.elements.Field.init(self, spec)
+  elems.Field.init(self, spec)
 end
 
 ----------------------------------------------------------------
 -- TextList
 ----------------------------------------------------------------
-respec.elements.TextList = Class(respec.PhysicalElement)
-function respec.elements.TextList:init(spec)
+elems.TextList = Class(respec.PhysicalElement)
+function elems.TextList:init(spec)
   respec.PhysicalElement.init(self, elemInfo.textlist, spec)
   self.itemsStr = get_valid_textlist_items(spec.items)
   self.index = num_or(spec.index)
@@ -497,7 +498,7 @@ function respec.elements.TextList:init(spec)
   end
 end
 -- override
-function respec.elements.TextList:to_formspec_string(ver, persist)
+function elems.TextList:to_formspec_string(ver, persist)
   if self.trans or self.index then
     local tr = "false" ; if self.trans ~= nil then tr = tostring(self.trans) end
     return make_elem(self, pos_and_size(self), self.internalId, self.itemsStr, self.index or "", tr)
@@ -507,10 +508,10 @@ function respec.elements.TextList:to_formspec_string(ver, persist)
 end
 
 ----------------------------------------------------------------
--- Scroll Container (scroll_container)
+-- ScrollContainer (scroll_container)
 ----------------------------------------------------------------
-respec.elements.ScrollContainer = Class(respec.PhysicalElement)
-function respec.elements.ScrollContainer:init(spec)
+elems.ScrollContainer = Class(respec.PhysicalElement)
+function elems.ScrollContainer:init(spec)
   self.scrollElems = spec.elements
   spec.elements = nil
   respec.PhysicalElement.init(self, elemInfo.scroll_container, spec)
@@ -533,23 +534,23 @@ function respec.elements.ScrollContainer:init(spec)
       else self.margins[BOT] = self.margins[BOT] + self.barSize end
     end
     if type(spec.scrollbarOptions) == "table" then
-      self.scrollbarOptions = respec.elements.ScrollbarOptions(spec.scrollbarOptions)
+      self.scrollbarOptions = elems.ScrollbarOptions(spec.scrollbarOptions)
     end
     local scrollbarSpec = get_scrollbar_spec_for_container(self, spec)
-    self.scrollbar = respec.elements.Scrollbar(scrollbarSpec)
+    self.scrollbar = elems.Scrollbar(scrollbarSpec)
   end
 end
 -- when added to parent layout
-function respec.elements.ScrollContainer:on_added(idGen, layout)
+function elems.ScrollContainer:on_added(idGen, layout)
   self.layout:set_elements(self.scrollElems, idGen, layout.ids, layout.fieldElemsById)
   return { self.scrollbar }
 end
 -- before being measured
-function respec.elements.ScrollContainer:before_measure(persist)
+function elems.ScrollContainer:before_measure(persist)
   self.layout.playerName = persist.playerName
 end
 -- after measured is complete
-function respec.elements.ScrollContainer:after_measure()
+function elems.ScrollContainer:after_measure()
   local isVert = self.orientation:sub(1,1) == "v"
   if isVert then
     self.layout.width = self.width ; self.layout.height = WRAP
@@ -559,7 +560,7 @@ function respec.elements.ScrollContainer:after_measure()
   self.layout:measure(true)
 end
 -- override
-function respec.elements.ScrollContainer:to_formspec_string(ver, persist)
+function elems.ScrollContainer:to_formspec_string(ver, persist)
   local str = {}
   local sbid = self.externalScrollbar or ""
   if self.scrollbar then sbid = self.scrollbar.internalId or "" end
@@ -575,8 +576,8 @@ end
 ----------------------------------------------------------------
 -- Scrollbar 
 ----------------------------------------------------------------
-respec.elements.Scrollbar = Class(respec.PhysicalElement)
-function respec.elements.Scrollbar:init(spec)
+elems.Scrollbar = Class(respec.PhysicalElement)
+function elems.Scrollbar:init(spec)
   respec.PhysicalElement.init(self, elemInfo.scrollbar, spec)
   self.orientation = get_valid_orientation(spec.orientation)
   self.value = str_or(spec.value, "0-1000")
@@ -590,7 +591,7 @@ function respec.elements.Scrollbar:init(spec)
   end
 end
 -- override
-function respec.elements.Scrollbar:to_formspec_string(ver, persist)
+function elems.Scrollbar:to_formspec_string(ver, persist)
   local value = persist.state.rintern[self.internalId] or 0
   return make_elem(self, pos_and_size(self), self.orientation, self.internalId, value)
 end
@@ -598,8 +599,8 @@ end
 ----------------------------------------------------------------
 -- Image 
 ----------------------------------------------------------------
-respec.elements.Image = Class(respec.PhysicalElement)
-function respec.elements.Image:init(spec)
+elems.Image = Class(respec.PhysicalElement)
+function elems.Image:init(spec)
   local einf = elemInfo.image
   if num_or(spec.frameCount, 0) > 0 then
     einf = elemInfo.animated_image
@@ -618,7 +619,7 @@ function respec.elements.Image:init(spec)
   self.ratio = num_or(spec.ratio)
 end
 -- override
-function respec.elements.Image:to_formspec_string(ver, _)
+function elems.Image:to_formspec_string(ver, _)
   update_measurements_to_fit_aspect_ratio(self.measured, self.ratio)
   local mid = nil
   if self.mid and ver >= 6 then mid = self.mid end
@@ -632,15 +633,15 @@ end
 ----------------------------------------------------------------
 -- ItemImage (item_image)
 ----------------------------------------------------------------
-respec.elements.ItemImage = Class(respec.PhysicalElement)
-function respec.elements.ItemImage:init(spec)
+elems.ItemImage = Class(respec.PhysicalElement)
+function elems.ItemImage:init(spec)
   respec.PhysicalElement.init(self, elemInfo.item_image, spec)
   self.img = str_or(spec.item, "")
   local r = num_or(spec.ratio, 0)
   if r > 0.01 then self.ratio = r end
 end
 -- override
-function respec.elements.ItemImage:to_formspec_string(_, _)
+function elems.ItemImage:to_formspec_string(_, _)
   update_measurements_to_fit_aspect_ratio(self.measured, self.ratio)
   return make_elem(self, pos_and_size(self), self.img)
 end
@@ -648,14 +649,14 @@ end
 ----------------------------------------------------------------
 -- TextArea
 ----------------------------------------------------------------
-respec.elements.TextArea = Class(respec.PhysicalElement)
-function respec.elements.TextArea:init(spec)
+elems.TextArea = Class(respec.PhysicalElement)
+function elems.TextArea:init(spec)
   respec.PhysicalElement.init(self, elemInfo.textarea, spec)
   self.label = str_or(spec.label, "")
   self.txt = str_or(spec.text, "")
 end
 -- override
-function respec.elements.TextArea:before_measure(persist)
+function elems.TextArea:before_measure(persist)
   if self.label ~= "" then
     if self.margins[TOP] == UNSET then
       local ms = measure_text(self.label, persist.playerName)
@@ -665,7 +666,7 @@ function respec.elements.TextArea:before_measure(persist)
 end
 
 -- override
-function respec.elements.TextArea:to_formspec_string(_, _)
+function elems.TextArea:to_formspec_string(_, _)
   update_measurements_to_fit_aspect_ratio(self.measured, self.ratio)
   local id = self.internalId ; if self.id == "" then id = "" end
   return make_elem(self, pos_and_size(self), id, self.label, self.txt)
@@ -674,8 +675,8 @@ end
 ----------------------------------------------------------------
 -- TextArea
 ----------------------------------------------------------------
-respec.elements.Hypertext = Class(respec.PhysicalElement)
-function respec.elements.Hypertext:init(spec)
+elems.Hypertext = Class(respec.PhysicalElement)
+function elems.Hypertext:init(spec)
   respec.PhysicalElement.init(self, elemInfo.hypertext, spec)
   self.txt = str_or(spec.text, "")
   if type(spec.listener) == "function" then
@@ -683,7 +684,7 @@ function respec.elements.Hypertext:init(spec)
   end
 end
 -- override
-function respec.elements.Hypertext:to_formspec_string(_, _)
+function elems.Hypertext:to_formspec_string(_, _)
   return make_elem(self, pos_and_size(self), self.internalId, self.txt)
 end
 
@@ -694,14 +695,14 @@ end
 ----------------------------------------------------------------
 -- listring
 ----------------------------------------------------------------
-respec.elements.ListRing = Class(respec.Element)
-function respec.elements.ListRing:init(spec)
+elems.ListRing = Class(respec.Element)
+function elems.ListRing:init(spec)
   respec.Element.init(self, elemInfo.listring)
   self.rings = spec
   if type(self.rings) ~= "table" then self.rings = {} end
 end
 -- override
-function respec.elements.ListRing:to_formspec_string(_, persist)
+function elems.ListRing:to_formspec_string(_, persist)
   local s = ""
   for _, ring in ipairs(self.rings) do
     local invloc, listname = get_inv_loc_and_name_from_data(ring, persist)
@@ -714,8 +715,8 @@ end
 ----------------------------------------------------------------
 -- StyleType (style_type)
 ----------------------------------------------------------------
-respec.elements.StyleType = Class(respec.Element)
-function respec.elements.StyleType:init(spec)
+elems.StyleType = Class(respec.Element)
+function elems.StyleType:init(spec)
   respec.Element.init(self, elemInfo.style_type)
   self.target = str_or(spec.target, nil)
   if self.target then
@@ -726,13 +727,13 @@ function respec.elements.StyleType:init(spec)
   end
 end
 -- override
-function respec.elements.StyleType:before_measure(persist)
+function elems.StyleType:before_measure(persist)
   if self.styleData then
     persist["style_"..self.target] = self.styleData
   end
 end
 -- override
-function respec.elements.StyleType:to_formspec_string(_, _)
+function elems.StyleType:to_formspec_string(_, _)
   if not self.target or type(self.style) ~= "table" then return "" end
   local propsStr = self.style[""]
   if propsStr == "" then return "" end
@@ -742,8 +743,8 @@ end
 ----------------------------------------------------------------
 -- listcolors
 ----------------------------------------------------------------
-respec.elements.ListColors = Class(respec.Element)
-function respec.elements.ListColors:init(spec)
+elems.ListColors = Class(respec.Element)
+function elems.ListColors:init(spec)
   respec.Element.init(self, elemInfo.listcolors)
   self.slotStr = str_or(spec.slotBg, "")..";"..str_or(spec.slotBgHover, "")
   self.borderStr = str_or(spec.slotBorder)
@@ -753,7 +754,7 @@ function respec.elements.ListColors:init(spec)
   end
 end
 -- override
-function respec.elements.ListColors:to_formspec_string(_, _)
+function elems.ListColors:to_formspec_string(_, _)
   return make_elem(self, self.slotStr, self.borderStr, self.tooltipStr)
 end
 
@@ -768,8 +769,8 @@ local function valid_arrows(arrowStr)
     return "hide"
   end
 end
-respec.elements.ScrollbarOptions = Class(respec.Element)
-function respec.elements.ScrollbarOptions:init(spec)
+elems.ScrollbarOptions = Class(respec.Element)
+function elems.ScrollbarOptions:init(spec)
   respec.Element.init(self, elemInfo.scrollbaroptions)
   self.min = num_or(spec.min, 0)
   self.max = num_or(spec.max, 1000)
@@ -779,7 +780,7 @@ function respec.elements.ScrollbarOptions:init(spec)
   self.arrows = valid_arrows(spec.arrows)
 end
 -- override
-function respec.elements.ScrollbarOptions:to_formspec_string(_, _)
+function elems.ScrollbarOptions:to_formspec_string(_, _)
   return make_elem(self, 
     "min="..self.min, "max="..self.max, "smallstep="..self.sstep, "largestep="..self.lstep,
     "thumbsize="..self.thumb, "arrows="..self.arrows
