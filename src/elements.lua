@@ -41,11 +41,11 @@ local function get_inv_loc_and_name_from_data(data, persist)
   local listName = data[2] or ""
   local state = persist.state
   if invLoc == -1  then -- special case to autopopulate with position from state
-    if not state or not state.rightclick or not state.rightclick.pos then
-      log_error("Error: List cannot be created, did you forget to use `show_from_node_rightclick()`?")
+    if not state or not state.info or not state.info.pos then
+      log_error("Error: List cannot be created, did you forget to use `show_on_node_rightclick()`?")
       return ""
     end
-    local pos = state.rightclick.pos
+    local pos = state.info.pos
     invLoc = "nodemeta:"..pos.x..","..pos.y..","..pos.z
   end
   return invLoc, listName
@@ -340,7 +340,7 @@ function elems.Checkbox:init(spec)
   respec.PhysicalElement.init(self, elemInfo.checkbox, spec)
   self.origW = self.width ; self.origH = self.height
   self.txt = str_or(spec.text, "")
-  self.checked = spec.checked == true
+  self.checked = (spec.on == true) or (spec.checked == true)
   self.styleData = get_style_type_data(spec.style)
   if type(spec.onClick) == "function" then
     self.on_interact = spec.onClick
@@ -508,14 +508,51 @@ function elems.TextList:to_formspec_string(ver, persist)
 end
 
 ----------------------------------------------------------------
+-- Container
+----------------------------------------------------------------
+elems.Container = Class(respec.PhysicalElement)
+function elems.Container:init(spec)
+  self.internal_elements = spec.elements or {}
+  spec.elements = nil
+
+  local einf = elemInfo.container
+  if spec.is_scroll_container == true then einf = elemInfo.scroll_container end
+  respec.PhysicalElement.init(self, einf, spec)
+
+  self.layout = respec.Layout(spec)
+end
+-- when added to parent layout
+function elems.Container:on_added(idGen, layout)
+  self.layout:set_elements(self.internal_elements, idGen, layout.ids, layout.fieldElemsById)
+  return {}
+end
+-- before being measured
+function elems.Container:before_measure(persist)
+  self.layout.playerName = persist.playerName
+end
+-- after measured is complete
+function elems.Container:after_measure()
+  self.layout.width = self.measured.w
+  self.layout.height = self.measured.h
+  self.layout:measure(true)
+end
+-- override
+function elems.Container:to_formspec_string(ver, persist)
+  local str = {}
+  str[#str+1] = make_elem(self, pos_and_size(self))
+  str[#str+1] = self.layout:to_formspec_string(ver, persist)
+  str[#str+1] = fsmakeelem("container_end")
+  return table.concat(str, "")
+end
+
+----------------------------------------------------------------
 -- ScrollContainer (scroll_container)
 ----------------------------------------------------------------
-elems.ScrollContainer = Class(respec.PhysicalElement)
+elems.ScrollContainer = Class(elems.Container)
 function elems.ScrollContainer:init(spec)
-  self.scrollElems = spec.elements
-  spec.elements = nil
-  respec.PhysicalElement.init(self, elemInfo.scroll_container, spec)
-  self.layout = respec.Layout(spec)
+  spec.is_scroll_container = true
+  elems.Container.init(self,spec)
+
   self.orientation = get_valid_orientation(spec.orientation)
 
   local exScroll = type(spec.externalScrollbar) == "string"
@@ -542,12 +579,8 @@ function elems.ScrollContainer:init(spec)
 end
 -- when added to parent layout
 function elems.ScrollContainer:on_added(idGen, layout)
-  self.layout:set_elements(self.scrollElems, idGen, layout.ids, layout.fieldElemsById)
+  elems.Container.on_added(self, idGen, layout)
   return { self.scrollbar }
-end
--- before being measured
-function elems.ScrollContainer:before_measure(persist)
-  self.layout.playerName = persist.playerName
 end
 -- after measured is complete
 function elems.ScrollContainer:after_measure()
@@ -559,7 +592,7 @@ function elems.ScrollContainer:after_measure()
   end
   self.layout:measure(true)
 end
--- override
+-- override, completely custom
 function elems.ScrollContainer:to_formspec_string(ver, persist)
   local str = {}
   local sbid = self.externalScrollbar or ""

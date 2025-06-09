@@ -186,9 +186,6 @@ local function handle_spec(self, state)
   if not spec.h and not spec.height then spec.h = con.wrap_content end
   self.spec = verify_specification(spec)
   self.layout = respec.Layout(spec)
-  self.state = spec.state or {}
-  self.bgcolor = spec.bgColor
-  self.fbgcolor = spec.fbgColor
   self.bgfullscreen = spec.bgFullscreen
   self.reshowOnInteract = true
   if spec.reshowOnInteract == false then self.reshowOnInteract = false end
@@ -306,6 +303,7 @@ end
 --]]
 function respec.Form:show(playerName, state)
   state = state or {}
+  state.info = { playerName = playerName }
   state.rintern = {}
   if not setup_form_for_showing(self, state) then return false end
 
@@ -348,7 +346,7 @@ end
 ]]
 local get_meta = respec.util.engine.get_meta
 local is_protected = respec.util.engine.is_protected
-function respec.Form:show_from_node_rightclick(state, checkProtection)
+function respec.Form:show_on_node_rightclick(state, checkProtection)
   return function(pos, node, user, itemstack, pointed_thing)
     if not user or not user:is_player() then return end
     local playerName = user:get_player_name() ; if type(playerName) ~= "string" then return end
@@ -356,7 +354,7 @@ function respec.Form:show_from_node_rightclick(state, checkProtection)
       if is_protected(pos, playerName) then return end
     end
     local st = state or {}
-    st.rightclick = {
+    st.info = {
       pos = pos,
       node = node,
       nodeMeta = get_meta(pos),
@@ -365,6 +363,7 @@ function respec.Form:show_from_node_rightclick(state, checkProtection)
       itemstack = itemstack,
       pointed_thing = pointed_thing,
     }
+    state.rintern = {}
     self:show(playerName, st)
   end
 end

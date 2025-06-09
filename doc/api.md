@@ -18,15 +18,17 @@ respec.Form(configFunction, elemsFunction)
 ## State
 Forms have a concept of `state` - a lua table that persists from the `show(..)` function, until the form is closed.
 
-While you can put any data you want in the state, there's one field you shouldn't set - that is `state.rintern` - which is used for internally stored data to make some elements function much easier.
+While you can put any data you want in the state, there's two fields you shouldn't modify:
+- `state.info` - which contains at the very least `playerName`, and can contain more (see below)
+- `state.rintern` - which is used for storing internal data used by some elements to make life easier
 
 The initial table can be given to a form's `show()` function, and the `state` is passed when creating the form, as well as to any event-handler functions in each element (e.g. button click listeners) where the `state` can be modified to change what is displayed on the form.
 
 There are some entires in the `state` table that have special meaning (see [Showing Form From Rightclick](#showing-a-form-for-a-nodes-on_rightclick)):
 ```lua
 {
-  rightclick = {}, -- table of entires
-  -- It is automatically set when showing a form via `show_from_node_rightclick`,
+  info = { playerName = "name of player to whom the form is shown" },
+  -- When showing a form via `show_on_node_rightclick`, extra information is stored in the `info` table
   -- Some values are used by `respec.inv.form(listName)` to auto-populate inventory location
 }
 ```
@@ -149,7 +151,7 @@ You do not need to call `reshow(playerName)` to reshow the form from element int
 If you need to show a form from a node's `on_rightclick` callback, the Form class provides a utility method to do so easily:
 
 ```lua
-function Form:show_from_node_rightclick(state, checkProtection)
+function Form:show_on_node_rightclick(state, checkProtection)
 ```
 Parameters:
 - `state`: optional. The state data to be sent to the form's config/elem functions.
@@ -158,7 +160,11 @@ Parameters:
 When you use this method, the `Form`'s `state` table will have a table entry called `rightclick` (which will override any entires by that name provided in the `state` param):
 ```lua
   {
-    rightclick = {
+    info = {
+      playerName = "player name",
+      -- This is always present, as mentioned above
+      -- the name of the player to whom the form is shown
+
       pos = position,
       -- the pos param from the callback, is a vector with x,y,z coords
 
@@ -170,9 +176,6 @@ When you use this method, the `Form`'s `state` table will have a table entry cal
 
       player = objectRef,
       -- the `clicker` callback param, the live object reference to a Player (checked to be a player)
-
-      playerName = string,
-      -- the name of the player who right-clicked
 
       itemstack = ItemStack,
       -- the callback param, ItemStack object that the user used to right-click on the node
@@ -189,7 +192,7 @@ Showing From from on_rightclick example:
   local myForm = respec.Form(...) -- create a new form
   core.register_node("mymod:mynode", {
     -- other defs here
-    on_rightclick = myForm:show_from_node_rightclick(nil, true)
+    on_rightclick = myForm:show_on_node_rightclick(nil, true)
      -- form will be shown when user right-clicks this node, but only if the user has protection access
   })
 ```
@@ -780,6 +783,9 @@ spec:
   text = "Checkbox text",
   -- string to be shown (to the right of the checkbox)
 
+  on = true, -- Optional, boolean.
+  -- Defaults to false. Whether the checkbox is checked (true) or not (false)
+
   onClick = function(state, fields) return true end
   -- a function to be called when the checkbox is clicked
   -- `state` is the form's state, can be modified here
@@ -934,11 +940,60 @@ Styling:
 - Supported style properties:<br>
   `font`, `font_size`, `noclip`
 
+## Container
+Corresponds to formspec `container`
+```lua
+  respec.elements.Container(spec)
+```
+Note that this element does not support auto-sizing, so its width and height must be specified or aligned.
+
+Elements added inside the container take the container's position as origin, and, if asked to align to parent start/top/end/bottom - they will align to the size of the container.
+
+spec:
+```lua
+{
+  elements = {
+    respec.elements.<element>, -- repeated list of elements
+  }
+  -- Required. The list of elements to put inside the containers
+  -- These elements can be be aligned between themselves in the exact same way
+  -- that elements in a form can, using relative positioning.
+  -- These elements cannot align to elements outside the container.
+  -- The IDs of these elements must not repeat any IDs from outside the container,
+  -- Basically all element IDs in a Form must be unique, even if inside containers
+
+  -- Paddings are all optional.
+  -- Paddings will push all elements inwards from the corresponding edge.
+  paddings = 3,
+    -- sets paddings on all four sides to 3
+  paddings = { hor = 4, ver = 2 }
+    -- sets before/after paddings to 4 and above/below paddings to 2
+  paddings = { before = 3, after = 3, above = 3, below = 4 }
+  -- sets the paddings on each side correspondingly
+
+  -- Default margins. Optional. All 3 versions do the same thing, but allow shorthands
+  -- If present, the default margins will be used for any element that doesn't specify a corresponding margin
+  defaultElementMargins = 3,
+    -- sets all four default margins to 3
+  defaultElementMargins = { hor = 4, ver = 2 }
+    -- sets before/after margins to 4 and above/below ,margins to 2
+  defaultElementMargins = { before = 3, after = 3, above = 3, below = 4 }
+    -- sets the default margins to given values
+}
+```
+The `ScrollContainer` class will create its own scrollbar, unless you specify an external scrollbar name via `externalScrollbar`. 
+
+This built-in scrollbar will be positioned below (if orientation is horizontal) or to the right (if orientation is vertical) of the scroll container, and a margin will be set (or added) to make room for it. The scrollbar's name will be `[id_of_scroll_container]_scrollbar` - which can be used to be read via the `fields` variable 
+
 ## ScrollContainer
 Corresponds to formspec `scroll_container`
 ```lua
   respec.elements.ScrollContainer(spec)
 ```
+Note that this element does not support auto-sizing, so its width and height must be specified or aligned.
+
+Elements added inside the scroll container take the scroll container's position as origin, and, if asked to align to parent start/top/end/bottom - they will align to the size of the container.
+
 spec:
 ```lua
 {
@@ -1168,7 +1223,7 @@ Utility Methods for creating a `{"inventory location", "listname" }` description
 - `respec.inv.node(listName)`<br>
   - As above, but sets the inventory location to the `pos` specified in the form's `state`
   - `listName` is the name of the list to show
-  - Can be used if the form is shown via `show_from_node_rightclick()`, see [Showing a Form from rightlick](#showing-a-form-for-a-nodes-on_rightclick)
+  - Can be used if the form is shown via `show_on_node_rightclick()`, see [Showing a Form from rightlick](#showing-a-form-for-a-nodes-on_rightclick)
 - `respec.inv.detached(invName, listName)`<br>
   `invName` is the detached inventory name to use.
   `listName` is the name of the list from the detached inventory to show.

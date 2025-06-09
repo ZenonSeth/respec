@@ -39,6 +39,7 @@ respec.internal.supported_elements = {
   _LAYOUT =           minf { "_LAYOUT", 1, NO_INTERACT },
   label =             minf { "label", 1, NO_INTERACT },
   button =            minf { "button", 1, SEND_FIELDS },
+  container =         minf { "container", 1, NO_INTERACT },
   scroll_container =  minf { "scroll_container", 3, NO_INTERACT },
   list =              minf { "list", 1, SEND_VALUE_AND_FIELDS },
   listring =          minf { "listring", 1, NO_INTERACT },

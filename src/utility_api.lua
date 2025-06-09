@@ -29,7 +29,7 @@ end
  If only `param1` is present, `param1` is taken as the list's name,
  and the node's position will be autofilled.
 
- The single-paramter version can only be used when using show_from_node_rightclick()
+ The single-paramter version can only be used when using show_on_node_rightclick()
 ]]
 
 function respec.inv.node(param1, param2)
