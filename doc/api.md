@@ -947,7 +947,7 @@ Corresponds to formspec `container`
 ```
 Note that this element does not support auto-sizing, so its width and height must be specified or aligned.
 
-Elements added inside the container take the container's position as origin, and, if asked to align to parent start/top/end/bottom - they will align to the size of the container.
+Elements added inside the container take the container's position as origin, and, if asked to align to parent start/top/end/bottom - they will align to the size of the container. Containers in Luanti also do not clip their content to their size.
 
 spec:
 ```lua

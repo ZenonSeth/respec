@@ -29,6 +29,7 @@ Checked ones are done (or mostly done).
 - [x] `allow_close`
 - [x] `bgcolor`: To be added to Form specification
 
+- [x] `container` : Sub-layout
 - [x] `scroll_container`: contains its own layout
 - [x] `scrollbar`
 - [x] `scrollbaroptions` : nonphysical
@@ -68,7 +69,6 @@ Checked ones are done (or mostly done).
 - [ ] `tablecolumns` : maybe as special class only available in table
 - [x] `style` : nonphysical. Incorporated into physical elements' spec.
 - [x] `style_type` : nonphysical
-- [ ] `container` : As a simple sub-layout holder
 
 
 ## Specifically not supported Formspec Elements
