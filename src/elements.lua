@@ -236,7 +236,10 @@ function elems.Button:init(spec)
   respec.PhysicalElement.init(self, ei, spec)
   self.origW = self.width ; self.origH = self.height
   self.paddingsHor = num_or(spec.paddingsHor or spec.paddings, 0) * 2
-  self.paddingsVer = num_or(spec.paddingsVer or spec.paddings, 0) * 2
+  self.paddingsVer = num_or(spec.paddingsVer or spec.paddings)
+  if not self.paddingsVer then self.paddingsVer = 0.05 end -- button seems to cut off text if its too close to top/bottom
+  self.paddingsVer = self.paddingsVer * 2
+
   self.styleData = get_style_type_data(spec.style)
   self.txt = str_or(spec.text, "")
   if type(spec.onClick) == "function" then
@@ -264,7 +267,10 @@ function elems.ButtonUrl:init(spec)
   self.txt = str_or(spec.text, self.url)
   self.origW = self.width ; self.origH = self.height
   self.paddingsHor = num_or(spec.paddingsHor or spec.paddings, 0) * 2
-  self.paddingsVer = num_or(spec.paddingsVer or spec.paddings, 0) * 2
+  self.paddingsVer = num_or(spec.paddingsVer or spec.paddings)
+  if not self.paddingsVer then self.paddingsVer = 0.05 end -- button seems to cut off text if its too close to top/bottom
+  self.paddingsVer = self.paddingsVer * 2
+
   if type(spec.onClick) == "function" then
     self.on_interact = spec.onClick
   end
