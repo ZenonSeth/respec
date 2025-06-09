@@ -4,8 +4,8 @@ local slen = string.len
 
 local DEFAULT_FONT_SIZE = 16
 local DEFAULT_MONO_WIDTH = 27/160
-local DEFAULT_WIDTH = 12/80 -- trying to guesstimate most other characters
-local DEFAULT_LINE_HEIGHT = 15/40 -- at default font size
+local DEFAULT_WIDTH = 14/80 -- trying to guesstimate most other characters
+local DEFAULT_LINE_HEIGHT = 16/40 -- at default font size
 local VERT_LABEL_LINE_HEIGHT = 12/40
 local DEFAULT_LINE_SPACING = 1/6 -- seems to be constant
 
@@ -175,8 +175,9 @@ local function measure_text(string, playerName, isMono, fontSize, adjust, isVert
     i = i + 1
   end
   if width < 0.1 then width = 0.1 end -- for our layout purposes don't let width be 0
+  if width > maxWidth then maxWidth = width end
   return {
-    width = width,
+    width = maxWidth,
     height = numLines * (oneHeight + DEFAULT_LINE_SPACING) - DEFAULT_LINE_SPACING,
     numLines = numLines,
   }
