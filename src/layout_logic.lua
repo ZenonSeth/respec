@@ -22,6 +22,23 @@ end
 
 local funcs = {}
 
+local function get_parent_value(parentNode, refSide, isWidth)
+    local refValue, offset = 0, 0
+    local parentMeas = parentNode.element.measured
+    local parentMarg = parentNode.element.margins
+    if refSide == TOP or refSide == LFT then
+      refValue = parentMeas[refSide]
+      if refValue == UNSET then return nil end
+    else
+      local oppRefSide = TOP ; if refSide == RGT then oppRefSide = LFT end
+      local size = parentMeas.h ; if isWidth then size = parentMeas.w end
+      if parentMeas[oppRefSide] == UNSET then return nil end
+      refValue = parentMeas[oppRefSide] + parentMarg[oppRefSide] + size + parentMarg[refSide]
+    end
+    if isWidth then offset = parentNode.element.measured.xOffset else offset = parentNode.element.measured.yOffset end
+    return refValue + offset
+end
+
 local function update_container_measurements(side, value, layoutMeasurements)
   if side == TOP or side == BOT then
     if value > layoutMeasurements.max_y then layoutMeasurements.max_y = value end
@@ -230,7 +247,7 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
       if not funcs.hadle_post_setting_child_nodes(
         layout, childNodes, containerMeasurements, node, isWidth, invalOpp
       ) then
-        return false
+        node.resolved = false ; return false
       end
       notify_elem_if_measured(elem)
       return true
@@ -243,7 +260,7 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
         if not funcs.hadle_post_setting_child_nodes(
           layout, childNodes, containerMeasurements, node, isWidth, invalOpp
         ) then
-          return false
+          node.resolved = false ; return false
         end
         notify_elem_if_measured(elem)
         return true -- child nodes should resolve fine because they only depend on parent (hmm)
@@ -251,20 +268,16 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
     end
   else -- a child node (aka side) should be ready to resolve from parent node (aka referenced side)
     -- get the aligned side's measured value
-    -- local refValue = get_parent_value(node, layout.measured, side)
-    local refValue = parentNode.element.measured[refSide]
-
-    if refValue == nil or refValue == UNSET then log_error("parent node was not measured?") ; return false end -- should not happen
-    local offset
-    if isWidth then offset = parentNode.element.measured.xOffset else offset = parentNode.element.measured.yOffset end
-    measured[side] = refValue + offset
+    local parentCalcVal = get_parent_value(parentNode, refSide, isWidth)
+    if parentCalcVal == nil then log_error("parent node was not measured?") ; return false end -- should not happen
+    measured[side] = parentCalcVal
     set_dynamic_size_if_possible(elem, measured, margins)
     -- d.log("alinging "..elem.id..":"..side_to_str(side).." -> "..parentNode.element.id..":"..side_to_str(refSide)..
     --   "\nvalue = "..refValue.." MY measured = "..dump(measured))
     local invalOpp = update_element_sides_based_on_align(elem, side, measured, margins)
     -- node.resolvedVal = elem.measured[side]
     node.resolved = true
-    update_container_measurements(side, refValue, containerMeasurements)
+    update_container_measurements(side, parentCalcVal, containerMeasurements)
     if not funcs.hadle_post_setting_child_nodes(
       layout, childNodes, containerMeasurements, node, isWidth, invalOpp
     ) then
