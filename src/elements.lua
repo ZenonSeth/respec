@@ -235,9 +235,10 @@ function elems.Button:init(spec)
   set_to_wrap_if_absent(spec)
   respec.PhysicalElement.init(self, ei, spec)
   self.origW = self.width ; self.origH = self.height
-  self.paddingsHor = num_or(spec.paddingsHor or spec.paddings, 0) * 2
+  self.paddingsHor = num_or(spec.paddingsHor or spec.paddings)
   self.paddingsVer = num_or(spec.paddingsVer or spec.paddings)
-  if not self.paddingsVer then self.paddingsVer = 0.05 end -- button seems to cut off text if its too close to top/bottom
+  if not self.paddingsVer then self.paddingsVer = 0.1 end
+  if not self.paddingsHor then self.paddingsHor = 0.1 end
   self.paddingsVer = self.paddingsVer * 2
 
   self.styleData = get_style_type_data(spec.style)
@@ -266,9 +267,10 @@ function elems.ButtonUrl:init(spec)
   self.url = str_or(spec.url, "")
   self.txt = str_or(spec.text, self.url)
   self.origW = self.width ; self.origH = self.height
-  self.paddingsHor = num_or(spec.paddingsHor or spec.paddings, 0) * 2
+  self.paddingsHor = num_or(spec.paddingsHor or spec.paddings)
   self.paddingsVer = num_or(spec.paddingsVer or spec.paddings)
-  if not self.paddingsVer then self.paddingsVer = 0.05 end -- button seems to cut off text if its too close to top/bottom
+  if not self.paddingsVer then self.paddingsVer = 0.1 end -- button seems to cut off text if its too close to top/bottom
+  if not self.paddingsHor then self.paddingsHor = 0.1 end
   self.paddingsVer = self.paddingsVer * 2
 
   if type(spec.onClick) == "function" then
