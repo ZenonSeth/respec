@@ -133,6 +133,8 @@ It must be either:
  
 In both cases, the table must be a list of `respec.elements` which will be shown on the form.
 
+The order of the elements in the list **does not** matter. Elements are not positioned by the order they're specified in, but rather entirely by their alignment properties. Elements can also be aligned to other elements that are positioned further down the list.
+
 ## Showing the Form
 Forms can be shown by calling their `:show(playerName, state)` function, where:
 - `playerName` is the player to whom you want to show the form.
