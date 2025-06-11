@@ -71,7 +71,7 @@ local function parse_common_padd_marg_into(inf, tbl)
   if not inf then return tbl end
   if type(inf) == "number" then
     tbl[TOP] = inf ; tbl[BOT] = inf ; tbl[LFT] = inf ; tbl[RGT] = inf
-  elseif type(inf) == table then
+  elseif type(inf) == "table" then
     local mL = num_or(inf.hor, 0) ; local mR = mL
     local mT = num_or(inf.ver, 0) ; local mB = mT
     mT = num_or(inf.above,  mT)
