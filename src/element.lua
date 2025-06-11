@@ -22,6 +22,7 @@ local Class = respec.util.Class
 local log_warn = respec.log_warn
 local log_error = respec.log_error
 local str_or = respec.util.str_or
+local concatTbl = table.concat
 
 local elementsWithName = {
   animated_image = true, model = true, pwdfield = true, field = true,
@@ -193,7 +194,6 @@ local function get_align(spec)
     al.side = PARENT
   end
 
-  -- d.log("aligns = "..dump({ [TOP] = at, [BOT] = ab, [LFT] = al, [RGT] = ar }))
   return { [TOP] = at, [BOT] = ab, [LFT] = al, [RGT] = ar }
 end
 
@@ -210,7 +210,6 @@ local function get_valid_style(fsName, styleSpec)
     elseif vType == "string" then
       table.insert(baseProps, tostring(k).."="..v)
     elseif vType == "number" or vType == "boolean" then
-      -- d.log("v = "..tostring(v))
       table.insert(baseProps, tostring(k).."="..tostring(v))
     elseif vType == "table" then
       local props = {}
@@ -219,10 +218,10 @@ local function get_valid_style(fsName, styleSpec)
           table.insert(props, tostring(subK).."="..subV)
         end
       end
-      parsed[tostring(k)] = table.concat(props, ";")
+      parsed[tostring(k)] = concatTbl(props, ";")
     end
   end
-  parsed[""] = table.concat(baseProps, ";")
+  parsed[""] = concatTbl(baseProps, ";")
   return parsed
 end
 -- export for use in elements.lua

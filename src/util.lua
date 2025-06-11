@@ -6,7 +6,7 @@ local LFT = con.left
 local RGT = con.right
 local PARENT = con.parent
 local UNSET = con.unset
-
+local concatTbl = table.concat
 
 respec.util.engine = core or minetest
 local engine = respec.util.engine
@@ -133,7 +133,7 @@ function respec.util.grid(width, height, divsPerUnit)
     lines=lines.."box[0,"..(j / divsPerUnit)..";"..(w + 1)..",0.01;#888888]"
   end
 
-  return table.concat(tmp, "")..lines
+  return concatTbl(tmp, "")..lines
 end
 
 -- makes a "name[arg1;arg2;arg3]" string
@@ -141,10 +141,10 @@ function respec.util.fs_make_elem(name, ...)
   local ret = {name, "["}
   if ... ~= nil then
     local args = {...}
-    ret[#ret + 1] = table.concat(args, ";")
+    ret[#ret + 1] = concatTbl(args, ";")
   end
   ret[#ret + 1] = "]"
-  return table.concat(ret, "")
+  return concatTbl(ret, "")
 end
 
 -- make an outline with given x,y and width,height (ints)
@@ -220,7 +220,7 @@ function respec.internal.fs_elem_box(obj, notDebug, clr)
 end
 
 
-d = {} -- bad debug
+local d = {} -- bad debug
 local dlog = function(str)
   print(str)
   engine.chat_send_all(str)

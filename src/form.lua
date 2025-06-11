@@ -163,7 +163,6 @@ local function get_formspec_string(form, state, playerName)
   end
   local persist = { state = state }
   local layoutFs = form.layout:to_formspec_string(spec.ver, persist)
-  -- d.log((formDef..layoutFs):gsub("]", "]\n"))
   return formDef..debugGrid..layoutFs
 end
 

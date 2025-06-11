@@ -272,8 +272,6 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
     if parentCalcVal == nil then log_error("parent node was not measured?") ; return false end -- should not happen
     measured[side] = parentCalcVal
     set_dynamic_size_if_possible(elem, measured, margins)
-    -- d.log("alinging "..elem.id..":"..side_to_str(side).." -> "..parentNode.element.id..":"..side_to_str(refSide)..
-    --   "\nvalue = "..refValue.." MY measured = "..dump(measured))
     local invalOpp = update_element_sides_based_on_align(elem, side, measured, margins)
     -- node.resolvedVal = elem.measured[side]
     node.resolved = true
