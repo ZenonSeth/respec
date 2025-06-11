@@ -17,6 +17,7 @@ local min0 = respec.util.min0
 local log_error = respec.log_error
 local engine = respec.util.engine
 local elems = respec.elements
+local concatTbl = table.concat
 
 local get_valid_style = elems.get_valid_style
 elems.get_valid_style = nil
@@ -34,6 +35,11 @@ local function get_style_type_data(spec)
   end
   return entires
 end
+
+ local function get_valid_dropdown_items(specItems)
+  if type(specItems) ~= "table" then return {} end
+  return concatTbl(specItems, ",")
+ end
 
 -- returns invloc, listname
 local function get_inv_loc_and_name_from_data(data, persist)
@@ -132,7 +138,7 @@ local function get_valid_textlist_items(items)
     ret[ri] = tostring(items[i])
     ri = ri + 1
   end
-  return table.concat(ret, ",")
+  return concatTbl(ret, ",")
 end
 
 -- minv/maxv in range 0-255
@@ -403,6 +409,32 @@ function elems.List:before_measure(persist)
 end
 
 ----------------------------------------------------------------
+-- Dropdown
+----------------------------------------------------------------
+elems.Dropdown = Class(respec.PhysicalElement)
+function elems.Dropdown:init(spec)
+  if not spec.h and not spec.height then spec.h = WRAP end -- set to wrap height if unset
+  respec.PhysicalElement.init(self, elemInfo.dropdown, spec)
+  self.itemsStr = get_valid_dropdown_items(spec.items)
+  self.index = min0(num_or(spec.index, 0))
+  self.indexEvent = bool_or(spec.indexEvent)
+  if type(spec.listener) == "function" then
+    self.on_interact = spec.listener
+  end
+end
+-- override
+function elems.Dropdown:before_measure(persist)
+  if self.height == WRAP then
+    self.height = measure_text("W", persist.playerName).height -- hacky?
+  end
+end
+-- override
+function elems.Dropdown:to_formspec_string(ver, _)
+  local idxEv = nil ; if ver >= 4 then idxEv = tostring(self.indexEvent == true) end
+  return make_elem(self, pos_and_size(self), self.internalId, self.itemsStr, self.index, idxEv)
+end
+
+----------------------------------------------------------------
 -- Background (background[] and background9[])
 ----------------------------------------------------------------
 elems.Background = Class(respec.PhysicalElement)
@@ -476,7 +508,7 @@ function elems.Field:to_formspec_string(_, _)
   end
   local deftxt = self.txt ; if self.isPassword then deftxt = nil end
   table.insert(elems, make_elem(self, pos_and_size(self), self.internalId, self.label, deftxt))
-  return table.concat(elems, "")
+  return concatTbl(elems, "")
 end
 
 ----------------------------------------------------------------
@@ -550,7 +582,7 @@ function elems.Container:to_formspec_string(ver, persist)
   str[#str+1] = make_elem(self, pos_and_size(self))
   str[#str+1] = self.layout:to_formspec_string(ver, persist)
   str[#str+1] = fsmakeelem("container_end")
-  return table.concat(str, "")
+  return concatTbl(str, "")
 end
 
 ----------------------------------------------------------------
@@ -611,7 +643,7 @@ function elems.ScrollContainer:to_formspec_string(ver, persist)
   str[#str+1] = make_elem(self, pos_and_size(self), sbid, self.orientation, self.scrollFactor, "0")
   str[#str+1] = self.layout:to_formspec_string(ver, persist)
   str[#str+1] = fsmakeelem("scroll_container_end")
-  return table.concat(str, "")
+  return concatTbl(str, "")
 end
 
 ----------------------------------------------------------------

@@ -62,7 +62,7 @@ Checked ones are done (or mostly done).
 - [x] `textlist` : optional params selected idx, transparent
 - [ ] `tabheader` : may support requiring height - maybe
 - [ ] `box`
-- [ ] `dropdown` : may require w+h
+- [x] `dropdown` : may require w+h
 - [x] `checkbox` : Still needs wrap_content, if necessary
 - [ ] `table`
 - [ ] `tableoptions` : maybe as param to table

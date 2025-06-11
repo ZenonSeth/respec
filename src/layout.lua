@@ -9,6 +9,7 @@ local RGT = con.right
 local VISIBLE = con.visible
 local log_error = respec.log_error
 local str_or = respec.util.str_or
+local concatTbl = table.concat
 
 local layoutCount = 0
 local function unique_layout_id()
@@ -40,7 +41,7 @@ local function get_style_string_for_element(elem)
     local st = "" ; if state ~= "" then st = ":"..state end
     table.insert(ret, "style["..elemName..st..";"..props.."]")
   end
-  return table.concat(ret, "")
+  return concatTbl(ret, "")
 end
 
 local fs_elem_box = respec.internal.fs_elem_box
@@ -61,7 +62,7 @@ local function add_common_physical_formspec_string(elem, str, layout)
       ret[#ret+1] = fs_elem("tooltip", x..","..y, w..","..h, elem.tooltip, layout.tooltipBg, layout.tooltipFont)
     end
   end
-  return table.concat(ret, "")
+  return concatTbl(ret, "")
 end
 
 local num_or = respec.util.num_or
@@ -191,7 +192,7 @@ function respec.Layout:to_formspec_string(ver, persist)
         end
       end
     end
-    self.serialized = table.concat(tbl, "")
+    self.serialized = concatTbl(tbl, "")
   end
   local debug = get_layout_debug_formspec(self)
   return debug..self.serialized

@@ -803,7 +803,7 @@ Styling:
   `noclip`, `sound`
 
 ## List
-Corresponds to formspec `list`
+Corresponds to formspec `list` (meaning, an inventory list)
 ```lua
   respec.elements.List(spec)
 ```
@@ -831,6 +831,41 @@ Styling:
 - Only supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `noclip`, `size`, `spacing`
+
+## Dropdown
+Corresponds to formspec `dropdown`
+```lua
+  respec.elements.Dropdown(spec)
+```
+spec:
+```lua
+{
+  w = 2, h = 1, -- width is Required. height is Optional (though recommended to set)
+  
+  items = {
+    "list", "of items", "to show", "in dropdown"
+  }
+  -- Required. Should be a list of strings
+
+  index = 3, -- Optional
+  -- The selected index. Defaults to 0
+
+  indexEvent = true, -- Optional. Defaults is false
+  -- Only has effect if formspec version >= 4
+  -- If set to true, the listener will receive the index of the selected item as the value.
+  -- Otherwise (if false, or formspec version < 4), the selected item's value is sent instead.
+  
+  listener = function(state, value, fields) end, -- Optional
+  -- Function that gets called when an item is selected.
+  -- Value is either the index or the selected item's value, as determined from above
+}
+```
+
+Styling:
+- Supports per-element `style` entry in their spec.
+- Supports type-styling via [StyleType](#styletype)
+- Supported style properties:<br>
+  `noclip`, `sound`
 
 ## Background
 Corresponds to formspec `background` and `background9`
