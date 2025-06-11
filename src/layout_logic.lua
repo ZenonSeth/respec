@@ -271,7 +271,7 @@ local function perform_layout_of_node(layout, node, containerMeasurements, paren
   else -- a child node (aka side) should be ready to resolve from parent node (aka referenced side)
     -- get the aligned side's measured value
     local parentCalcVal = get_parent_value(parentNode, refSide, isWidth)
-    if parentCalcVal == nil then log_error("parent node was not measured?") ; return false end -- should not happen
+    if parentCalcVal == nil then return false end -- can happen if opposite side dependency exists
     measured[side] = parentCalcVal
     set_dynamic_size_if_possible(elem, measured, margins)
     local invalOpp = update_element_sides_based_on_align(elem, side, measured, margins)
