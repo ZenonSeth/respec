@@ -47,7 +47,7 @@ local function update_container_measurements(side, value, layoutMeasurements)
   end
 end
 
-local function invalidate_tree_and_opposite_if_unset(root, isWidth, checkOpposite)
+local function invalidate_tree_and_opposite_if_unset(root, isWidth, checkOpposite, cameFrom)
   if not root then return end
   root.resolved = false
   local ms = root.element.measured
@@ -60,7 +60,9 @@ local function invalidate_tree_and_opposite_if_unset(root, isWidth, checkOpposit
     end
   end
   for _, child in ipairs(root.childNodes) do
-    invalidate_tree_and_opposite_if_unset(child, isWidth, true)
+    if child ~= cameFrom then
+      invalidate_tree_and_opposite_if_unset(child, isWidth, true, root)
+    end
   end
   if checkOpposite and root.oppositeNode and root.oppositeNode.side == UNSET then
     invalidate_tree_and_opposite_if_unset(root.oppositeNode, isWidth, false)
