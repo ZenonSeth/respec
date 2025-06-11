@@ -29,7 +29,6 @@ Checked ones are done (or mostly done).
 - [x] `allow_close`
 - [x] `bgcolor`: To be added to Form specification
 
-- [ ] `model`: Planned before 1.0
 - [ ] `tabheader` : Planned before 1.0
 - [ ] `table` : Planned before 1.0
 - [ ] `tableoptions` : Planned before 1.0
@@ -53,6 +52,7 @@ Checked ones are done (or mostly done).
 - [x] `field_close_on_enter` : incorporated as flag in regular field
 - [x] `textarea`
 - [x] `label`
+- [x] `model`
 - [x] `hypertext`
 - [x] `vertlabel` : Added as flag on existing Label
 - [x] `button`

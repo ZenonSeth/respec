@@ -655,7 +655,7 @@ spec:
 }
 ```
 Styling:
-- Supports per-element `style` entry in their spec.
+- Supports per-element `style` entry in their spec, if `id` is set.
 - Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `alpha`, `bgcolor`, `bgimg`, `bgimg_middle`, `font`, `font_size`, `border`, `content_offset`, `noclip`, `sound`, `textcolor`
@@ -699,7 +699,7 @@ spec:
   -- The image to show inside the button when the button is pressed
 }
 ```
-- Supports per-element `style` entry in their spec.
+- Supports per-element `style` entry in their spec, if `id` is set.
 - Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `alpha`, `bgcolor`, `bgimg`, `bgimg_middle`, `font`, `font_size`, `border`, `content_offset`, `noclip`, `sound`, `textcolor`
@@ -730,7 +730,7 @@ spec:
   -- `fields` is the map of value of the fields in the form
 }
 ```
-- Supports per-element `style` entry in their spec.
+- Supports per-element `style` entry in their spec, if `id` is set.
 - Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `alpha`, `bgcolor`, `bgimg`, `bgimg_middle`, `font`, `font_size`, `border`, `content_offset`, `noclip`, `sound`, `textcolor`
@@ -797,7 +797,7 @@ spec:
 }
 ```
 Styling:
-- Supports per-element `style` entry in their spec.
+- Supports per-element `style` entry in their spec, if `id` is set.
 - Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `noclip`, `sound`
@@ -862,7 +862,7 @@ spec:
 ```
 
 Styling:
-- Supports per-element `style` entry in their spec.
+- Supports per-element `style` entry in their spec, if `id` is set.
 - Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `noclip`, `sound`
@@ -936,7 +936,7 @@ Both elements share the same spec:
 }
 ```
 Styling:
-- Supports per-element `style` entry in their spec.
+- Supports per-element `style` entry in their spec, if `id` is set.
 - Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `border`, `font`, `font_size`, `noclip`, `textcolor`
@@ -972,7 +972,7 @@ spec:
 }
 ```
 Styling:
-- Supports per-element `style` entry in their spec.
+- Supports per-element `style` entry in their spec, if `id` is set.
 - Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `font`, `font_size`, `noclip`
@@ -1118,7 +1118,7 @@ spec:
 ```
 Styling:
 - See also [ScrollbarOptions](#scrollbaroptions)
-- Supports per-element `style` entry in their spec.
+- Supports per-element `style` entry in their spec, if `id` is set.
 - Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `noclip`
@@ -1216,10 +1216,47 @@ spec:
 }
 ```
 Styling:
-- Supports per-element `style` entry in their spec, ONLY if `id` is set
+- Supports per-element `style` entry in their spec, if `id` is set
 - Supports type-styling via [StyleType](#styletype)
 - Supported style properties:<br>
   `border`, `font`, `font_size`, `noclip`, `textcolor`
+
+## Model
+Corresponds to formspec `model`
+```lua
+  respec.elements.Model(spec)
+```
+This element does not support wrapping width/height, and those must be specified or aligned.
+
+spec:
+```lua
+{
+  mesh = "mesh.obj" -- Required.
+  -- the mesh to display
+
+  textures = "texture1.png,texture2.png", -- Required
+  -- The mesh textures to use according to the mesh materials. Textures must be separated by commas.
+
+  rotation = "x,y", -- Optional. "#,#" format
+  -- Initial rotation to use, axes are euler angles in degrees.
+
+  autoRotate = true, -- Optional. Boolean
+  -- Whether the rotation auto-rotates aka continuous. Default `false`
+
+  control = true, -- Optional. Boolean
+  -- True/false whether the model can be rotated with mouse. Default `true`
+
+  loopRange = "<begin frame>,<end frame>", -- Optional. "#,#" format
+  -- Range of the animation frames to show. Defaults to full range of all frames.
+
+  animSpeed = 60, -- Optional
+  -- Sets the anim speed in Frames Per Second. Default 0 FPS.
+}
+```
+- Supports per-element `style` entry in their spec, if `id` is set
+- Supports type-styling via [StyleType](#styletype)
+- Supported style properties:<br>
+  `bgcolor`, `noclip`
 
 ## Hypertext
 Corresponds to formspec `hypertext`

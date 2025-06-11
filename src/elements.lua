@@ -746,6 +746,37 @@ function elems.TextArea:to_formspec_string(_, _)
 end
 
 ----------------------------------------------------------------
+-- Model
+----------------------------------------------------------------
+elems.Model = Class(respec.PhysicalElement)
+function elems.Model:init(spec)
+  respec.PhysicalElement.init(self, elemInfo.model, spec)
+  self.mesh = str_or(spec.mesh or spec.model)
+  self.textures = str_or(spec.textures)
+  self.rotation = str_or(spec.rotation)
+  self.autoRot = bool_or(spec.autoRotate or spec.continuous)
+  self.control = bool_or(spec.control)
+  self.loopRange = str_or(spec.loopRange)
+  self.animSpeed = num_or(spec.animSpeed)
+end
+-- override
+function elems.Model:to_formspec_string(_, _)
+  local autoRot = "" ; if self.autoRot ~= nil then autoRot = tostring(self.autoRot) end
+  local control = "" ; if self.control ~= nil then control = tostring(self.control) end
+  local animSp = "" ; if self.animSpeed ~= nil then animSp = tostring(self.animSpeed) end
+  return make_elem(
+    self, pos_and_size(self), self.internalId,
+    self.mesh or "",
+    self.textures or "",
+    self.rotation or "",
+    autoRot,
+    control,
+    self.loopRange or "",
+    animSp
+  )
+end
+
+----------------------------------------------------------------
 -- Hypertext
 ----------------------------------------------------------------
 elems.Hypertext = Class(respec.PhysicalElement)
