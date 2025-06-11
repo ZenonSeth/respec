@@ -12,7 +12,7 @@ All names of values specified in the tables below are case sensitive, so `w = 4`
 # Form
 Defines a form with all its configuration and elements it contains.
 ```lua
-respec.Form(configFunction, elemsFunction)
+respec.Form(configFunc, elemsFunc)
 ```
 
 ## State
@@ -33,8 +33,8 @@ There are some entires in the `state` table that have special meaning (see [Show
 }
 ```
 
-## `configFunction`
-`configFunction` provides the configuration of the form.<br>
+## `configFunc`
+`configFunc` provides the configuration of the form.<br>
 It must be a either:
 - A simple `config` table with the format shown below
 - A function that accepts the `state` object, `function(state)`. The function must return the `config` table.
@@ -125,8 +125,8 @@ It must be a either:
     -- Optional, sets the font color for any tooltips in this form
  }
 ```
-## `elemsFunction`
-The `elemsFunction` provides the list elements to be shown in the form.<br>
+## `elemsFunc`
+The `elemsFunc` provides the list elements to be shown in the form.<br>
 It must be either:
 - A simple table
 - A function `function(state)` which gets passed the Form's `state`, and must return a table
