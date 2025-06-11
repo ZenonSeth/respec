@@ -727,6 +727,7 @@ function elems.TextArea:init(spec)
   respec.PhysicalElement.init(self, elemInfo.textarea, spec)
   self.label = str_or(spec.label, "")
   self.txt = str_or(spec.text, "")
+  self.editable = bool_or(spec.editable)
 end
 -- override
 function elems.TextArea:before_measure(persist)
@@ -737,11 +738,10 @@ function elems.TextArea:before_measure(persist)
     end
   end
 end
-
 -- override
 function elems.TextArea:to_formspec_string(_, _)
   update_measurements_to_fit_aspect_ratio(self.measured, self.ratio)
-  local id = self.internalId ; if self.id == "" then id = "" end
+  local id = "" ; if self.editable then id = self.internalId end
   return make_elem(self, pos_and_size(self), id, self.label, self.txt)
 end
 

@@ -1202,8 +1202,10 @@ spec:
 ```lua
 {
   id = "unique_id" -- inherited from physical element.
-  -- This is optional - but if its not specified, the area becomes Read-Only, its
-  -- normal background won't be drawn, and its value won't be send via `fields`
+  -- Required if `editable = true` is set, used to lookup of value of TextArea in the fields.
+
+  editable = true, -- Optional
+  -- Default `false`. Whether the user can edit this area or not.
 
   label = "Text to show above text area"
   -- Optional. Shows a small label above the text area.
