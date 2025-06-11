@@ -746,7 +746,7 @@ function elems.TextArea:to_formspec_string(_, _)
 end
 
 ----------------------------------------------------------------
--- TextArea
+-- Hypertext
 ----------------------------------------------------------------
 elems.Hypertext = Class(respec.PhysicalElement)
 function elems.Hypertext:init(spec)
@@ -759,6 +759,19 @@ end
 -- override
 function elems.Hypertext:to_formspec_string(_, _)
   return make_elem(self, pos_and_size(self), self.internalId, self.txt)
+end
+
+----------------------------------------------------------------
+-- Box
+----------------------------------------------------------------
+elems.Box = Class(respec.PhysicalElement)
+function elems.Box:init(spec)
+  respec.PhysicalElement.init(self, elemInfo.box, spec)
+  self.color = str_or(spec.color, "")
+end
+-- override
+function elems.Box:to_formspec_string(_, _)
+  return make_elem(self, pos_and_size(self), self.color)
 end
 
 ----------------------------------------------------------------

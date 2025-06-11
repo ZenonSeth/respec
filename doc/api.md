@@ -1244,6 +1244,29 @@ spec:
 }
 ```
 
+## Box
+Corresponds to formspec `box`
+```lua
+  respec.elements.Box(spec)
+```
+This element does not support wrapping width/height, and those must be specified or aligned.
+
+spec:
+```lua
+{
+  color = "#RRGGBBAA", -- Optional
+  -- the color to draw the box in. If alpha component is not specified, semi-transparent will be used
+  -- If no color is specified, then the box style options will be used.
+  -- If a color is specified, all style options will be ignored
+}
+```
+- Supports type-styling via [StyleType](#styletype) only
+- Supported style properties:<br>
+  `noclip`: whether box is allowed to exceed clipping of form
+  `colors`: can be 1, 2, or 4 colors, specifying all corners, top/bottom, or top-left,top-right,bottom-right, bottom-left
+  `bordercolors`: Can also be 1, 2, or 4 colors, as above
+  `borderwidths`: pixel width. If negative, border is drawn inside box. If positive, outside box
+
 # Utility Methods
 
 ## Inventory utils

@@ -29,6 +29,11 @@ Checked ones are done (or mostly done).
 - [x] `allow_close`
 - [x] `bgcolor`: To be added to Form specification
 
+- [ ] `model`: Planned before 1.0
+- [ ] `tabheader` : Planned before 1.0
+- [ ] `table` : Planned before 1.0
+- [ ] `tableoptions` : Planned before 1.0
+- [ ] `tablecolumns` : Planned before 1.0
 - [x] `container` : Sub-layout
 - [x] `scroll_container`: contains its own layout
 - [x] `scrollbar`
@@ -39,7 +44,6 @@ Checked ones are done (or mostly done).
 - [x] `tooltip` : gui_element_name ones should be build into each `PhysicalElement`
 - [x] `image`
 - [x] `animated_image`
-- [ ] `model`
 - [x] `item_image`
 - [x] `background` : standalone
 - [x] `background9` : standalone
@@ -60,13 +64,9 @@ Checked ones are done (or mostly done).
 - [x] `button_url_exit` : incorporated as flag into regular button_url
 - [x] `image_button_exit` : incorporated as flag into regular image_button
 - [x] `textlist` : optional params selected idx, transparent
-- [ ] `tabheader` : may support requiring height - maybe
-- [ ] `box`
+- [x] `box`
 - [x] `dropdown` : may require w+h
 - [x] `checkbox` : Still needs wrap_content, if necessary
-- [ ] `table`
-- [ ] `tableoptions` : maybe as param to table
-- [ ] `tablecolumns` : maybe as special class only available in table
 - [x] `style` : nonphysical. Incorporated into physical elements' spec.
 - [x] `style_type` : nonphysical
 
