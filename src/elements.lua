@@ -246,6 +246,7 @@ function elems.Button:init(spec)
   if not self.paddingsVer then self.paddingsVer = 0.1 end
   if not self.paddingsHor then self.paddingsHor = 0.1 end
   self.paddingsVer = self.paddingsVer * 2
+  self.paddingsHor = self.paddingsHor * 2
 
   self.styleData = get_style_type_data(spec.style)
   self.txt = str_or(spec.text, "")
@@ -278,6 +279,7 @@ function elems.ButtonUrl:init(spec)
   if not self.paddingsVer then self.paddingsVer = 0.1 end -- button seems to cut off text if its too close to top/bottom
   if not self.paddingsHor then self.paddingsHor = 0.1 end
   self.paddingsVer = self.paddingsVer * 2
+  self.paddingsHor = self.paddingsHor * 2
 
   if type(spec.onClick) == "function" then
     self.on_interact = spec.onClick
