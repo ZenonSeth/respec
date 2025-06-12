@@ -19,10 +19,7 @@ However knowledge of Android or Constraint Layout is not required.
 The API docs can be found under [doc/api.md](https://github.com/ZenonSeth/respec/blob/main/doc/api.md).
 
 ## Getting Started
-A standalone self-demonstrating mod with live code examples is being developed at: [link todo]()
-
-Alternatively see the [Getting Started page on the Github Wiki](https://github.com/ZenonSeth/respec/wiki)
-
+[Getting Started page on the Github Wiki](https://github.com/ZenonSeth/respec/wiki)
 
 ## Specifically Unsupported Formspec Elements
 - `real_coordinates[<bool>]`<br>
