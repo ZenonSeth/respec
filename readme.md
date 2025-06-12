@@ -1,4 +1,4 @@
-This mod is currently in alpha. There are still some missing features, and the API may change slightly!
+This mod is in Beta. See [roadmap.md](https://github.com/ZenonSeth/respec/blob/main/roadmap.md)
 
 # Respec
 Respec, from "**Re**lative Form**spec**", is a formspec library for [Luanti](https://www.luanti.org).
@@ -14,12 +14,12 @@ Respec provides:
 Respec's system of positioning and sizing of elements uses relative positioning, which is inspired by and strongly based on [Android's Constraint Layout](https://developer.android.com/develop/ui/views/layout/constraint-layout), with which Respec shares many similarities (e.g. chains).<br>
 However knowledge of Android or Constraint Layout is not required.
 
+## Getting Started
+[Getting Started page on the Github Wiki](https://github.com/ZenonSeth/respec/wiki)
+
 ## API
 
 The API docs can be found under [doc/api.md](https://github.com/ZenonSeth/respec/blob/main/doc/api.md).
-
-## Getting Started
-[Getting Started page on the Github Wiki](https://github.com/ZenonSeth/respec/wiki)
 
 ## Specifically Unsupported Formspec Elements
 - `real_coordinates[<bool>]`<br>
