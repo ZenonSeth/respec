@@ -1,5 +1,3 @@
-Alpha state: API may change slightly in near future.
-
 # General Info
 
 The Respec API is based on the [Luanti Formspec API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#formspec). Knowledge of that API may be useful in understanding what certain elements do.
