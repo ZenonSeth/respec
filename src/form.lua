@@ -302,8 +302,8 @@ end
 --]]
 function respec.Form:show(playerName, state)
   state = state or {}
-  state.info = { playerName = playerName }
-  state.rintern = {}
+  if not state.info then state.info = { playerName = playerName } end
+  if not state.rintern then state.rintern = {} end
   if not setup_form_for_showing(self, state) then return false end
 
   local id = self.id
@@ -362,7 +362,7 @@ function respec.Form:show_on_node_rightclick(state, checkProtection)
       itemstack = itemstack,
       pointed_thing = pointed_thing,
     }
-    state.rintern = {}
+    st.rintern = {}
     self:show(playerName, st)
   end
 end
