@@ -278,8 +278,8 @@ function respec.PhysicalElement:init(fselem, spec)
   self.pixelBorder = spec.pixelBorder
   self.chainTypeHor = valid_chain_type(spec.chainTypeHor)
   self.chainTypeVer = valid_chain_type(spec.chainTypeVer)
-  self.chainWeightHor = valid_weight(spec.chainWeightHor)
-  self.chainWeightVer = valid_weight(spec.chainWeightVer)
+  self.chainWeightHor = valid_weight(spec.weightHor)
+  self.chainWeightVer = valid_weight(spec.weightVer)
   self.measured = { -- represents the location of the outer bounds that include margins
       [TOP] = UNSET, [BOT] = UNSET, [LFT] = UNSET, [RGT] = UNSET,
       w = UNSET, h = UNSET, -- the actual elements (not bounds) w/h

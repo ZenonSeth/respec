@@ -467,8 +467,8 @@ This spec is common between all physical elements, and each Physical Element has
   -- See the section on Chains for details on the different chain types and how to create chains
   -- If not set, both default to using Packed
 
-  chainWeightHor = 1, -- Number, greater than 0
-  chainWeightVer = 1, -- Number, greater than 0
+  weightHor = 1, -- Number, greater than 0
+  weightVer = 1, -- Number, greater than 0
   -- Optional, defaults to 1
   -- IF chain_type is chain_spread or chain_spread_inside, and this element's width is 0, it will attempt to fill out all
   -- the remaining space, shared equally between elements. This doesn't work with chain_packed however.
@@ -561,7 +561,7 @@ If any element in the chain has set its size set to 0, say its width: `w = 0`, t
 
 Multiple elements within the same chain can have their widths set to 0 and will equally attempt to fill out remaining space.
 
-By default each element assumes it has a weight of 1, but this can be overwritten by setting `chainWeightHor` and `chainWeightVer` on any element in the chain, and (if that element has a corresponding size of 0), the elements will take proportionally as much space. The exact space taken up is determined by the formula: `elementSize = freeSpace * elementWeight / weightSum` - where the `weightSum` is the sum of all weighted elements in the chain.
+By default each element assumes it has a weight of 1, but this can be overwritten by setting `weightHor` and `weightVer` on any element in the chain, and (if that element has a corresponding size of 0), the elements will take proportionally as much space. The exact space taken up is determined by the formula: `elementSize = freeSpace * elementWeight / weightSum` - where the `weightSum` is the sum of all weighted elements in the chain.
 
 ## Element Style Definition
 Due to the formspec api, only these elements support individual styling:<br>
