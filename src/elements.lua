@@ -486,8 +486,8 @@ function elems.Field:init(spec)
   self.label = str_or(spec.label, "")
   self.closeOnEnter = bool_or(spec.closeOnEnter)
   self.enterAfterEdit = bool_or(spec.enterAfterEdit)
-  if type(spec.onSubmit) == "function" then
-    self.on_interact = spec.onSubmit
+  if type(spec.listener) == "function" then
+    self.on_interact = spec.listener
   end
 end
 -- override

@@ -926,7 +926,7 @@ Both elements share the same spec:
   -- If set to true, pressing "Done" on Android software text input will
   -- simulate an Enter key press, and submit the field
 
-  onSubmit = function(state, value, fields) end
+  listener = function(state, value, fields) end
   -- a function to be called when the user types and presses Enter in the field
   -- `state` is the form's state, can be modified here.
   -- `value` is the value of the Field or PasswordField
