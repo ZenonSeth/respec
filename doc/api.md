@@ -1322,7 +1322,7 @@ Utility Methods for creating a `{"inventory location", "listname" }` description
 - `respec.inv.node(listName)`<br>
   - As above, but sets the inventory location to the `pos` specified in the form's `state`
   - `listName` is the name of the list to show
-  - Can be used if the form is shown via `show_on_node_rightclick()`, see [Showing a Form from rightlick](#showing-a-form-for-a-nodes-on_rightclick)
+  - Can be used if the form is shown via `show_on_node_rightclick()`, see [Showing a Form from rightlick](#showing-a-form-from-a-nodes-on_rightclick)
 - `respec.inv.detached(invName, listName)`<br>
   `invName` is the detached inventory name to use.
   `listName` is the name of the list from the detached inventory to show.
