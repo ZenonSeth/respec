@@ -1228,7 +1228,7 @@ Styling:
 - Supported style properties:<br>
   `border`, `font`, `font_size`, `noclip`, `textcolor`
 
-## Tabs and FormTabs
+## Tabs
 Corresponds to formspec `tabheader`
 ```lua
   respec.elements.Tabs(spec)
