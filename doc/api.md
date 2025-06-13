@@ -1228,6 +1228,52 @@ Styling:
 - Supported style properties:<br>
   `border`, `font`, `font_size`, `noclip`, `textcolor`
 
+## Tabs and FormTabs
+Corresponds to formspec `tabheader`
+```lua
+  respec.elements.Tabs(spec)
+```
+
+spec:
+```lua
+{
+  aboveForm = true, -- Optional. Default is true.
+  -- Makes the tabs appear above the form, and won't be affected by alignment, or form padding.
+  -- You can still control their positioning in a limited way using margins.
+  -- If set to `false`, then the Tabs can be positioned inside the form using alignments.
+
+  w = 2, h = 1, -- Optional.
+  -- If not using aboveForm tabs, and you want to align other elements to the Tabs,
+  -- you _must_ specify at least a `w` - otherwise tabs will assume entire width of container.
+  -- Specifying a width for aboveForm tabs is also valid, even if not necessary at all
+  -- Height works fine with both aboveForm tabs and otherwise.
+
+  items = { "Tab 1 Caption", "Tab 2 Caption", "Tab 3 Caption" },
+  -- Required. A list of strings, each corresponding to a tab
+
+  index = 1,
+  -- Optional. Defaults to 1. Which tab is the selected tab
+
+  transparent = true, -- Optional. Default is true
+  -- Whether to draw tabs semi-transparent
+  -- NOTE: does not seem to work in current formspec version
+
+  drawBorder = true,  -- Optional Default is true
+  -- Whether to draw tabs' borders
+  -- NOTE: does not seem to work in current formspec version
+
+  listener = function(state, value, fields) end,
+  -- Optional. Called when a tab is selected
+  -- `state` is the form's state, can be modified here.
+  -- `value` is the tab index that was selected
+  -- `fields` is the map of value of the fields in the form
+}
+```
+- Supports per-element `style` entry in their spec, if `id` is set
+- Supports type-styling via [StyleType](#styletype)
+- Supported style properties:<br>
+  `noclip`, `sound`, `textcolor`
+
 ## Model
 Corresponds to formspec `model`
 ```lua

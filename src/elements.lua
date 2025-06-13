@@ -7,6 +7,7 @@ local LFT = con.left
 local RGT = con.right
 local WRAP = con.wrap_content
 local UNSET = con.unset
+local PARENT = con.parent
 
 -- utility funcs
 
@@ -745,6 +746,60 @@ function elems.TextArea:to_formspec_string(_, _)
   update_measurements_to_fit_aspect_ratio(self.measured, self.ratio)
   local id = "" ; if self.editable then id = self.internalId end
   return make_elem(self, pos_and_size(self), id, self.label, self.txt)
+end
+
+----------------------------------------------------------------
+-- Tabs (tabheader)
+----------------------------------------------------------------
+local TAB_HEADER_DEFAULT_HEIGHT = 4/5 -- by default
+elems.Tabs = Class(respec.PhysicalElement)
+function elems.Tabs:init(spec)
+  -- set default height, if one wasn't set
+  if not spec.h and not spec.height then spec.h = TAB_HEADER_DEFAULT_HEIGHT end
+
+  respec.PhysicalElement.init(self, elemInfo.tabheader, spec)
+
+  -- override alignents if using aboveForm version (by default)
+  if spec.aboveForm == nil or spec.aboveForm == true then
+    self.abf = true ; self.ignoreLayoutPaddings = true
+    local uns = {ref = "", side = UNSET}
+    local prt = {ref = "", side = PARENT}
+    self.align = { [TOP] = prt, [BOT] = uns, [LFT] = prt, [RGT] = prt }
+  else -- custom setup for positionable
+    -- if width is not set, and right side is not aligned, then set right side to parent
+    if self.width <= 0 and self.align[RGT].side == UNSET then self.align[RGT].side = PARENT end
+  end
+
+  self.itemsStr = get_valid_dropdown_items(spec.items)
+  self.idx = num_or(spec.index, 1)
+  self.trp = bool_or(spec.transparent)
+  self.bor = bool_or(spec.drawBorder)
+  if type(spec.listener) == "function" then
+    self.on_interact = spec.listener
+  end
+end
+-- override
+function elems.Tabs:to_formspec_string(_, _)
+  local trp = self.trp ; if trp ~= nil then trp = tostring(trp) else trp = "" end
+  local bor = self.bor ; if bor ~= nil then bor = tostring(bor) else bor = "" end
+  local sizeStr = nil
+  if self.width > 0 then -- both wdith and height should be set
+    sizeStr = tostring(self.width)..","..tostring(self.height)
+  elseif self.height ~= TAB_HEADER_DEFAULT_HEIGHT then -- only set height
+    sizeStr = tostring(self.height)
+  end
+  local offset = TAB_HEADER_DEFAULT_HEIGHT ; if self.abf then offset = 0 end
+  if sizeStr ~= nil then
+    return make_elem(self,
+      pos_only(self, offset), sizeStr,
+      self.internalId, self.itemsStr, self.idx, trp, bor
+    )
+  else
+    return make_elem(self,
+      pos_only(self, offset),
+      self.internalId, self.itemsStr, self.idx, trp, bor
+    )
+  end
 end
 
 ----------------------------------------------------------------
