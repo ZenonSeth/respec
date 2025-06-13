@@ -1,6 +1,6 @@
 # Roadmap to ReSpec 1.0
 
-## Missing Features
+## Planned features
 - `wrap_contents` width for certain elements:
   - [x] Labels
   - [x] Buttons
@@ -29,7 +29,7 @@ Checked ones are done (or mostly done).
 - [x] `allow_close`
 - [x] `bgcolor`: To be added to Form specification
 
-- [ ] `tabheader` : Planned before 1.0
+- [x] `tabheader` : Implemented, allowing the 3 variants of w/h
 - [ ] `table` : Planned before 1.0
 - [ ] `tableoptions` : Planned before 1.0
 - [ ] `tablecolumns` : Planned before 1.0
