@@ -91,7 +91,7 @@ It must be a either:
     -- "both": Only if formspec_ver >= 3. The non-fullscreen and the fullscreen background color are drawn.
     -- "neither": Only if formspec_ver >= 3. No background color is drawn.
 
-    borderColor = "#RRGGBB",
+    pixelBorder = "#RRGGBB",
     -- Optional. Specify the color of a 1px border to be drawn around the form
     -- This uses a box[] to draw a form's outline. Experimental, may not work right.
 
