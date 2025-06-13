@@ -577,7 +577,9 @@ end
 function elems.Container:after_measure()
   self.layout.width = self.measured.w
   self.layout.height = self.measured.h
-  self.layout:measure(true)
+  if self.visibility == con.visible then
+    self.layout:measure(true)
+  end
 end
 -- override
 function elems.Container:to_formspec_string(ver, persist)
@@ -633,7 +635,9 @@ function elems.ScrollContainer:after_measure()
   else
     self.layout.width = WRAP ; self.layout.height = self.height
   end
-  self.layout:measure(true)
+  if self.visibility == con.visible then
+    self.layout:measure(true)
+  end
 end
 -- override, completely custom
 function elems.ScrollContainer:to_formspec_string(ver, persist)
