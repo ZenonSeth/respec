@@ -226,7 +226,5 @@ local dlog = function(str)
   engine.chat_send_all(str)
 end
 d.log = function(str)
-  dlog("--->>>")
-  dlog(str)
-  dlog("----<<<")
+  dlog(os.date("%H:%M:%S: ")..str)
 end

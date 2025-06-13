@@ -3,7 +3,11 @@ local con = respec.const
 local engine = respec.util.engine
 local log_warn = respec.log_warn
 local log_error = respec.log_warn
--- shownForms entries format: { form = formRef, state = state }
+--[[ shownForms entries format:
+playerName = {
+  formId = { form = formRef, state = state }
+}
+]]
 local shownForms = {}
 
 local function is_str(v) return type(v) == "string" end
@@ -42,7 +46,21 @@ local function remove_shown_form_data(playerName, formId)
   end
 end
 
-local function remove_all_shown_form_data_for(playerName)
+local function notify_form_quit(form, playerName, state, fromPlayerLeave)
+  if form.spec.onClose then
+    form.spec.onClose(state, playerName, fromPlayerLeave)
+  end
+end
+
+local function remove_all_data_on_player_leave(playerName)
+  local plForms = shownForms[playerName]
+  if plForms then
+    for id, fData in pairs(plForms) do
+      if type(fData) == "table" and fData.form then
+        notify_form_quit(fData.form, playerName, fData.state, true)
+      end
+    end
+  end
   shownForms[playerName] = nil
 end
 
@@ -63,14 +81,22 @@ end
 ---
 local function verify_specification(spec)
   if not spec or type(spec) ~= "table" then
-    error("Specification was not a table!")
+    log_error("Specification was not a table!")
+    spec.hadErrors = true
   end
-  if (type(spec.w) ~= "number" and type(spec.width) ~= "number") or (type(spec.h) ~= "number" and type(spec) ~= "number") then
-    error("Specification missing required width/height!")
+  if (type(spec.w) ~= "number" and type(spec.width) ~= "number")
+  or (type(spec.h) ~= "number" and type(spec.height) ~= "number") then
+    log_error("Specification missing required width/height!")
+    spec.hadErrors = true
   end
   if not spec.ver then spec.ver = spec.formspecVersion ; spec.formspecVersion = nil end
   if type(spec.ver) ~= "number" or spec.ver < 2 then
-    error("Specification Formspec Version is invalid! Must be a number, and greater than 2")
+    log_error("Specification Formspec Version is invalid! Must be a number, and greater than 2")
+    spec.hadErrors = true
+  end
+  if spec.onClose ~= nil and type(spec.onClose) ~= "function" then
+    log_error("onClose value in form spec was present, but was not a function!")
+    spec.hadErrors = true
   end
   -- TODO: verify optional params' types, though maybe without fatal errors
   return spec
@@ -212,6 +238,10 @@ end
 -- return true if successful, false otherwise
 local function setup_form_for_showing(self, state)
   if not handle_spec(self, state) then return false end
+  if self.spec.hadErrors then
+    log_error("Form spec had errors! Cannot be shown!")
+    return false
+  end
   local layoutData = get_layout_data(self, state)
   if not layoutData then return false end
   local idGen = new_id_gen()
@@ -261,8 +291,9 @@ local function on_receive_fields(player, formname, fields)
 
   -- Keep this last
   if fields.quit then
+    notify_form_quit(form, playerName, formData.state, false)
     remove_shown_form_data(playerName, formname)
-    -- TODO call form on quit func
+    return true
   end
 
   if functionCalled and reshow then
@@ -275,7 +306,7 @@ end
 local function on_player_leave(obj, _)
   if not obj or not obj:is_player() then return end
   local playerName = obj:get_player_name()
-  remove_all_shown_form_data_for(playerName)
+  remove_all_data_on_player_leave(playerName)
 end
 
 ----------------------------------------------------------------
@@ -299,6 +330,8 @@ end
   `state` is optional, and is the object passed to the build function. 
    If not specified, an empty table will be passed to the creation functions.
   returns true if successfully shown, false otherwise
+  In case the form happens to already be shown to this player, it will be closed
+  and re-shown with the clean new state provided
 --]]
 function respec.Form:show(playerName, state)
   state = state or {}
@@ -309,6 +342,7 @@ function respec.Form:show(playerName, state)
   local id = self.id
   local existing = get_shown_form_data(playerName, id)
   if existing then -- why was this already there? remove it.
+    engine.close_formspec(playerName, id)
     remove_shown_form_data(playerName, id)
   end
 

@@ -121,6 +121,13 @@ It must be a either:
     -- Optional, sets the background color for any tooltips in this form
     tooltipFontColor = "#RRGGBB",
     -- Optional, sets the font color for any tooltips in this form
+
+    onClose = function(state, playerName, closedBecausePlayerLeft) end,
+    -- Optional. A function to be called when the form is closed.
+    -- `state` is the state of the form at time of closing
+    -- `playerName` will be the name of the player
+    -- `closedBecausePlayerLeft` will be true if the player left the game,
+    --                           causing the close, and false otherwise
  }
 ```
 ## `elemsFunc`
