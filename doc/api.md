@@ -745,7 +745,6 @@ Corresponds to formspec `button_url` and `button_url_exit`
 ```lua
   respec.elements.ButtonUrl(spec)
 ```
-This element does not support wrapping width/height, and those must be specified or aligned.
 
 spec:
 ```lua
@@ -1023,9 +1022,6 @@ spec:
     -- sets the default margins to given values
 }
 ```
-The `ScrollContainer` class will create its own scrollbar, unless you specify an external scrollbar name via `externalScrollbar`. 
-
-This built-in scrollbar will be positioned below (if orientation is horizontal) or to the right (if orientation is vertical) of the scroll container, and a margin will be set (or added) to make room for it. The scrollbar's name will be `[id_of_scroll_container]_scrollbar` - which can be used to be read via the `fields` variable 
 
 ## ScrollContainer
 Corresponds to formspec `scroll_container`
