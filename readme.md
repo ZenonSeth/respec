@@ -3,7 +3,7 @@ This mod is in Beta. See [roadmap.md](https://github.com/ZenonSeth/respec/blob/m
 # Respec
 Respec, from "**Re**lative Form**spec**", is a formspec library for [Luanti](https://www.luanti.org).
 
-Respec aims to support all features from the [Luanti Formspec API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#formspec) past formspec version 2, with [two minor exceptions](#specifically-unsupported-formspec-elements).
+Respec supports all features of the [Luanti Formspec API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#formspec) past formspec version 2, with [two trivial exceptions](#specifically-unsupported-formspec-elements).
 
 Respec provides:
 - Easy and versatile method of positioning and sizing of elements
@@ -19,7 +19,11 @@ However knowledge of Android or Constraint Layout is not required.
 
 ## API
 
-The API docs can be found under [doc/api.md](https://github.com/ZenonSeth/respec/blob/main/doc/api.md).
+The [API docs can read online here](https://github.com/ZenonSeth/respec/blob/main/doc/api.md).<br>
+Use the 'Outline' button in the top right to see table of content.
+
+## Download
+[Download from ContentDB](https://content.luanti.org/packages/ZenonSeth/respec/) or see [latest releases](https://github.com/ZenonSeth/respec/releases)
 
 ## Specifically Unsupported Formspec Elements
 - `real_coordinates[<bool>]`<br>
@@ -27,4 +31,5 @@ The API docs can be found under [doc/api.md](https://github.com/ZenonSeth/respec
   with the assumption that this is always enabled. There is also no functional difference in what can be achieved with formspecs by not supporting this element, so Respec assumes real coordinates are always on, and turning them off is not supported.
 
 - Size-less `field[]`<br>
-  **Reason**: This element only has an edge-case usage for trivial forms that don't require any laying out of elements. Note that regular `field[]` elements and all their functionalities are fully supported.
+  **Reason**: This element only has an edge-case usage for trivial forms that don't require any laying out of elements.<br>
+  Note that regular `field[]` elements and all their functionalities are fully supported.
