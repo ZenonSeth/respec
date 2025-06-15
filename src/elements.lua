@@ -678,7 +678,8 @@ function elems.ScrollContainer:to_formspec_string(ver, persist)
     sbos.largestep = sbos.max / 10
   end
   str[#str+1] = elems.ScrollbarOptions(sbos):to_formspec_string()
-  str[#str+1] = make_elem(self, pos_and_size(self), sbid, self.orientation, self.scrollFactor, "")
+  local paddParam = nil; if ver >= 8 then paddParam = "" end
+  str[#str+1] = make_elem(self, pos_and_size(self), sbid, self.orientation, self.scrollFactor, paddParam)
   str[#str+1] = self.layout:to_formspec_string(ver, persist)
   str[#str+1] = fsmakeelem("scroll_container_end")
   return concatTbl(str, "")

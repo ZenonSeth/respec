@@ -1054,9 +1054,10 @@ spec:
   -- Basically all element IDs in a Form must be unique, even if inside scroll containers
 
   externalScrollbar = "name_of_scrollbar",
-  -- Optional. Only specify if you want to make your own scrollbar.
-  -- If absent, the ScrollContainer will automatically create its own Scrollbar
-  -- If absent, the built-in Scrollbar will be named "[id_of_scroll_container]_scrollbar"
+  -- Optional. Only specify if you want to make your own scrollbar - recommended not to.
+  -- If absent, the ScrollContainer will automatically create its own Scrollbar,
+  -- and resize it correctly - this works on all formspec versions that support scroll_container.
+  -- The built-in Scrollbar will be named "[id_of_scroll_container]_scrollbar"
 
   scrollbarSize = 0.2,
   -- Optional. If absent, 0.2 is default value
