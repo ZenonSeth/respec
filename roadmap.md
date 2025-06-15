@@ -6,7 +6,7 @@
   - [x] Buttons
   - [x] Vert Label
   - [x] Checkbox
-  - [ ] Use `core.get_player_window_information(player_name)` to scale on 5.7+ clients
+  - [x] Use `core.get_player_window_information(player_name)` to scale on 5.7+ clients
   - [x] Test on 5.1.0 (the min supported version)
 
 ## Post 1.0 goals

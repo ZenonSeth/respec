@@ -13,8 +13,13 @@ local DEFAULT_LINE_SPACING = 1/6 -- seems to be constant
 local WIDTH_SLOPE = 0.84
 local HEIGHT_SLOPE = 0.3
 
+-- the size of window for which the measuring algorithm was calibrated
+local BASE_WIN_W = 1920
+local BASE_WIN_H = 1009
+
 local get_translated_string = respec.util.engine.get_translated_string or function(_,v) return v end
 local get_player_information = respec.util.engine.get_player_information or function(_) return {} end
+local get_player_window_info = respec.util.engine.get_player_window_information or function(_) return {} end
 
 local function make_range(s, e, val) return {
   s = s, e = e, width = val
@@ -77,11 +82,26 @@ local function parseFontSizeStr(fontSizeStr)
 
 end
 
-local function get_modifier(fontSizeStr, adjust, slope)
+local function get_modifier(fontSizeStr, adjust, winSizeAdjust, slope)
   local fontSize = parseFontSizeStr(fontSizeStr)
   if not adjust then adjust = 1 end
   local adjFontSize = slope * (fontSize / DEFAULT_FONT_SIZE - 1) + 1
-  return adjFontSize * adjust
+  return adjFontSize * adjust * winSizeAdjust
+end
+
+-- this is far from ideal, but has a positive effect
+local function get_adjustment_for_window(playerName)
+  local size = get_player_window_info(playerName).size -- this is only available on 5.7+ clients
+  if type(size) ~= "table" or type(size.x) ~= "number" or type(size.y) ~= "number" then return 1 end
+  local winWR = size.x / BASE_WIN_W
+  local winHR = size.y / BASE_WIN_H
+  local minRatio = winWR ; if winHR < minRatio then minRatio = winHR end
+  -- adjust the window adjustment effect, based on whether window is larger or smaller.
+  -- this is very finicky
+  if minRatio > 1 then minRatio = 1.2 * (minRatio - 1) + 1
+  else minRatio = 0.2 * (minRatio - 1) + 1 end
+  if minRatio < 0.1 then minRatio = 0.1 end -- ensure no divbyzero
+  return 1 / minRatio
 end
 
 local function measure_vertlabel(str, oneWidth, heightMod)
@@ -125,15 +145,16 @@ local function measure_text(string, playerName, isMono, fontSize, adjust, isVert
   local player_info = get_player_information(playerName)
   local lang = player_info and player_info.lang_code or "en"
   local str = get_translated_string(lang, string)
+  local adjustForWinSize = get_adjustment_for_window(playerName)
   local width = 0
   local maxWidth = 0
   local numLines = 1
   if isMono == nil then isMono = false end
   if not adjust then adjust  = 1 end
-  local widthMod = get_modifier(fontSize, adjust, WIDTH_SLOPE)
+  local widthMod = get_modifier(fontSize, adjust, adjustForWinSize, WIDTH_SLOPE)
   local oneWidth = DEFAULT_MONO_WIDTH * widthMod; if not isMono then oneWidth = widthMod * DEFAULT_WIDTH end
   local twoWidths = 2 * oneWidth
-  local heightMod = get_modifier(fontSize, adjust, HEIGHT_SLOPE)
+  local heightMod = get_modifier(fontSize, adjust, adjustForWinSize, HEIGHT_SLOPE)
   local oneHeight = DEFAULT_LINE_HEIGHT * heightMod
 
   if isVertlabel then
