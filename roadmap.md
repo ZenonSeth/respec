@@ -7,18 +7,20 @@
   - [x] Vert Label
   - [x] Checkbox
   - [ ] Use `core.get_player_window_information(player_name)` to scale on 5.7+ clients
+  - [x] Test on 5.1.0 (the min supported version)
 
-## Stretch goals
+## Post 1.0 goals
 - [DONE] Element Chains: same as constraint layout chains
   - [DONE] packed/packed-inside/spread/weighted
 - Guidelines: same as constraint layout guidelines
   - Why? Because they're not really that hard to implement.
   - Why not? Because Luanti formspecs aren't nearly as dynamic as Layouts on Android
+- Possibly optimize form reshowing if alignments haven't changed
 - Maybe implement custom Tab Headers / helpers
 
 ## Supported Formspec Elements
 
-Checked ones are done (or mostly done).
+Checked ones are done.
 
 - [x] `formspec_version`
 - [x] `size` : missing fixed_size param
@@ -30,9 +32,9 @@ Checked ones are done (or mostly done).
 - [x] `bgcolor`: To be added to Form specification
 
 - [x] `tabheader` : Implemented, allowing the 3 variants of w/h
-- [ ] `table` : Planned before 1.0
-- [ ] `tableoptions` : Planned before 1.0
-- [ ] `tablecolumns` : Planned before 1.0
+- [x] `table`
+- [x] `tableoptions` : Added as part of respec.elements.Table spec
+- [x] `tablecolumns` : Added as part of respec.elements.Table spec
 - [x] `container` : Sub-layout
 - [x] `scroll_container`: contains its own layout
 - [x] `scrollbar`
@@ -79,4 +81,5 @@ Checked ones are done (or mostly done).
 
 - Size-less `field[]`<br>
   Reason: Edge-case usage, and most of its usage is for trivial forms that
-  don't require any complex laying out of elements
+  don't require any complex laying out of elements.<br>
+  Note that regular `field[]` elements and all their functionalities are fully supported.

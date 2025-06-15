@@ -1307,6 +1307,107 @@ spec:
 - Supported style properties:<br>
   `bgcolor`, `noclip`
 
+## Table
+Corresponds to formspec `table`, and includes `tablecolumns` and `tableoptions`
+```lua
+  respec.elements.Table(spec)
+```
+This element does not support wrapping width/height, and those must be specified or aligned.
+
+spec:
+```lua
+{
+  -- The `config` param corresponds to `tableoptions`, configuring the properties of the table
+  -- It is entirely optional. Due to the way formspecs work, if not specified, any previous config will instead
+  -- affect this table.
+  -- Any combination of the config options may be specified, and as many omitted if desired
+  config = { -- optional (but highly recommended)
+    color = "#RRGGBBAA", -- Optional. Text color. Defaults to white (#FFFFFF)
+    bg = "#RRGGBBAA", -- Optional. Table background color. Defaults to black (#000000)
+    border = true, -- Optional, true/false. Default is true. Whether to draw the borders of the table
+    highlight = "#RRGGBBAA" -- Optional. Highlight background color. Defaults to #466432 (dark green-ish)
+    opendepth = 2, -- Optional, integer. All subtrees (if present) with depth < value will be open by default
+                   -- Only useful if there's a column of type "tree"
+  },
+
+  -- The `columns` param corresponds to `tablecolumns`.
+  -- It configures what type each column will be, and implicitly specifies how many columns there are
+  -- Each entry in this table defines a new column, and its properties. This is then used to interpret
+  -- the data specified for the table.
+  -- The number of entires in this field implicitly defines how many columns there will be,
+  -- with exceptions of columsn that configure other columns (e.g. color, indent, tree)
+  columns = {
+    -- contains a list of repeated strings, where each string follows the tablecolumns format (described below)
+    -- Example:
+    "tree", -- column 1: "tree" type, allowing for collapsing elements
+    "text,align=left,tooltip=Task name", -- column2: left-aligned text, with tooltip of "Task name"
+    "image,align=right,0=blank.png,1=unchecked.png,2=checked.png", -- column 3: an image, where values of 0,1,2 show the specified images
+    "color", -- column 4: specifies a color for the rest of the columns
+    "text,align=left,tooltip=Task description", -- column5: left aligned text, tooltip of "Task description"
+  },
+
+  -- The `data` param is the actual data to show in this table, following the format defined by `columns` above
+  -- To be correct, the number of data must always be a multiple of the number of columns,
+  -- e.g. in the example above `columns` defines 5 columns (tree, text, image, color, text)
+  -- so the data below should have 5, or 10, or 15, etc number of entires in order to be correct.
+  -- You may find it easier to have "row" (represented by amount of data same as column number) be
+  -- created by a function, depending on the state of whatever you want to display (e.g. quests)
+  --
+  -- Entires can be a string or integer. Each entry will be interpreted as defined by the `columns` above
+  cells = {
+    -- example, following the columns config above:
+    0, "Main tasks",      0, "#333333", "",
+    1, "Read tutorial",   1, "#FFFF33", "Go to spawn and read the tutorial",
+    1, "Agree to rules",  1, "#66FF33", "Read the rules book and agree",
+    1, "Find the badger", 2, "#AAAAFF", "Follow the trail...",
+  },
+
+  index = 1, -- Optional. Defaults to 1. The index of the row to be selected, first row is 1.
+
+  listener = function(state, value, fields) end,
+  -- Optional. Gets called back when a table row is selected.
+  -- `state` is the form state, can be modified here
+  -- `value` is a table from explode_table_event() in the format
+  --         `{type = "INV" or "CHG" or "DLC", row = 1, column = 2}`
+  -- `fields` is the table mapping to rest of the form's fields
+
+}
+```
+The format of each entry of the `columns`, meaning definition of a column type and properties, above is:
+```lua
+"<type>,<option>,<option>..."
+```
+Where:
+- `<type>` can be: `text`, `image`, `color`, `indent`, `tree`
+  - `text`:   show cell contents as text
+  - `image`:  cell contents are an image index, use column options to define
+              images. images are scaled down to fit the row height if necessary.
+  - `color`:  cell contents are a ColorString and define color of following
+              cell.
+  - `indent`: cell contents are a number and define indentation of following
+              cell.
+  - `tree`:   same as indent, but user can open and close subtrees
+                (treeview-like).
+- `<option>` cab be:
+  - `align=<value>`
+    - for `text` and `image`: content alignment within cells.
+      Available values: `left` (default), `center`, `right`, `inline`
+  - `width=<value>`
+    - for `text` and `image`: minimum width in em (default: `0`)
+    - for `indent` and `tree`: indent width in em (default: `1.5`)
+  - `padding=<value>`: padding left of the column, in em (default `0.5`).
+    Exception: defaults to 0 for indent columns
+  - `tooltip=<value>`: tooltip text (default: empty)
+  - `image` column options:
+    - `0=<value>` sets image for image index 0
+    - `1=<value>` sets image for image index 1
+    - `2=<value>` sets image for image index 2
+    - and so on; defined indices need not be contiguous. empty or
+      non-numeric cells are treated as `0`.
+  - `color` column options:
+    - `span=<value>`: number of following columns to affect
+      (default: infinite).
+
 ## Hypertext
 Corresponds to formspec `hypertext`
 **Note from luanti's API**: This element is currently unstable and subject to change.

@@ -19,6 +19,7 @@ local log_error = respec.log_error
 local engine = respec.util.engine
 local elems = respec.elements
 local concatTbl = table.concat
+local mapTbl = respec.util.map
 
 local get_valid_style = elems.get_valid_style
 elems.get_valid_style = nil
@@ -106,6 +107,18 @@ local function get_scrollbar_spec_for_container(cont, spec)
     rs.marginTop = -cont.margins[BOT]
   end
   return rs
+end
+
+local function get_valid_table_options(spec)
+  if type(spec.config) ~= "table" then return "" end
+  local cgf = spec.config
+  local ret = {}
+  if str_or(cgf.color) then ret[#ret+1] = "color="..cgf.color end
+  if str_or(cgf.bg) then    ret[#ret+1] = "background="..cgf.bg end
+  if bool_or(cgf.border) ~= nil then ret[#ret+1] = "border="..tostring(cgf.border) end
+  if str_or(cgf.highlight) then ret[#ret+1] = "highlight="..cgf.highlight end
+  if num_or(cgf.opendepth) then ret[#ret+1] = "opendepth="..cgf.opendepth end
+  return concatTbl(ret, ";")
 end
 
 local function update_measurements_to_fit_aspect_ratio(m, r)
@@ -535,8 +548,7 @@ function elems.TextList:init(spec)
   if type(spec.listener) == "function" then
     self.on_select = spec.listener
     self.on_interact = function(state, value, fields)
-      local ex = engine.explode_textlist_event(value)
-      self.on_select(state, ex, fields)
+      self.on_select(state, engine.explode_textlist_event(value), fields)
     end
   end
 end
@@ -835,6 +847,41 @@ function elems.Model:to_formspec_string(_, _)
     self.loopRange or "",
     animSp
   )
+end
+
+----------------------------------------------------------------
+-- Table (`table`, and includes `tablecolumns` and `tableoptions` internally)
+----------------------------------------------------------------
+elems.Table = Class(respec.PhysicalElement)
+function elems.Table:init(spec)
+  respec.PhysicalElement.init(self, elemInfo.table, spec)
+
+  self.configStr = get_valid_table_options(spec)
+  self.columnStr = concatTbl(spec.columns or {}, ";")
+  if type(spec.cells) ~= "table" then spec.cells = {} end
+  self.cellsStr = concatTbl(mapTbl(spec.cells, function(v) return tostring(v) end), ",")
+  self.idx = tostring(num_or(spec.index, 1))
+
+  if type(spec.listener) == "function" then
+    self.on_select = spec.listener
+    self.on_interact = function(state, value, fields)
+      self.on_select(state, engine.explode_table_event(value), fields)
+    end
+  end
+end
+-- override
+function elems.Table:to_formspec_string(_, _)
+  local ret = {}
+  -- tableoptions first
+  if self.configStr ~= "" then
+    ret[#ret+1] = "tableoptions["..self.configStr.."]"
+   end
+  -- tablecolumns second
+  if self.columnStr ~= "" then
+    ret[#ret+1] = "tablecolumns["..self.columnStr.."]"
+  end
+  ret[#ret+1] = make_elem(self, pos_and_size(self), self.internalId, self.cellsStr, self.idx)
+  return concatTbl(ret, "\n")
 end
 
 ----------------------------------------------------------------

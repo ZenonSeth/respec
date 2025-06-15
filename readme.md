@@ -1,5 +1,3 @@
-This mod is in Beta. See [roadmap.md](https://github.com/ZenonSeth/respec/blob/main/roadmap.md)
-
 # Respec
 Respec, from "**Re**lative Form**spec**", is a formspec library for [Luanti](https://www.luanti.org).
 
