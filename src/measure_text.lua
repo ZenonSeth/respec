@@ -156,7 +156,7 @@ local function measure_text(string, playerName, isMono, fontSize, adjust, isVert
   local widthMod = get_modifier(fontSize, adjust, adjustForWinSize, WIDTH_SLOPE)
   local oneWidth = DEFAULT_MONO_WIDTH * widthMod; if not isMono then oneWidth = widthMod * DEFAULT_WIDTH end
   local twoWidths = 2 * oneWidth
-  local heightMod = get_modifier(fontSize, adjust, adjustForWinSize, HEIGHT_SLOPE)
+  local heightMod = get_modifier(fontSize, adjust, 1, HEIGHT_SLOPE)
   local oneHeight = DEFAULT_LINE_HEIGHT * heightMod
 
   if isVertlabel then
