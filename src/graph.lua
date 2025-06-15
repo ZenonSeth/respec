@@ -281,6 +281,16 @@ function respec.graph.new()
     return self
   end
 
+  function graph:clear()
+    self.finishedAdding = false
+    self.rootsPos = 1
+    self.roots = {}
+    self.horChainPos = 1
+    self.horChainLists = {}
+    self.verchainPos = 1
+    self.verChainLists = {}
+  end
+
   function graph:finish_adding()
     if self.finishedAdding then log_error("finish_adding() called twice!") ; return end
     self.finishedAdding = true

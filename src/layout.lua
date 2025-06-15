@@ -154,6 +154,7 @@ end
 -- Use one of the `respec.elements.` functions to create elements.
 -- idGen should be an object that has a :id() function to provide a unique ID
 function respec.Layout:set_elements(elementsList, idGen, optIdTable, optFieldElemById)
+  self.elementsGraph:clear()
   self.elements = {}
   self.ids = optIdTable or {}
   self.fieldElemsById = optFieldElemById or {}
