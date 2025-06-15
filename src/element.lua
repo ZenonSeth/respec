@@ -237,7 +237,7 @@ respec.Element = Class()
 function respec.Element:init(fselem)
   if fselem and fselem.name and elem_info[fselem.name] then
     self.fsName = fselem.name
-    self.info = fselem
+    self.fsInfo = fselem
   else
     log_error("Unsupported element created: "..dump(fselem))
   end

@@ -52,7 +52,7 @@ local function add_common_physical_formspec_string(elem, str, layout)
     ret[#ret+1] = fs_elem_box(elem, true, elem.pixelBorder)
   end
   if elem.tooltip then
-    if elem.info.inFields > 0 then
+    if elem.fsInfo.inFields > 0 then
       ret[#ret+1] = fs_elem("tooltip", elem.internalId, elem.tooltip, layout.tooltipBg, layout.tooltipFont)
     else
       local x = tostring(elem.measured[LFT] + elem.margins[LFT] + elem.measured.xOffset)
@@ -129,7 +129,7 @@ local function do_add(self, element, idGen)
     other = element:on_added(idGen, self) -- this returns other elements to add
   end
   local newId = element.id
-  if not element.info then return end -- invalid element
+  if not element.fsInfo then return self end -- invalid element
   if newId and newId ~= "" and self.ids[newId] then
     -- multiple elements with no ID are allowed, but not two with same ID
     log_error("Elements within the same layout cannot have the same ID: "..newId)
@@ -138,7 +138,7 @@ local function do_add(self, element, idGen)
   if newId then self.ids[newId] = true end
   table.insert(self.elements, element)
 
-  if element.info.inFields > 0 then
+  if element.fsInfo.inFields > 0 then
     self.fieldElemsById[element.internalId] = element
   end
   self.elementsGraph:add_element(element)
@@ -185,7 +185,7 @@ function respec.Layout:to_formspec_string(ver, persist)
     self.serialized = true
     local tbl = {}
     for _, el in ipairs(self.elements) do
-      if el.fsName ~= nil then
+      if el.fsName ~= nil and ver >= el.fsInfo.minVer then
         if el.physical == false then
           tbl[#tbl+1] = el:to_formspec_string(ver, persist)
         elseif el.visibility == VISIBLE then
