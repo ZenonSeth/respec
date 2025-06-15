@@ -99,12 +99,14 @@ local function get_scrollbar_spec_for_container(cont, spec)
     rs.centerVer = cont.id
     rs.after = cont.id
     rs.marginStart = -cont.margins[RGT]
+    rs.marginTop = cont.margins[TOP]
   else
     rs.w = cont.width
     rs.h = cont.barSize
     rs.centerHor = cont.id
     rs.below = cont.id
     rs.marginTop = -cont.margins[BOT]
+    rs.marginStart = cont.margins[LFT]
   end
   return rs
 end
@@ -611,6 +613,7 @@ function elems.ScrollContainer:init(spec)
   elems.Container.init(self,spec)
 
   self.orientation = get_valid_orientation(spec.orientation)
+  self.isVert = self.orientation:sub(1,1) == "v"
 
   local exScroll = type(spec.externalScrollbar) == "string"
   self.scrollFactor = num_or(spec.scrollFactor, 0.1)
@@ -628,7 +631,7 @@ function elems.ScrollContainer:init(spec)
       else self.margins[BOT] = self.margins[BOT] + self.barSize end
     end
     if type(spec.scrollbarOptions) == "table" then
-      self.scrollbarOptions = elems.ScrollbarOptions(spec.scrollbarOptions)
+      self.scrBarOptSpec = spec.scrollbarOptions
     end
     local scrollbarSpec = get_scrollbar_spec_for_container(self, spec)
     self.scrollbar = elems.Scrollbar(scrollbarSpec)
@@ -641,14 +644,15 @@ function elems.ScrollContainer:on_added(idGen, layout)
 end
 -- after measured is complete
 function elems.ScrollContainer:after_measure()
-  local isVert = self.orientation:sub(1,1) == "v"
-  if isVert then
-    self.layout.width = self.width ; self.layout.height = WRAP
-  else
-    self.layout.width = WRAP ; self.layout.height = self.height
-  end
-  if self.visibility == con.visible then
-    self.layout:measure(true)
+  if not self.layout.measurePerformed then
+    if self.isVert then
+      self.layout.width = self.width ; self.layout.height = WRAP
+    else
+      self.layout.width = WRAP ; self.layout.height = self.height
+    end
+    if self.visibility == con.visible then
+      self.layout:measure(true)
+    end
   end
 end
 -- override, completely custom
@@ -656,10 +660,25 @@ function elems.ScrollContainer:to_formspec_string(ver, persist)
   local str = {}
   local sbid = self.externalScrollbar or ""
   if self.scrollbar then sbid = self.scrollbar.internalId or "" end
-  if self.scrollbarOptions then
-    str[#str+1] = self.scrollbarOptions:to_formspec_string()
+  local sbos = self.scrBarOptSpec
+  if sbos == nil then sbos = {} end
+  if sbos.min == nil and sbos.max == nil then -- adjust automatically
+    local lay = self.layout
+    sbos.min = 0
+    if self.isVert then
+      local layH = lay.measured.h + lay.paddings[TOP] + lay.paddings[BOT]
+      sbos.max = (layH - self.measured.h) / self.scrollFactor
+      sbos.thumbsize = sbos.max / self.measured.h
+    else
+      local layW = lay.measured.w + lay.paddings[LFT] + lay.paddings[RGT]
+      sbos.max = (layW - self.measured.w) / self.scrollFactor
+      sbos.thumbsize = sbos.max / self.measured.w
+    end
+    sbos.smallstep = sbos.max / 100
+    sbos.largestep = sbos.max / 10
   end
-  str[#str+1] = make_elem(self, pos_and_size(self), sbid, self.orientation, self.scrollFactor, "0")
+  str[#str+1] = elems.ScrollbarOptions(sbos):to_formspec_string()
+  str[#str+1] = make_elem(self, pos_and_size(self), sbid, self.orientation, self.scrollFactor, "")
   str[#str+1] = self.layout:to_formspec_string(ver, persist)
   str[#str+1] = fsmakeelem("scroll_container_end")
   return concatTbl(str, "")

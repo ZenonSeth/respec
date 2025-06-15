@@ -1065,7 +1065,7 @@ spec:
 
   scrollbarOptions = scrollbarOptionsSpec, 
   -- Optional. Only used if externalScrollbar is not set.
-  -- The options to apply to this scrollbar.
+  -- The options to apply to this scrollbar, in the format of the spec for `ScrollbarOptions`
   -- Note that because the way formspecs work, these scrollbar options will also
   -- be applied to any consequent scrollbars in this form.
 

@@ -486,7 +486,6 @@ end
 -- Performs the laying-out process of each element
 function respec.internal.perform_layout(layout, containerMeasurementsOpt)
   local graph = layout.elementsGraph
-  local childLayouts = {} -- TODO: handle child layouting
 
   -- TODO possibly go through all elements and mark as unmeasured? only an issue if remeasured twice which shouldn't happen
   -- starting from each root, evaluate all nodes - mark them as measured
@@ -508,14 +507,12 @@ function respec.internal.perform_layout(layout, containerMeasurementsOpt)
   for i = 1, graph.rootsPos do
     local root = graph.roots[i]
     local res = perform_layout_of_node(layout, root, containerMeasurements)
-    if not res then table.insert(remaining, root) ; numRemaining = numRemaining + 1 end
+    if not res then numRemaining = numRemaining + 1 ; remaining[numRemaining] = root end
   end
   update_container_based_on_measurements(layout, containerMeasurements)
 
   -- chains here. From testing, might be the right place
   perform_layout_of_chains(layout, graph, containerMeasurements)
-
-  -- BIG TODO: Figure out how to handle chains the way Android does
 
   local oldMaxX = containerMeasurements.max_x
   local oldMaxY = containerMeasurements.max_y

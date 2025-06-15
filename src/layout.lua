@@ -174,6 +174,7 @@ function respec.Layout:measure(isRoot)
   else
     ri.perform_layout(self)
   end
+  self.measurePerformed = true
   self.serialized = false
 end
 
