@@ -91,7 +91,9 @@ end
 
 -- this is far from ideal, but has a positive effect
 local function get_adjustment_for_window(playerName)
-  local size = get_player_window_info(playerName).size -- this is only available on 5.7+ clients
+  local plWinInf = get_player_window_info(playerName)
+  if type(plWinInf) ~= "table" then return 1 end
+  local size = plWinInf.size -- this is only available on 5.7+ clients
   if type(size) ~= "table" or type(size.x) ~= "number" or type(size.y) ~= "number" then return 1 end
   local winWR = size.x / BASE_WIN_W
   local winHR = size.y / BASE_WIN_H
