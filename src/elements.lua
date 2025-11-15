@@ -695,10 +695,14 @@ function elems.Scrollbar:init(spec)
   self.value = str_or(spec.value, "0-1000")
   if type(spec.listener) == "function" then
     self.on_scroll = spec.listener
-    self.on_interact = function(state, value, fields)
-      local ex = engine.explode_scrollbar_event(value)
-      state.rintern[self.internalId] = ex.value
-      self.on_scroll(state, ex, fields)
+  end
+  self.on_interact = function(state, value, fields)
+    local ex = engine.explode_scrollbar_event(value)
+    state.rintern[self.internalId] = ex.value
+    if self.on_scroll ~= nil then
+      return self.on_scroll(state, ex, fields)
+    else
+      if ex.type == "CHG" then return false else return nil end
     end
   end
 end

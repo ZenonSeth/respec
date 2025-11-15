@@ -277,7 +277,8 @@ local function on_receive_fields(player, formname, fields)
 
   local interactiveElems = form.layout:get_interactive_elements()
   local translatedFields = get_translated_fields(fields, interactiveElems)
-  local reshow = form.reshowOnInteract
+  local formReshow = form.reshowOnInteract
+  local reshow = nil
   local functionCalled = false
   for elemId, elem in pairs(interactiveElems) do
     if fields[elemId] ~= nil and type(elem.on_interact) == "function" then
@@ -293,7 +294,10 @@ local function on_receive_fields(player, formname, fields)
         elseif elemInFields == SEND_VALUE_AND_FIELDS or elemInFields == SEND_VALUE_AND_FIELDS_ON_ENTER then
           requestedReshow = elem.on_interact(formData.state, fields[elemId], translatedFields)
         end
-        reshow = requestedReshow or reshow
+        if requestedReshow == true then reshow = true --any one element requsting reshow, we reshow
+        elseif requestedReshow == false and reshow == nil then
+          reshow = false -- ensure we don't reshow if function specifically didn't want it, and is only one
+        end
         functionCalled = true
       end
     end
@@ -306,7 +310,7 @@ local function on_receive_fields(player, formname, fields)
     return true
   end
 
-  if functionCalled and reshow then
+  if (reshow == true) or (formReshow and functionCalled and reshow ~= false) then
     form:reshow(playerName)
   end
 
