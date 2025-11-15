@@ -3,6 +3,9 @@ local con = respec.const
 local engine = respec.util.engine
 local log_warn = respec.log_warn
 local log_error = respec.log_warn
+local SEND_FIELDS = 1
+local SEND_VALUE_AND_FIELDS = 2
+local SEND_VALUE_AND_FIELDS_ON_ENTER = 3
 --[[ shownForms entries format:
 playerName = {
   formId = { form = formRef, state = state }
@@ -278,14 +281,21 @@ local function on_receive_fields(player, formname, fields)
   local functionCalled = false
   for elemId, elem in pairs(interactiveElems) do
     if fields[elemId] ~= nil and type(elem.on_interact) == "function" then
-      local requestedReshow
-      if elem.fsInfo.inFields == 1 then
-        requestedReshow = elem.on_interact(formData.state, translatedFields)
-      else
-        requestedReshow = elem.on_interact(formData.state, fields[elemId], translatedFields)
+      local elemInFields = elem.fsInfo.inFields
+      local proceed = true
+      if elemInFields == SEND_VALUE_AND_FIELDS_ON_ENTER then
+        proceed = fields.key_enter and fields.key_enter_field == elemId
       end
-      reshow = requestedReshow or reshow
-      functionCalled = true
+      if proceed then
+        local requestedReshow
+        if elemInFields == SEND_FIELDS then
+          requestedReshow = elem.on_interact(formData.state, translatedFields)
+        elseif elemInFields == SEND_VALUE_AND_FIELDS or elemInFields == SEND_VALUE_AND_FIELDS_ON_ENTER then
+          requestedReshow = elem.on_interact(formData.state, fields[elemId], translatedFields)
+        end
+        reshow = requestedReshow or reshow
+        functionCalled = true
+      end
     end
   end
 
