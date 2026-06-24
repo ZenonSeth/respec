@@ -160,7 +160,7 @@ local function measure_text(string, playerName, isMono, fontSize, adjust, isVert
   local oneHeight = DEFAULT_LINE_HEIGHT * heightMod
 
   if isVertlabel then
-    return measure_vertlabel(string, oneWidth, heightMod)
+    return measure_vertlabel(str, oneWidth, heightMod)
   end
 
   local i = 1

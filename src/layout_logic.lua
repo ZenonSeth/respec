@@ -121,7 +121,7 @@ local function notify_elem_if_measured(elem)
     local measured = elem.measured
     if measured[LFT] ~= UNSET and measured[RGT] ~= UNSET
         and measured[TOP] ~= UNSET and measured[BOT] ~= UNSET
-        and measured.width ~= UNSET and measured.height ~= UNSET then
+        and measured.w ~= UNSET and measured.h ~= UNSET then
     elem:after_measure()
     end
   end
@@ -318,7 +318,7 @@ local function update_container_based_on_measurements(layout, containerMeasureme
   local paddings = layout.paddings
 
   if layout.width == con.wrap_content then
-    if align[LFT].side == UNSET and align[RGT] == UNSET then
+    if align[LFT].side == UNSET and align[RGT].side == UNSET then
       -- both left/right were unaligned - treat this as a root
       measured[LFT] = 0 ; measured[RGT] = containerMeasurements.max_x + paddings[RGT]-- - paddings[RGT] - paddings[LFT]
       measured.w = containerMeasurements.max_x
@@ -332,7 +332,7 @@ local function update_container_based_on_measurements(layout, containerMeasureme
     end
   end
   if layout.height == con.wrap_content then
-    if align[TOP].side == UNSET and align[BOT] == UNSET then
+    if align[TOP].side == UNSET and align[BOT].side == UNSET then
       -- both left/right were unaligned - treat this as a root
       measured[TOP] = 0 ; measured[BOT] = containerMeasurements.max_y + paddings[BOT] -- - paddings[BOT] - paddings[TOP]
       measured.h = containerMeasurements.max_y
@@ -352,7 +352,7 @@ local function invalidate_roots_that_align_to_parent(graph, SIDE)
   local invalidated = false
   for _, root in pairs(graph.roots) do
     if root.side == SIDE and root.element.align[SIDE].side == PARENT then
-      invalidate_tree_and_opposite_if_unset(root, true, true)
+      invalidate_tree_and_opposite_if_unset(root, (SIDE == LFT or SIDE == RGT), true)
       invalidated = true
     end
   end

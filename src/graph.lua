@@ -88,7 +88,7 @@ local function attach_new_chain_to_end_of_existing(chainList, chainListSize, new
       local oCount = #oChain
       if oChain[oCount] == frontOtherNode then -- we found our chain, attach
         local ni = 1
-        for i = oCount + 1, oCount + #newChain + 1 do
+        for i = oCount + 1, oCount + #newChain do
           oChain[i] = newChain[ni] ; ni = ni + 1
         end
         added = true
@@ -112,7 +112,7 @@ local function attach_existing_chain_to_new_chain(chainList, chainListSize, newC
       if oChain[1] == lastOtherNode then -- we found our chain, attach and remove
         local oCount = #oChain
         local oi = 1
-        for i = nCount + 1, nCount + oCount + 1 do
+        for i = nCount + 1, nCount + oCount do
           newChain[i] = oChain[oi] ; oi = oi + 1
         end
         chainList[ci] = nil -- remove
@@ -287,7 +287,7 @@ function respec.graph.new()
     self.roots = {}
     self.horChainPos = 1
     self.horChainLists = {}
-    self.verchainPos = 1
+    self.verChainPos = 1
     self.verChainLists = {}
   end
 

@@ -83,7 +83,7 @@ end
 ----------------------------------------------------------------
 ---
 local function verify_specification(spec)
-  if not spec or type(spec) ~= "table" then
+  if type(spec) ~= "table" then
     log_error("Specification was not a table!")
     spec.hadErrors = true
   end
@@ -382,6 +382,8 @@ function respec.Form:close(playerName)
   local data = get_shown_form_data(playerName, self.id)
   if not data then return false end
   engine.close_formspec(playerName, self.id)
+  notify_form_quit(data.form, playerName, data.state, false)
+  remove_shown_form_data(playerName, self.id)
   return true
 end
 

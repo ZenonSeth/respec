@@ -646,9 +646,9 @@ end
 function elems.ScrollContainer:after_measure()
   if not self.layout.measurePerformed then
     if self.isVert then
-      self.layout.width = self.width ; self.layout.height = WRAP
+      self.layout.width = self.measured.w ; self.layout.height = WRAP
     else
-      self.layout.width = WRAP ; self.layout.height = self.height
+      self.layout.width = WRAP ; self.layout.height = self.measured.h
     end
     if self.visibility == con.visible then
       self.layout:measure(true)
